@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RisMath Speed Challenge 🧠⚡</title>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+        @keyframes pulse-correct {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        @keyframes slideUp {
+            from { transform: translateY(30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .shake { animation: shake 0.5s; }
+        .pulse-correct { animation: pulse-correct 0.3s; }
+        .float { animation: float 3s ease-in-out infinite; }
+        .pop-in { animation: popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        .slide-up { animation: slideUp 0.4s ease forwards; }
+
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        .game-title { font-family: 'Baloo 2', cursive; }
+
+        .btn-answer {
+            background: linear-gradient(135deg, #533483, #6a4c93);
+            border: 2px solid rgba(255,255,255,0.15);
+            color: white;
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.8rem;
+            font-weight: 800;
+            padding: 1.2rem;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            width: 100%;
+        }
+        .btn-answer:hover { transform: scale(1.05); background: linear-gradient(135deg, #6a4c93, #8b5cf6); }
+        .btn-answer:active { transform: scale(0.97); }
+        .btn-answer.correct { background: linear-gradient(135deg, #059669, #10b981) !important; border-color: #6ee7b7; }
+        .btn-answer.wrong { background: linear-gradient(135deg, #dc2626, #ef4444) !important; border-color: #fca5a5; }
+
+        .card {
+            background: rgba(255,255,255,0.07);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 1.5rem;
+        }
+
+        .question-box {
+            background: white;
+            border-radius: 1.2rem;
+            padding: 2rem;
+            text-align: center;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+
+        .stat-pill {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 0.75rem;
+            padding: 0.5rem 1rem;
+            text-align: center;
+        }
+
+        #share-canvas { display: none; }
+
+        .share-btn {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            font-family: 'Baloo 2', cursive;
+            font-size: 1.1rem;
+            font-weight: 700;
+            padding: 0.9rem 1.5rem;
+            border-radius: 1rem;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+        .share-btn:hover { transform: scale(1.02); filter: brightness(1.1); }
+
+        .copy-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: white;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.9rem;
+            font-weight: 600;
+            padding: 0.7rem 1rem;
+            border-radius: 0.75rem;
+            cursor: pointer;
+            width: 100%;
+            transition: all 0.2s;
+        }
+        .copy-btn:hover { background: rgba(255,255,255,0.2); }
+
+        .score-preview {
+            background: linear-gradient(135deg, #1a1a2e, #0f3460);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 1rem;
+            padding: 1.2rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #e2e8f0;
+            line-height: 1.7;
+            white-space: pre;
+            overflow-x: auto;
+        }
+
+        .timer-ring {
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
+        }
+        
+        .emoji-burst {
+            position: fixed;
+            pointer-events: none;
+            font-size: 2rem;
+            z-index: 1000;
+            animation: burstUp 1s ease forwards;
+        }
+        @keyframes burstUp {
+            0% { transform: translateY(0) scale(1); opacity: 1; }
+            100% { transform: translateY(-150px) scale(0.5); opacity: 0; }
+        }
+        @keyframes toastIn {
+            from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.9); }
+            to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+        }
+        @keyframes toastOut {
+            from { opacity: 1; transform: translateX(-50%) scale(1); }
+            to   { opacity: 0; transform: translateX(-50%) scale(0.85); }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-4">
+    <div id="root" class="w-full max-w-md"></div>
+    <canvas id="share-canvas" width="600" height="700"></canvas>
+
+    <script>
+        let gameState = {
+            screen: 'menu',
+            score: 0,
+            timeLeft: 60,
+            currentQuestion: null,
+            streak: 0,
+            bestStreak: 0,
+            totalQuestions: 0,
+            correctAnswers: 0,
+            difficulty: 1,
+            highScore: parseInt(localStorage.getItem('risMathHighScore') || '0'),
+            playerName: localStorage.getItem('risMathPlayerName') || '',
+            lastAnswerCorrect: null
+        };
+
+        function saveName() {
+            const input = document.getElementById('player-name-input');
+            if (input) {
+                gameState.playerName = input.value.trim() || 'Player';
+                localStorage.setItem('risMathPlayerName', gameState.playerName);
+            }
+        }
+
+        function generateQuestion(difficulty) {
+            const types = ['addition', 'subtraction', 'multiplication', 'division', 'trick'];
+            const type = types[Math.floor(Math.random() * types.length)];
+            let question, answer;
+
+            switch(type) {
+                case 'addition':
+                    const a1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+                    const b1 = Math.floor(Math.random() * (10 * difficulty)) + 1;
+                    question = `${a1} + ${b1}`; answer = a1 + b1; break;
+                case 'subtraction':
+                    const a2 = Math.floor(Math.random() * (10 * difficulty)) + 10;
+                    const b2 = Math.floor(Math.random() * a2) + 1;
+                    question = `${a2} − ${b2}`; answer = a2 - b2; break;
+                case 'multiplication':
+                    const a3 = Math.floor(Math.random() * (5 * difficulty)) + 2;
+                    const b3 = Math.floor(Math.random() * (5 * difficulty)) + 2;
+                    question = `${a3} × ${b3}`; answer = a3 * b3; break;
+                case 'division':
+                    const divisor = Math.floor(Math.random() * (5 * difficulty)) + 2;
+                    const quotient = Math.floor(Math.random() * (5 * difficulty)) + 1;
+                    question = `${divisor * quotient} ÷ ${divisor}`; answer = quotient; break;
+                case 'trick':
+                    const tricks = [
+                        { q: "0 × 999", a: 0 }, { q: "1 + 1 × 0", a: 1 },
+                        { q: "10 − 10 + 10", a: 10 }, { q: "5²", a: 25 },
+                        { q: "√16", a: 4 }, { q: "2³", a: 8 },
+                        { q: "50% of 80", a: 40 }, { q: "√81", a: 9 }
+                    ];
+                    const t = tricks[Math.floor(Math.random() * tricks.length)];
+                    question = t.q; answer = t.a; break;
+            }
+
+            let options = [answer];
+            let attempts = 0;
+            while(options.length < 4 && attempts < 100) {
+                attempts++;
+                const offset = Math.floor(Math.random() * 8) - 4;
+                const wrong = answer + (offset === 0 ? (Math.random() > 0.5 ? 1 : -1) : offset);
+                if (wrong !== answer && !options.includes(wrong) && wrong >= 0) options.push(wrong);
+            }
+            options.sort(() => Math.random() - 0.5);
+            return { question, answer, options };
+        }
+
+        let timerInterval;
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                gameState.timeLeft--;
+                if (gameState.timeLeft <= 0) endGame();
+                else render();
+            }, 1000);
+        }
+
+        function startGame() {
+            saveName();
+            gameState = { ...gameState, screen: 'playing', score: 0, timeLeft: 60,
+                streak: 0, bestStreak: 0, totalQuestions: 0, correctAnswers: 0,
+                difficulty: 1, lastAnswerCorrect: null };
+            gameState.currentQuestion = generateQuestion(gameState.difficulty);
+            startTimer();
+            render();
+        }
+
+        function answerQuestion(selectedAnswer, btnEl) {
+            gameState.totalQuestions++;
+            const correct = selectedAnswer === gameState.currentQuestion.answer;
+
+            // Visual feedback on button
+            if (btnEl) {
+                btnEl.classList.add(correct ? 'correct' : 'wrong');
+                setTimeout(() => { btnEl.classList.remove('correct','wrong'); }, 400);
+            }
+
+            if (correct) {
+                gameState.correctAnswers++;
+                gameState.streak++;
+                if (gameState.streak > gameState.bestStreak) gameState.bestStreak = gameState.streak;
+                const points = 10 + (gameState.streak * 2) + (gameState.difficulty * 3);
+                gameState.score += points;
+
+                // Level UP: every 3 consecutive correct answers
+                if (gameState.streak % 3 === 0) {
+                    const oldLevel = gameState.difficulty;
+                    gameState.difficulty = Math.min(gameState.difficulty + 1, 8);
+                    if (gameState.difficulty > oldLevel) {
+                        showLevelUp(gameState.difficulty);
+                    }
+                }
+
+                // Bonus time every 5-streak
+                if (gameState.streak % 5 === 0) gameState.timeLeft += 3;
+
+                spawnEmoji(['🔥','⚡','✨','🎯','💥'][Math.floor(Math.random()*5)]);
+            } else {
+                // Level DOWN: wrong answer drops difficulty by 1
+                const oldLevel = gameState.difficulty;
+                gameState.difficulty = Math.max(gameState.difficulty - 1, 1);
+                if (gameState.difficulty < oldLevel) showLevelDown();
+                gameState.streak = 0;
+            }
+
+            gameState.currentQuestion = generateQuestion(gameState.difficulty);
+            render();
+        }
+
+        function spawnEmoji(emoji) {
+            const el = document.createElement('div');
+            el.className = 'emoji-burst';
+            el.textContent = emoji;
+            el.style.left = (20 + Math.random() * 60) + '%';
+            el.style.top = '40%';
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1000);
+        }
+
+        function showLevelUp(level) {
+            showToast(`⬆️ Level ${level}!`, '#8b5cf6', '#fff');
+        }
+
+        function showLevelDown() {
+            showToast(`⬇️ Level down`, '#ef4444', '#fff');
+        }
+
+        function showToast(msg, bg, color) {
+            // Remove existing toast
+            const old = document.getElementById('level-toast');
+            if (old) old.remove();
+
+            const el = document.createElement('div');
+            el.id = 'level-toast';
+            el.textContent = msg;
+            el.style.cssText = `
+                position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+                background: ${bg}; color: ${color};
+                font-family: 'Baloo 2', cursive; font-size: 1.1rem; font-weight: 700;
+                padding: 0.5rem 1.4rem; border-radius: 2rem;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+                z-index: 9999; pointer-events: none;
+                animation: toastIn 0.3s ease, toastOut 0.4s ease 1.2s forwards;
+            `;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1700);
+        }
+
+        function endGame() {
+            clearInterval(timerInterval);
+            gameState.screen = 'gameover';
+            if (gameState.score > gameState.highScore) {
+                gameState.highScore = gameState.score;
+                localStorage.setItem('risMathHighScore', gameState.score.toString());
+            }
+            render();
+        }
+
+        function backToMenu() { gameState.screen = 'menu'; render(); }
+
+        // ── SCORECARD GENERATION ──────────────────────────────────────────────
+
+        function getRankEmoji(score) {
+            if (score >= 500) return { emoji: '🏆', rank: 'LEGEND', color: '#fbbf24' };
+            if (score >= 350) return { emoji: '💎', rank: 'MASTER', color: '#818cf8' };
+            if (score >= 250) return { emoji: '🥇', rank: 'EXPERT', color: '#f97316' };
+            if (score >= 150) return { emoji: '⚡', rank: 'PRO', color: '#34d399' };
+            if (score >= 75)  return { emoji: '🔥', rank: 'RISING', color: '#fb923c' };
+            return { emoji: '🧠', rank: 'ROOKIE', color: '#94a3b8' };
+        }
+
+        function getStreakBar(streak) {
+            const filled = Math.min(streak, 10);
+            return '█'.repeat(filled) + '░'.repeat(10 - filled);
+        }
+
+        function getAccuracyBar(accuracy) {
+            const filled = Math.round(accuracy / 10);
+            return '█'.repeat(filled) + '░'.repeat(10 - filled);
+        }
+
+        function generateTextScorecard() {
+            const accuracy = gameState.totalQuestions > 0
+                ? Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100) : 0;
+            const { emoji, rank } = getRankEmoji(gameState.score);
+            const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const name = gameState.playerName || 'Player';
+
+            return `🧮 RisMath Speed Challenge
+👤 ${name}  •  📅 ${today}
+${'─'.repeat(26)}
+${emoji} Rank: ${rank}
+⭐ Score:    ${gameState.score}
+🔥 Streak:  ${gameState.bestStreak}  ${getStreakBar(gameState.bestStreak)}
+🎯 Accuracy: ${accuracy}%  ${getAccuracyBar(accuracy)}
+✅ Correct:  ${gameState.correctAnswers}/${gameState.totalQuestions}
+${'─'.repeat(26)}
+🏅 Personal Best: ${gameState.highScore}
+
+Can you beat ${name}? Play free 👇
+rismath.game`;
+        }
+
+        function generateImageScorecard() {
+            const canvas = document.getElementById('share-canvas');
+            const ctx = canvas.getContext('2d');
+            const W = 600, H = 700;
+            canvas.width = W; canvas.height = H;
+
+            const accuracy = gameState.totalQuestions > 0
+                ? Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100) : 0;
+            const { emoji, rank, color } = getRankEmoji(gameState.score);
+            const today = new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+            const name = gameState.playerName || 'Player';
+
+            // Background gradient
+            const bg = ctx.createLinearGradient(0, 0, W, H);
+            bg.addColorStop(0, '#1a1a2e');
+            bg.addColorStop(0.5, '#16213e');
+            bg.addColorStop(1, '#0f3460');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, W, H);
+
+            // Decorative circles
+            ctx.globalAlpha = 0.06;
+            ctx.fillStyle = '#818cf8';
+            ctx.beginPath(); ctx.arc(520, 80, 180, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(80, 620, 140, 0, Math.PI*2); ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Top accent bar
+            const accent = ctx.createLinearGradient(0, 0, W, 0);
+            accent.addColorStop(0, '#8b5cf6');
+            accent.addColorStop(1, '#3b82f6');
+            ctx.fillStyle = accent;
+            ctx.fillRect(0, 0, W, 6);
+
+            // Title
+            ctx.font = 'bold 52px "Arial Black", sans-serif';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText('RisMath', W/2, 80);
+
+            ctx.font = '18px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.fillText(`${name}  •  ${today}`, W/2, 110);
+
+            // Rank badge
+            ctx.fillStyle = 'rgba(255,255,255,0.08)';
+            roundRect(ctx, W/2 - 130, 130, 260, 90, 20);
+            ctx.fill();
+            ctx.font = '56px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(emoji, W/2 - 40, 200);
+            ctx.font = 'bold 28px Arial';
+            ctx.fillStyle = color;
+            ctx.fillText(rank, W/2 + 50, 192);
+
+            // Main score
+            ctx.font = 'bold 100px "Arial Black", sans-serif';
+            const scoreGrad = ctx.createLinearGradient(0, 240, 0, 360);
+            scoreGrad.addColorStop(0, '#fbbf24');
+            scoreGrad.addColorStop(1, '#f97316');
+            ctx.fillStyle = scoreGrad;
+            ctx.textAlign = 'center';
+            ctx.fillText(gameState.score, W/2, 340);
+
+            ctx.font = '20px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.5)';
+            ctx.fillText('SCORE', W/2, 370);
+
+            // Stats row
+            const stats = [
+                { label: 'STREAK', value: gameState.bestStreak + '🔥', color: '#fb923c' },
+                { label: 'ACCURACY', value: accuracy + '%', color: '#34d399' },
+                { label: 'CORRECT', value: `${gameState.correctAnswers}/${gameState.totalQuestions}`, color: '#818cf8' }
+            ];
+
+            stats.forEach((s, i) => {
+                const x = 80 + i * 180;
+                ctx.fillStyle = 'rgba(255,255,255,0.07)';
+                roundRect(ctx, x - 70, 395, 140, 80, 14);
+                ctx.fill();
+                ctx.font = 'bold 26px Arial';
+                ctx.fillStyle = s.color;
+                ctx.textAlign = 'center';
+                ctx.fillText(s.value, x, 437);
+                ctx.font = '13px Arial';
+                ctx.fillStyle = 'rgba(255,255,255,0.45)';
+                ctx.fillText(s.label, x, 458);
+            });
+
+            // Streak bar visual
+            const barY = 510;
+            ctx.font = '14px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.textAlign = 'left';
+            ctx.fillText('Best Streak', 60, barY);
+            ctx.textAlign = 'right';
+            ctx.fillText(gameState.bestStreak + ' / 10', W - 60, barY);
+
+            const barW = W - 120;
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            roundRect(ctx, 60, barY + 8, barW, 12, 6);
+            ctx.fill();
+            const filled = Math.min(gameState.bestStreak / 10, 1);
+            if (filled > 0) {
+                const barFill = ctx.createLinearGradient(60, 0, 60 + barW, 0);
+                barFill.addColorStop(0, '#f97316');
+                barFill.addColorStop(1, '#fbbf24');
+                ctx.fillStyle = barFill;
+                roundRect(ctx, 60, barY + 8, barW * filled, 12, 6);
+                ctx.fill();
+            }
+
+            // Accuracy bar
+            const barY2 = 550;
+            ctx.font = '14px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.textAlign = 'left';
+            ctx.fillText('Accuracy', 60, barY2);
+            ctx.textAlign = 'right';
+            ctx.fillText(accuracy + '%', W - 60, barY2);
+
+            ctx.fillStyle = 'rgba(255,255,255,0.1)';
+            roundRect(ctx, 60, barY2 + 8, barW, 12, 6);
+            ctx.fill();
+            if (accuracy > 0) {
+                const accFill = ctx.createLinearGradient(60, 0, 60 + barW, 0);
+                accFill.addColorStop(0, '#10b981');
+                accFill.addColorStop(1, '#34d399');
+                ctx.fillStyle = accFill;
+                roundRect(ctx, 60, barY2 + 8, barW * (accuracy/100), 12, 6);
+                ctx.fill();
+            }
+
+            // High score
+            ctx.fillStyle = 'rgba(255,255,255,0.05)';
+            roundRect(ctx, 60, 590, barW, 50, 12);
+            ctx.fill();
+            ctx.font = '14px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.textAlign = 'center';
+            ctx.fillText('🏅  Personal Best: ' + gameState.highScore, W/2, 620);
+
+            // CTA
+            ctx.font = 'bold 16px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.textAlign = 'center';
+            ctx.fillText(`Can you beat ${name}? 👉 rismath.game`, W/2, 672);
+
+            // Bottom accent
+            ctx.fillStyle = accent;
+            ctx.fillRect(0, H - 4, W, 4);
+
+            return canvas.toDataURL('image/png');
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.lineTo(x + w - r, y);
+            ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+            ctx.lineTo(x + w, y + h - r);
+            ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+            ctx.lineTo(x + r, y + h);
+            ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+            ctx.lineTo(x, y + r);
+            ctx.quadraticCurveTo(x, y, x + r, y);
+            ctx.closePath();
+        }
+
+        function copyText() {
+            const text = generateTextScorecard();
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-btn');
+                if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => { btn.textContent = '📋 Copy as Text'; }, 2000); }
+            });
+        }
+
+        function downloadImage() {
+            const dataURL = generateImageScorecard();
+            const a = document.createElement('a');
+            a.href = dataURL;
+            a.download = 'rismath-score.png';
+            a.click();
+        }
+
+        function shareWhatsApp() {
+            const text = generateTextScorecard();
+            const encoded = encodeURIComponent(text);
+            window.open('https://api.whatsapp.com/send?text=' + encoded, '_blank');
+        }
+
+        // ── RENDER ────────────────────────────────────────────────────────────
+
+        function renderMenu() {
+            return `
+            <div class="card p-8 text-center slide-up">
+                <div class="float mb-4">
+                    <h1 class="game-title text-6xl font-bold text-white mb-1">RisMath</h1>
+                    <p class="text-purple-300 text-xl font-semibold">Speed Challenge ⚡</p>
+                </div>
+
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4 mb-4 text-left">
+                    <label class="text-white/50 text-xs font-bold tracking-widest block mb-2">YOUR NAME</label>
+                    <input id="player-name-input"
+                        type="text"
+                        maxlength="20"
+                        placeholder="Enter your name..."
+                        value="${gameState.playerName}"
+                        onkeydown="if(event.key==='Enter') startGame()"
+                        style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:0.6rem;padding:0.65rem 0.9rem;color:white;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;"
+                        onfocus="this.style.borderColor='rgba(139,92,246,0.7)'"
+                        onblur="this.style.borderColor='rgba(255,255,255,0.2)'"
+                    />
+                    <p class="text-white/30 text-xs mt-1">Shows on your scorecard when you share</p>
+                </div>
+
+                <div class="bg-yellow-400/10 border border-yellow-400/30 rounded-2xl p-5 mb-6">
+                    <div class="text-yellow-400/70 text-xs font-bold tracking-widest mb-1">PERSONAL BEST</div>
+                    <div class="game-title text-5xl font-bold text-yellow-400">${gameState.highScore}</div>
+                </div>
+                <button onclick="startGame()"
+                    class="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white game-title text-2xl font-bold py-5 rounded-2xl hover:scale-105 transform transition mb-4 shadow-lg">
+                    🚀 START GAME
+                </button>
+                <div class="bg-white/5 rounded-xl p-4 text-left text-white/70 text-sm space-y-1">
+                    <div class="font-bold text-white/90 mb-2">How to play</div>
+                    <div>✅ Answer as many as you can in 60s</div>
+                    <div>🔥 Build streaks for bonus points</div>
+                    <div>⚡ Every 5-streak gives +3 seconds</div>
+                    <div>📈 Difficulty rises as you improve</div>
+                </div>
+            </div>`;
+        }
+
+        function renderGame() {
+            const q = gameState.currentQuestion;
+            const accuracy = gameState.totalQuestions > 0
+                ? Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100) : 0;
+            const timerPct = (gameState.timeLeft / 60) * 100;
+            const timerColor = gameState.timeLeft > 20 ? '#34d399' : gameState.timeLeft > 10 ? '#fbbf24' : '#ef4444';
+
+            return `
+            <div class="card p-5">
+                <div class="flex justify-between items-center mb-4">
+                    <div class="stat-pill">
+                        <div class="text-white/50 text-xs">TIME</div>
+                        <div class="game-title text-2xl font-bold" style="color:${timerColor}">${gameState.timeLeft}s</div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="text-white/50 text-xs">SCORE</div>
+                        <div class="game-title text-2xl font-bold text-white">${gameState.score}</div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="text-white/50 text-xs">STREAK</div>
+                        <div class="game-title text-2xl font-bold text-orange-400">${gameState.streak}🔥</div>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <div class="bg-white/10 rounded-full h-2 overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-1000"
+                             style="width:${timerPct}%; background:${timerColor}"></div>
+                    </div>
+                </div>
+
+                <div class="question-box mb-4">
+                    <div class="flex items-center justify-center gap-2 mb-2">
+                        <span class="text-gray-400 text-xs font-bold tracking-widest">LEVEL ${gameState.difficulty}</span>
+                        <div style="display:flex;gap:3px;">
+                            ${[1,2,3].map(i => {
+                                const streakInLevel = gameState.streak % 3;
+                                const filled = i <= streakInLevel;
+                                return `<div style="width:10px;height:6px;border-radius:2px;background:${filled ? '#8b5cf6' : '#e5e7eb'};transition:background 0.2s"></div>`;
+                            }).join('')}
+                        </div>
+                        <span class="text-gray-400 text-xs">${gameState.streak % 3}/3</span>
+                    </div>
+                    <div class="game-title text-6xl font-bold text-purple-700">${q.question}</div>
+                    <div class="text-gray-400 text-sm mt-1">= ?</div>
+                </div>
+
+                <div id="feedback" class="text-center h-8 mb-3 text-2xl font-bold"></div>
+
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    ${q.options.map(opt => `
+                        <button class="btn-answer" onclick="answerQuestion(${opt}, this)">${opt}</button>
+                    `).join('')}
+                </div>
+
+                <div class="flex justify-between text-white/40 text-xs px-1">
+                    <span>Accuracy: ${accuracy}%</span>
+                    <span>${gameState.correctAnswers}/${gameState.totalQuestions} correct</span>
+                    <span>Best: ${gameState.bestStreak}🔥</span>
+                </div>
+            </div>`;
+        }
+
+        function renderGameOver() {
+            const accuracy = gameState.totalQuestions > 0
+                ? Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100) : 0;
+            const isNew = gameState.score > 0 && gameState.score === gameState.highScore;
+            const { emoji, rank, color } = getRankEmoji(gameState.score);
+            const text = generateTextScorecard();
+            const name = gameState.playerName || 'Player';
+
+            return `
+            <div class="card p-6 text-center slide-up">
+                <div class="text-white/40 text-sm mb-1">👤 ${name}</div>
+                ${isNew ? `<div class="text-5xl mb-2 pop-in">🏆</div>
+                    <h1 class="game-title text-3xl font-bold text-yellow-400 mb-1">New High Score!</h1>` :
+                    `<div class="text-4xl mb-2">⏱️</div>
+                    <h1 class="game-title text-3xl font-bold text-white mb-1">Time's Up!</h1>`}
+
+                <div class="bg-white/5 border border-white/10 rounded-xl p-3 mb-4 inline-flex items-center gap-3">
+                    <span class="text-3xl">${emoji}</span>
+                    <span class="game-title text-xl font-bold" style="color:${color}">${rank}</span>
+                </div>
+
+                <div class="bg-gradient-to-br from-yellow-400/20 to-orange-500/20 border border-yellow-400/30 rounded-2xl p-5 mb-4">
+                    <div class="text-yellow-400/60 text-xs tracking-widest mb-1">FINAL SCORE</div>
+                    <div class="game-title text-6xl font-bold text-yellow-400">${gameState.score}</div>
+                </div>
+
+                <div class="grid grid-cols-3 gap-2 mb-4">
+                    <div class="stat-pill">
+                        <div class="text-orange-400 text-xl font-bold">${gameState.bestStreak}🔥</div>
+                        <div class="text-white/40 text-xs mt-1">Best Streak</div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="text-green-400 text-xl font-bold">${accuracy}%</div>
+                        <div class="text-white/40 text-xs mt-1">Accuracy</div>
+                    </div>
+                    <div class="stat-pill">
+                        <div class="text-purple-400 text-xl font-bold">${gameState.correctAnswers}/${gameState.totalQuestions}</div>
+                        <div class="text-white/40 text-xs mt-1">Correct</div>
+                    </div>
+                </div>
+
+                <!-- Scorecard Section -->
+                <div class="bg-white/5 border border-white/10 rounded-xl p-4 mb-4 text-left">
+                    <div class="text-white/60 text-xs font-bold tracking-widest mb-2">📤 SHARE YOUR SCORE</div>
+
+                    <div class="score-preview mb-3">${text}</div>
+
+                    <div class="space-y-2">
+                        <button class="share-btn" onclick="shareWhatsApp()">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            Share on WhatsApp
+                        </button>
+                        <div class="flex gap-2">
+                            <button id="copy-btn" class="copy-btn" onclick="copyText()">📋 Copy as Text</button>
+                            <button class="copy-btn" onclick="downloadImage()" style="flex-shrink:0;width:auto;padding:0.7rem 1rem">🖼️ Save Image</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-400/10 border border-yellow-400/20 rounded-xl p-3 mb-4">
+                    <div class="text-yellow-400/60 text-xs mb-1">PERSONAL BEST</div>
+                    <div class="game-title text-3xl font-bold text-yellow-400">${gameState.highScore}</div>
+                </div>
+
+                <div class="flex gap-3">
+                    <button onclick="startGame()"
+                        class="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white game-title text-lg font-bold py-4 rounded-xl hover:scale-105 transform transition">
+                        🔄 Play Again
+                    </button>
+                    <button onclick="backToMenu()"
+                        class="bg-white/10 text-white game-title text-lg font-bold py-4 px-5 rounded-xl hover:bg-white/20 transition">
+                        🏠
+                    </button>
+                </div>
+            </div>`;
+        }
+
+        function render() {
+            const root = document.getElementById('root');
+            switch(gameState.screen) {
+                case 'menu': root.innerHTML = renderMenu(); break;
+                case 'playing': root.innerHTML = renderGame(); break;
+                case 'gameover': root.innerHTML = renderGameOver(); break;
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
