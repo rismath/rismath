@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RisMath Speed Challenge 🧠⚡</title>
+    <meta name="description" content="The 60-second math game for when you have a minute to spare.">
+    <meta name="theme-color" content="#F5A623">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="RisMath">
+    <link rel="manifest" href="manifest.json">
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -36,7 +43,10 @@
         .slide-up { animation: slideUp 0.4s ease forwards; }
 
         body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: #F5A623;
+            background-image:
+                radial-gradient(circle at 15% 20%, #F9C74F 0%, transparent 35%),
+                radial-gradient(circle at 85% 75%, #F3722C 0%, transparent 35%);
             font-family: 'Nunito', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
@@ -44,9 +54,9 @@
         .game-title { font-family: 'Baloo 2', cursive; }
 
         .btn-answer {
-            background: linear-gradient(135deg, #533483, #6a4c93);
-            border: 2px solid rgba(255,255,255,0.15);
-            color: white;
+            background: #C1440E;
+            border: 3px solid #A33A0C;
+            color: #FFF8F0;
             font-family: 'Baloo 2', cursive;
             font-size: 1.8rem;
             font-weight: 800;
@@ -56,29 +66,30 @@
             transition: all 0.15s;
             width: 100%;
         }
-        .btn-answer:hover { transform: scale(1.05); background: linear-gradient(135deg, #6a4c93, #8b5cf6); }
+        .btn-answer:hover { transform: scale(1.05); background: #D94F1A; }
         .btn-answer:active { transform: scale(0.97); }
-        .btn-answer.correct { background: linear-gradient(135deg, #059669, #10b981) !important; border-color: #6ee7b7; }
-        .btn-answer.wrong { background: linear-gradient(135deg, #dc2626, #ef4444) !important; border-color: #fca5a5; }
+        .btn-answer.correct { background: #2D6A4F !important; border-color: #1B4332 !important; }
+        .btn-answer.wrong { background: #9B2226 !important; border-color: #6A040F !important; }
 
         .card {
-            background: rgba(255,255,255,0.07);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255, 248, 235, 0.55);
+            backdrop-filter: blur(16px);
+            border: 2px solid rgba(255, 255, 255, 0.6);
             border-radius: 1.5rem;
         }
 
         .question-box {
-            background: white;
+            background: #FFF8F0;
             border-radius: 1.2rem;
             padding: 2rem;
             text-align: center;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            border: 2px solid #F3722C;
+            box-shadow: 0 4px 0 #C1440E;
         }
 
         .stat-pill {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(193, 68, 14, 0.15);
+            border: 2px solid rgba(193, 68, 14, 0.3);
             border-radius: 0.75rem;
             padding: 0.5rem 1rem;
             text-align: center;
@@ -87,14 +98,14 @@
         #share-canvas { display: none; }
 
         .share-btn {
-            background: linear-gradient(135deg, #25D366, #128C7E);
+            background: #25D366;
             color: white;
             font-family: 'Baloo 2', cursive;
             font-size: 1.1rem;
             font-weight: 700;
             padding: 0.9rem 1.5rem;
             border-radius: 1rem;
-            border: none;
+            border: 3px solid #1DA851;
             cursor: pointer;
             width: 100%;
             display: flex;
@@ -106,28 +117,28 @@
         .share-btn:hover { transform: scale(1.02); filter: brightness(1.1); }
 
         .copy-btn {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.25);
-            color: white;
+            background: rgba(193, 68, 14, 0.12);
+            border: 2px solid rgba(193, 68, 14, 0.3);
+            color: #7A2A08;
             font-family: 'Nunito', sans-serif;
             font-size: 0.9rem;
-            font-weight: 600;
+            font-weight: 700;
             padding: 0.7rem 1rem;
             border-radius: 0.75rem;
             cursor: pointer;
             width: 100%;
             transition: all 0.2s;
         }
-        .copy-btn:hover { background: rgba(255,255,255,0.2); }
+        .copy-btn:hover { background: rgba(193, 68, 14, 0.22); }
 
         .score-preview {
-            background: linear-gradient(135deg, #1a1a2e, #0f3460);
-            border: 1px solid rgba(255,255,255,0.15);
+            background: #3D1A00;
+            border: 2px solid #C1440E;
             border-radius: 1rem;
             padding: 1.2rem;
             font-family: monospace;
             font-size: 0.85rem;
-            color: #e2e8f0;
+            color: #FFD699;
             line-height: 1.7;
             white-space: pre;
             overflow-x: auto;
@@ -339,6 +350,7 @@
                 gameState.highScore = gameState.score;
                 localStorage.setItem('risMathHighScore', gameState.score.toString());
             }
+            window.dispatchEvent(new Event('gameCompleted'));
             render();
         }
 
@@ -401,23 +413,23 @@ https://rismath.github.io/rismath`;
 
             // Background gradient
             const bg = ctx.createLinearGradient(0, 0, W, H);
-            bg.addColorStop(0, '#1a1a2e');
-            bg.addColorStop(0.5, '#16213e');
-            bg.addColorStop(1, '#0f3460');
+            bg.addColorStop(0, '#F5A623');
+            bg.addColorStop(0.5, '#F3722C');
+            bg.addColorStop(1, '#C1440E');
             ctx.fillStyle = bg;
             ctx.fillRect(0, 0, W, H);
 
             // Decorative circles
-            ctx.globalAlpha = 0.06;
-            ctx.fillStyle = '#818cf8';
+            ctx.globalAlpha = 0.12;
+            ctx.fillStyle = '#FFD699';
             ctx.beginPath(); ctx.arc(520, 80, 180, 0, Math.PI*2); ctx.fill();
             ctx.beginPath(); ctx.arc(80, 620, 140, 0, Math.PI*2); ctx.fill();
             ctx.globalAlpha = 1;
 
             // Top accent bar
             const accent = ctx.createLinearGradient(0, 0, W, 0);
-            accent.addColorStop(0, '#8b5cf6');
-            accent.addColorStop(1, '#3b82f6');
+            accent.addColorStop(0, '#3D1A00');
+            accent.addColorStop(1, '#7A2A08');
             ctx.fillStyle = accent;
             ctx.fillRect(0, 0, W, 6);
 
@@ -584,39 +596,40 @@ https://rismath.github.io/rismath`;
             return `
             <div class="card p-8 text-center slide-up">
                 <div class="float mb-4">
-                    <h1 class="game-title text-6xl font-bold text-white mb-1">RisMath</h1>
-                    <p class="text-purple-300 text-xl font-semibold">Speed Challenge ⚡</p>
+                    <h1 class="game-title text-6xl font-bold mb-1" style="color:#3D1A00">RisMath</h1>
+                    <p class="text-xl font-semibold" style="color:#C1440E">Speed Challenge ⚡</p>
                 </div>
 
-                <div class="bg-white/5 border border-white/10 rounded-xl p-4 mb-4 text-left">
-                    <label class="text-white/50 text-xs font-bold tracking-widest block mb-2">YOUR NAME</label>
+                <div class="rounded-xl p-4 mb-4 text-left" style="background:rgba(255,255,255,0.5);border:2px solid rgba(193,68,14,0.2)">
+                    <label style="color:#7A2A08" class="text-xs font-bold tracking-widest block mb-2">YOUR NAME</label>
                     <input id="player-name-input"
                         type="text"
                         maxlength="20"
                         placeholder="Enter your name..."
                         value="${gameState.playerName}"
                         onkeydown="if(event.key==='Enter') startGame()"
-                        style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);border-radius:0.6rem;padding:0.65rem 0.9rem;color:white;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;"
-                        onfocus="this.style.borderColor='rgba(139,92,246,0.7)'"
-                        onblur="this.style.borderColor='rgba(255,255,255,0.2)'"
+                        style="width:100%;background:rgba(255,255,255,0.7);border:2px solid rgba(193,68,14,0.3);border-radius:0.6rem;padding:0.65rem 0.9rem;color:#3D1A00;font-family:'Nunito',sans-serif;font-size:1rem;outline:none;"
+                        onfocus="this.style.borderColor='#C1440E'"
+                        onblur="this.style.borderColor='rgba(193,68,14,0.3)'"
                     />
-                    <p class="text-white/30 text-xs mt-1">Shows on your scorecard when you share</p>
+                    <p style="color:rgba(122,42,8,0.6)" class="text-xs mt-1">Shows on your scorecard when you share</p>
                 </div>
 
-                <div class="bg-yellow-400/10 border border-yellow-400/30 rounded-2xl p-5 mb-6">
-                    <div class="text-yellow-400/70 text-xs font-bold tracking-widest mb-1">PERSONAL BEST</div>
-                    <div class="game-title text-5xl font-bold text-yellow-400">${gameState.highScore}</div>
+                <div class="rounded-2xl p-5 mb-6" style="background:rgba(61,26,0,0.1);border:2px solid rgba(61,26,0,0.2)">
+                    <div style="color:rgba(61,26,0,0.5)" class="text-xs font-bold tracking-widest mb-1">PERSONAL BEST</div>
+                    <div class="game-title text-5xl font-bold" style="color:#3D1A00">${gameState.highScore}</div>
                 </div>
                 <button onclick="startGame()"
-                    class="w-full bg-gradient-to-r from-purple-500 to-blue-500 text-white game-title text-2xl font-bold py-5 rounded-2xl hover:scale-105 transform transition mb-4 shadow-lg">
-                    🚀 START GAME
+                    class="w-full text-white game-title text-2xl font-bold py-5 rounded-2xl hover:scale-105 transform transition mb-4 shadow-lg"
+                    style="background:#C1440E;border:3px solid #A33A0C">
+                    START GAME
                 </button>
-                <div class="bg-white/5 rounded-xl p-4 text-left text-white/70 text-sm space-y-1">
-                    <div class="font-bold text-white/90 mb-2">How to play</div>
-                    <div>✅ Answer as many as you can in 60s</div>
-                    <div>🔥 Build streaks for bonus points</div>
-                    <div>⚡ Every 5-streak gives +3 seconds</div>
-                    <div>📈 Difficulty rises as you improve</div>
+                <div class="rounded-xl p-4 text-left text-sm space-y-1" style="background:rgba(255,255,255,0.35);border:2px solid rgba(193,68,14,0.15)">
+                    <div class="font-bold mb-2" style="color:#3D1A00">How to play</div>
+                    <div style="color:#7A2A08">3 correct in a row → Level up</div>
+                    <div style="color:#7A2A08">1 wrong → Level down</div>
+                    <div style="color:#7A2A08">Every 5-streak gives +3 seconds</div>
+                    <div style="color:#7A2A08">Reach Level 8 to become a Legend</div>
                 </div>
             </div>`;
         }
@@ -626,27 +639,27 @@ https://rismath.github.io/rismath`;
             const accuracy = gameState.totalQuestions > 0
                 ? Math.round((gameState.correctAnswers / gameState.totalQuestions) * 100) : 0;
             const timerPct = (gameState.timeLeft / 60) * 100;
-            const timerColor = gameState.timeLeft > 20 ? '#34d399' : gameState.timeLeft > 10 ? '#fbbf24' : '#ef4444';
+            const timerColor = gameState.timeLeft > 20 ? '#2D6A4F' : gameState.timeLeft > 10 ? '#C1440E' : '#9B2226';
 
             return `
             <div class="card p-5">
                 <div class="flex justify-between items-center mb-4">
                     <div class="stat-pill">
-                        <div class="text-white/50 text-xs">TIME</div>
+                        <div style="color:rgba(61,26,0,0.5)" class="text-xs font-bold">TIME</div>
                         <div class="game-title text-2xl font-bold" style="color:${timerColor}">${gameState.timeLeft}s</div>
                     </div>
                     <div class="stat-pill">
-                        <div class="text-white/50 text-xs">SCORE</div>
-                        <div class="game-title text-2xl font-bold text-white">${gameState.score}</div>
+                        <div style="color:rgba(61,26,0,0.5)" class="text-xs font-bold">SCORE</div>
+                        <div class="game-title text-2xl font-bold" style="color:#3D1A00">${gameState.score}</div>
                     </div>
                     <div class="stat-pill">
-                        <div class="text-white/50 text-xs">STREAK</div>
-                        <div class="game-title text-2xl font-bold text-orange-400">${gameState.streak}🔥</div>
+                        <div style="color:rgba(61,26,0,0.5)" class="text-xs font-bold">STREAK</div>
+                        <div class="game-title text-2xl font-bold" style="color:#C1440E">${gameState.streak} 🔥</div>
                     </div>
                 </div>
 
                 <div class="mb-4">
-                    <div class="bg-white/10 rounded-full h-2 overflow-hidden">
+                    <div class="rounded-full h-2 overflow-hidden" style="background:rgba(61,26,0,0.15)">
                         <div class="h-full rounded-full transition-all duration-1000"
                              style="width:${timerPct}%; background:${timerColor}"></div>
                     </div>
@@ -654,18 +667,18 @@ https://rismath.github.io/rismath`;
 
                 <div class="question-box mb-4">
                     <div class="flex items-center justify-center gap-2 mb-2">
-                        <span class="text-gray-400 text-xs font-bold tracking-widest">LEVEL ${gameState.difficulty}</span>
+                        <span style="color:#7A2A08" class="text-xs font-bold tracking-widest">LEVEL ${gameState.difficulty}</span>
                         <div style="display:flex;gap:3px;">
                             ${[1,2,3].map(i => {
                                 const streakInLevel = gameState.streak % 3;
                                 const filled = i <= streakInLevel;
-                                return `<div style="width:10px;height:6px;border-radius:2px;background:${filled ? '#8b5cf6' : '#e5e7eb'};transition:background 0.2s"></div>`;
+                                return `<div style="width:10px;height:6px;border-radius:2px;background:${filled ? '#C1440E' : '#e5cdb8'};transition:background 0.2s"></div>`;
                             }).join('')}
                         </div>
-                        <span class="text-gray-400 text-xs">${gameState.streak % 3}/3</span>
+                        <span style="color:#7A2A08" class="text-xs">${gameState.streak % 3}/3</span>
                     </div>
-                    <div class="game-title text-6xl font-bold text-purple-700">${q.question}</div>
-                    <div class="text-gray-400 text-sm mt-1">= ?</div>
+                    <div class="game-title text-6xl font-bold" style="color:#3D1A00">${q.question}</div>
+                    <div class="text-sm mt-1" style="color:#7A2A08">= ?</div>
                 </div>
 
                 <div id="feedback" class="text-center h-8 mb-3 text-2xl font-bold"></div>
@@ -676,10 +689,10 @@ https://rismath.github.io/rismath`;
                     `).join('')}
                 </div>
 
-                <div class="flex justify-between text-white/40 text-xs px-1">
+                <div class="flex justify-between text-xs px-1" style="color:rgba(61,26,0,0.45)">
                     <span>Accuracy: ${accuracy}%</span>
                     <span>${gameState.correctAnswers}/${gameState.totalQuestions} correct</span>
-                    <span>Best: ${gameState.bestStreak}🔥</span>
+                    <span>Best: ${gameState.bestStreak}</span>
                 </div>
             </div>`;
         }
@@ -694,43 +707,40 @@ https://rismath.github.io/rismath`;
 
             return `
             <div class="card p-6 text-center slide-up">
-                <div class="text-white/40 text-sm mb-1">👤 ${name}</div>
+                <div class="text-sm mb-1" style="color:rgba(61,26,0,0.5)">👤 ${name}</div>
                 ${isNew ? `<div class="text-5xl mb-2 pop-in">🏆</div>
-                    <h1 class="game-title text-3xl font-bold text-yellow-400 mb-1">New High Score!</h1>` :
+                    <h1 class="game-title text-3xl font-bold mb-1" style="color:#3D1A00">New High Score!</h1>` :
                     `<div class="text-4xl mb-2">⏱️</div>
-                    <h1 class="game-title text-3xl font-bold text-white mb-1">Time's Up!</h1>`}
+                    <h1 class="game-title text-3xl font-bold mb-1" style="color:#3D1A00">Time's Up!</h1>`}
 
-                <div class="bg-white/5 border border-white/10 rounded-xl p-3 mb-4 inline-flex items-center gap-3">
+                <div class="rounded-xl p-3 mb-4 inline-flex items-center gap-3" style="background:rgba(255,255,255,0.5);border:2px solid rgba(193,68,14,0.2)">
                     <span class="text-3xl">${emoji}</span>
                     <span class="game-title text-xl font-bold" style="color:${color}">${rank}</span>
                 </div>
 
-                <div class="bg-gradient-to-br from-yellow-400/20 to-orange-500/20 border border-yellow-400/30 rounded-2xl p-5 mb-4">
-                    <div class="text-yellow-400/60 text-xs tracking-widest mb-1">FINAL SCORE</div>
-                    <div class="game-title text-6xl font-bold text-yellow-400">${gameState.score}</div>
+                <div class="rounded-2xl p-5 mb-4" style="background:rgba(61,26,0,0.1);border:2px solid rgba(61,26,0,0.15)">
+                    <div style="color:rgba(61,26,0,0.45)" class="text-xs tracking-widest mb-1">FINAL SCORE</div>
+                    <div class="game-title text-6xl font-bold" style="color:#3D1A00">${gameState.score}</div>
                 </div>
 
                 <div class="grid grid-cols-3 gap-2 mb-4">
                     <div class="stat-pill">
-                        <div class="text-orange-400 text-xl font-bold">${gameState.bestStreak}🔥</div>
-                        <div class="text-white/40 text-xs mt-1">Best Streak</div>
+                        <div class="text-xl font-bold" style="color:#C1440E">${gameState.bestStreak} 🔥</div>
+                        <div class="text-xs mt-1" style="color:rgba(61,26,0,0.5)">Best Streak</div>
                     </div>
                     <div class="stat-pill">
-                        <div class="text-green-400 text-xl font-bold">${accuracy}%</div>
-                        <div class="text-white/40 text-xs mt-1">Accuracy</div>
+                        <div class="text-xl font-bold" style="color:#2D6A4F">${accuracy}%</div>
+                        <div class="text-xs mt-1" style="color:rgba(61,26,0,0.5)">Accuracy</div>
                     </div>
                     <div class="stat-pill">
-                        <div class="text-purple-400 text-xl font-bold">${gameState.correctAnswers}/${gameState.totalQuestions}</div>
-                        <div class="text-white/40 text-xs mt-1">Correct</div>
+                        <div class="text-xl font-bold" style="color:#3D1A00">${gameState.correctAnswers}/${gameState.totalQuestions}</div>
+                        <div class="text-xs mt-1" style="color:rgba(61,26,0,0.5)">Correct</div>
                     </div>
                 </div>
 
-                <!-- Scorecard Section -->
-                <div class="bg-white/5 border border-white/10 rounded-xl p-4 mb-4 text-left">
-                    <div class="text-white/60 text-xs font-bold tracking-widest mb-2">📤 SHARE YOUR SCORE</div>
-
+                <div class="rounded-xl p-4 mb-4 text-left" style="background:rgba(255,255,255,0.4);border:2px solid rgba(193,68,14,0.2)">
+                    <div style="color:#7A2A08" class="text-xs font-bold tracking-widest mb-2">SHARE YOUR SCORE</div>
                     <div class="score-preview mb-3">${text}</div>
-
                     <div class="space-y-2">
                         <button class="share-btn" onclick="shareWhatsApp()">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -743,18 +753,20 @@ https://rismath.github.io/rismath`;
                     </div>
                 </div>
 
-                <div class="bg-yellow-400/10 border border-yellow-400/20 rounded-xl p-3 mb-4">
-                    <div class="text-yellow-400/60 text-xs mb-1">PERSONAL BEST</div>
-                    <div class="game-title text-3xl font-bold text-yellow-400">${gameState.highScore}</div>
+                <div class="rounded-xl p-3 mb-4" style="background:rgba(61,26,0,0.08);border:2px solid rgba(61,26,0,0.12)">
+                    <div style="color:rgba(61,26,0,0.45)" class="text-xs mb-1">PERSONAL BEST</div>
+                    <div class="game-title text-3xl font-bold" style="color:#3D1A00">${gameState.highScore}</div>
                 </div>
 
                 <div class="flex gap-3">
                     <button onclick="startGame()"
-                        class="flex-1 bg-gradient-to-r from-green-500 to-emerald-500 text-white game-title text-lg font-bold py-4 rounded-xl hover:scale-105 transform transition">
-                        🔄 Play Again
+                        class="flex-1 text-white game-title text-lg font-bold py-4 rounded-xl hover:scale-105 transform transition"
+                        style="background:#2D6A4F;border:3px solid #1B4332">
+                        Play Again
                     </button>
                     <button onclick="backToMenu()"
-                        class="bg-white/10 text-white game-title text-lg font-bold py-4 px-5 rounded-xl hover:bg-white/20 transition">
+                        class="game-title text-lg font-bold py-4 px-5 rounded-xl transition"
+                        style="background:rgba(61,26,0,0.1);color:#3D1A00;border:2px solid rgba(61,26,0,0.2)">
                         🏠
                     </button>
                 </div>
@@ -771,6 +783,113 @@ https://rismath.github.io/rismath`;
         }
 
         render();
+
+        // ── HOME SCREEN INSTALL PROMPT ────────────────────────────────────────
+        let deferredPrompt = null;
+        let installShown = false;
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            // Show after a short delay so it doesn't interrupt first impression
+            setTimeout(showInstallBanner, 3000);
+        });
+
+        function showInstallBanner() {
+            if (installShown || localStorage.getItem('risMathInstallDismissed')) return;
+            installShown = true;
+
+            const banner = document.createElement('div');
+            banner.id = 'install-banner';
+            banner.style.cssText = `
+                position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+                background: #3D1A00; color: #FFF8F0;
+                font-family: 'Nunito', sans-serif; font-size: 0.9rem; font-weight: 600;
+                padding: 0.8rem 1.2rem; border-radius: 1rem;
+                border: 2px solid #C1440E;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+                z-index: 9999; width: 90%; max-width: 380px;
+                display: flex; align-items: center; justify-content: space-between; gap: 10px;
+                animation: toastIn 0.3s ease;
+            `;
+            banner.innerHTML = `
+                <div style="flex:1">
+                    <div style="font-size:0.75rem;color:rgba(255,248,240,0.6);margin-bottom:2px">PLAY ANYTIME</div>
+                    <div>Add RisMath to your home screen</div>
+                </div>
+                <button onclick="installApp()" style="
+                    background:#C1440E; color:white; border:none;
+                    padding:0.5rem 1rem; border-radius:0.5rem;
+                    font-family:'Nunito',sans-serif; font-weight:700;
+                    font-size:0.85rem; cursor:pointer; white-space:nowrap;
+                ">Add</button>
+                <button onclick="dismissInstall()" style="
+                    background:none; border:none; color:rgba(255,248,240,0.5);
+                    font-size:1.2rem; cursor:pointer; padding:0 4px; line-height:1;
+                ">×</button>
+            `;
+            document.body.appendChild(banner);
+        }
+
+        async function installApp() {
+            const banner = document.getElementById('install-banner');
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                if (outcome === 'accepted') {
+                    if (banner) banner.remove();
+                    localStorage.setItem('risMathInstallDismissed', '1');
+                }
+            } else {
+                // Fallback for iOS — show manual instructions
+                showIOSInstructions();
+                if (banner) banner.remove();
+            }
+        }
+
+        function dismissInstall() {
+            const banner = document.getElementById('install-banner');
+            if (banner) banner.remove();
+            localStorage.setItem('risMathInstallDismissed', '1');
+        }
+
+        function showIOSInstructions() {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+                z-index: 10000; display: flex; align-items: flex-end;
+                justify-content: center; padding: 20px;
+                font-family: 'Nunito', sans-serif;
+            `;
+            modal.innerHTML = `
+                <div style="background:#FFF8F0; border-radius:1.2rem; padding:1.5rem; width:100%; max-width:380px; text-align:center;">
+                    <div style="font-size:1rem; font-weight:700; color:#3D1A00; margin-bottom:0.5rem">Add to Home Screen</div>
+                    <div style="font-size:0.85rem; color:#7A2A08; line-height:1.6; margin-bottom:1rem">
+                        Tap the <strong>Share button</strong> at the bottom of your browser,
+                        then tap <strong>"Add to Home Screen"</strong>
+                    </div>
+                    <div style="font-size:2rem; margin-bottom:1rem">📤 → 📱</div>
+                    <button onclick="this.parentElement.parentElement.remove()" style="
+                        background:#C1440E; color:white; border:none;
+                        padding:0.6rem 2rem; border-radius:0.6rem;
+                        font-family:'Nunito',sans-serif; font-weight:700; cursor:pointer;
+                    ">Got it</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+
+        // Show iOS prompt after first game — more likely to install after experiencing it
+        window.addEventListener('gameCompleted', () => {
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const notInstalled = !window.matchMedia('(display-mode: standalone)').matches;
+            const notDismissed = !localStorage.getItem('risMathInstallDismissed');
+            if (isIOS && notInstalled && notDismissed && !installShown) {
+                setTimeout(showInstallBanner, 1000);
+                installShown = true;
+            }
+        });
     </script>
 </body>
 </html>
