@@ -11,6 +11,18 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="RisMath">
     <link rel="manifest" href="manifest.json">
+    <!-- Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5K57FR3XVW"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-5K57FR3XVW');
+
+        function trackEvent(name, params) {
+            gtag('event', name, params || {});
+        }
+    </script>
     <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;600;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -254,6 +266,7 @@
 
         function startGame() {
             saveName();
+            trackEvent('game_start', { player_name: gameState.playerName || 'anonymous' });
             gameState = { ...gameState, screen: 'playing', score: 0, timeLeft: 60,
                 streak: 0, bestStreak: 0, totalQuestions: 0, correctAnswers: 0,
                 difficulty: 1, lastAnswerCorrect: null };
@@ -346,10 +359,19 @@
         function endGame() {
             clearInterval(timerInterval);
             gameState.screen = 'gameover';
-            if (gameState.score > gameState.highScore) {
+            const isNewHigh = gameState.score > gameState.highScore;
+            if (isNewHigh) {
                 gameState.highScore = gameState.score;
                 localStorage.setItem('risMathHighScore', gameState.score.toString());
             }
+            trackEvent('game_complete', {
+                score: gameState.score,
+                best_streak: gameState.bestStreak,
+                correct_answers: gameState.correctAnswers,
+                total_questions: gameState.totalQuestions,
+                max_difficulty: gameState.difficulty,
+                new_high_score: isNewHigh
+            });
             window.dispatchEvent(new Event('gameCompleted'));
             render();
         }
@@ -570,6 +592,7 @@ https://rismath.github.io/rismath`;
 
         function copyText() {
             const text = generateTextScorecard();
+            trackEvent('score_shared', { method: 'copy_text', score: gameState.score });
             navigator.clipboard.writeText(text).then(() => {
                 const btn = document.getElementById('copy-btn');
                 if (btn) { btn.textContent = '✅ Copied!'; setTimeout(() => { btn.textContent = '📋 Copy as Text'; }, 2000); }
@@ -577,6 +600,7 @@ https://rismath.github.io/rismath`;
         }
 
         function downloadImage() {
+            trackEvent('score_shared', { method: 'save_image', score: gameState.score });
             const dataURL = generateImageScorecard();
             const a = document.createElement('a');
             a.href = dataURL;
@@ -585,6 +609,7 @@ https://rismath.github.io/rismath`;
         }
 
         function shareWhatsApp() {
+            trackEvent('score_shared', { method: 'whatsapp', score: gameState.score });
             const text = generateTextScorecard();
             const encoded = encodeURIComponent(text);
             window.open('https://api.whatsapp.com/send?text=' + encoded, '_blank');
@@ -798,6 +823,7 @@ https://rismath.github.io/rismath`;
         function showInstallBanner() {
             if (installShown || localStorage.getItem('risMathInstallDismissed')) return;
             installShown = true;
+            trackEvent('install_prompt_shown');
 
             const banner = document.createElement('div');
             banner.id = 'install-banner';
@@ -838,6 +864,7 @@ https://rismath.github.io/rismath`;
                 const { outcome } = await deferredPrompt.userChoice;
                 deferredPrompt = null;
                 if (outcome === 'accepted') {
+                    trackEvent('install_accepted');
                     if (banner) banner.remove();
                     localStorage.setItem('risMathInstallDismissed', '1');
                 }
