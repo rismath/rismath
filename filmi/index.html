@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Filmi — Guess the Bollywood Movie 🎬</title>
+    <meta name="description" content="60 seconds. Movie clues. Can you guess the film?">
+    <meta name="theme-color" content="#1A0A2E">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Filmi">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5K57FR3XVW"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-5K57FR3XVW');function trackEvent(n,p){gtag('event',n,p||{});}</script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Nunito:wght@600;700;800&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #1A0A2E;
+            --card: #120820;
+            --card2: #1E0F35;
+            --border: rgba(255,255,255,0.08);
+            --gold: #FFD700;
+            --pink: #FF4FA0;
+            --blue: #4FC3F7;
+            --green: #69F0AE;
+            --red: #FF5252;
+            --text: #F0E6FF;
+            --muted: rgba(240,230,255,0.4);
+        }
+        * { box-sizing:border-box; margin:0; padding:0; }
+        body {
+            background: var(--bg);
+            background-image:
+                radial-gradient(ellipse at 20% 0%, rgba(255,79,160,0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 100%, rgba(79,195,247,0.1) 0%, transparent 50%);
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 0.75rem; overflow-x: hidden;
+        }
+        #root { width:100%; max-width:440px; }
+
+        @keyframes slideUp { from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;} }
+        @keyframes popIn { 0%{transform:scale(0.6);opacity:0;}70%{transform:scale(1.06);}100%{transform:scale(1);opacity:1;} }
+        @keyframes float { 0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);} }
+        @keyframes chipIn { from{opacity:0;transform:scale(0.85);}to{opacity:1;transform:scale(1);} }
+        @keyframes burstUp { 0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-120px) scale(0.3);opacity:0;} }
+        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) scale(0.9);}to{opacity:1;transform:translateX(-50%) scale(1);} }
+        @keyframes toastOut { from{opacity:1;}to{opacity:0;} }
+        @keyframes filmstrip { 0%{background-position:0 0;}100%{background-position:40px 0;} }
+
+        .slide-up { animation: slideUp 0.35s ease forwards; }
+        .pop-in { animation: popIn 0.4s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+        .float { animation: float 3s ease-in-out infinite; }
+        .game-title { font-family: 'Bebas Neue', cursive; }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.4rem;
+            backdrop-filter: blur(16px);
+        }
+
+        /* Filmstrip accent bar */
+        .filmstrip {
+            height: 8px;
+            background: repeating-linear-gradient(90deg, #FFD700 0px, #FFD700 10px, #1A0A2E 10px, #1A0A2E 20px);
+            border-radius: 4px;
+            margin-bottom: 0.75rem;
+            animation: filmstrip 1s linear infinite;
+        }
+
+        /* Movie card */
+        .movie-card {
+            border-radius: 1.2rem;
+            overflow: hidden;
+            border: 1px solid var(--border);
+            margin-bottom: 0.75rem;
+            animation: slideUp 0.3s ease forwards;
+        }
+        .movie-card-header {
+            padding: 0.9rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+        }
+        .movie-poster {
+            width: 72px; height: 90px;
+            border-radius: 0.6rem;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            flex-shrink: 0;
+            position: relative; overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.15);
+        }
+        .poster-icon { font-size: 2.2rem; z-index: 1; }
+        .poster-year {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            z-index: 1; margin-top: 2px;
+        }
+        .movie-meta { flex: 1; }
+        .movie-genre-badge {
+            display: inline-block;
+            padding: 2px 8px; border-radius: 20px;
+            font-size: 0.62rem; font-weight: 700;
+            text-transform: uppercase; letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+        .movie-mystery {
+            font-family: 'Bebas Neue', cursive;
+            font-size: 1.7rem;
+            color: rgba(255,255,255,0.12);
+            letter-spacing: 0.2em; line-height: 1;
+        }
+        .movie-mystery-sub { font-size: 0.7rem; color: var(--muted); margin-top: 3px; }
+
+        /* Clue chips */
+        .clues-section { padding: 0.7rem 1rem; border-top: 1px solid var(--border); }
+        .clues-label { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.55rem; }
+        .clues-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.45rem; }
+        .clue-chip {
+            border-radius: 0.65rem; padding: 0.5rem 0.7rem;
+            display: flex; align-items: flex-start; gap: 0.45rem;
+            animation: chipIn 0.3s ease forwards;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .clue-chip:nth-child(1){animation-delay:0.05s;opacity:0;}
+        .clue-chip:nth-child(2){animation-delay:0.1s;opacity:0;}
+        .clue-chip:nth-child(3){animation-delay:0.15s;opacity:0;}
+        .clue-chip:nth-child(4){animation-delay:0.2s;opacity:0;}
+        .clue-chip:nth-child(5){animation-delay:0.25s;opacity:0;}
+        .clue-chip.full { grid-column: 1/-1; }
+        .chip-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+        .chip-label { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; opacity: 0.5; margin-bottom: 1px; }
+        .chip-value { font-size: 0.82rem; font-weight: 700; line-height: 1.3; }
+
+        .chip-gold { background: rgba(255,215,0,0.1); }
+        .chip-gold .chip-value { color: #FFD700; } .chip-gold .chip-label { color: #FFD700; }
+        .chip-pink { background: rgba(255,79,160,0.1); }
+        .chip-pink .chip-value { color: #FF8EC8; } .chip-pink .chip-label { color: #FF8EC8; }
+        .chip-blue { background: rgba(79,195,247,0.1); }
+        .chip-blue .chip-value { color: #4FC3F7; } .chip-blue .chip-label { color: #4FC3F7; }
+        .chip-green { background: rgba(105,240,174,0.1); }
+        .chip-green .chip-value { color: #69F0AE; } .chip-green .chip-label { color: #69F0AE; }
+        .chip-orange { background: rgba(255,171,64,0.1); }
+        .chip-orange .chip-value { color: #FFAB40; } .chip-orange .chip-label { color: #FFAB40; }
+
+        /* Answer buttons */
+        .answers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.5rem; }
+        .btn-ans {
+            background: var(--card2); border: 1.5px solid rgba(255,255,255,0.1);
+            color: var(--text); font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem; font-weight: 600;
+            padding: 0.85rem 0.5rem; border-radius: 0.85rem;
+            cursor: pointer; transition: all 0.12s;
+            text-align: center; line-height: 1.25;
+        }
+        .btn-ans:hover { background: rgba(255,215,0,0.1); border-color: rgba(255,215,0,0.4); transform: scale(1.02); }
+        .btn-ans:active { transform: scale(0.97); }
+        .btn-ans.correct { background: rgba(105,240,174,0.2)!important; border-color: #69F0AE!important; color: #69F0AE!important; }
+        .btn-ans.wrong { background: rgba(255,82,82,0.2)!important; border-color: #FF5252!important; color: #FF8A80!important; }
+
+        /* Top bar */
+        .top-bar {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0.6rem 0.8rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 1rem; margin-bottom: 0.6rem;
+        }
+        .top-stat { text-align: center; }
+        .top-stat-label { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+        .top-stat-value { font-family: 'Bebas Neue', cursive; font-size: 1.6rem; line-height: 1.1; }
+        .timer-bar-bg { background:rgba(255,255,255,0.08); border-radius:4px; height:5px; overflow:hidden; margin-bottom:0.6rem; }
+        .timer-bar-fill { height:100%; border-radius:4px; transition:width 1s linear,background 0.5s; }
+
+        /* Menu */
+        .menu-card {
+            background: var(--card); border: 1px solid var(--border);
+            border-radius: 1.4rem; padding: 1.6rem 1.4rem; text-align: center;
+        }
+        .menu-title {
+            font-family: 'Bebas Neue', cursive; font-size: 4rem; line-height: 1;
+            background: linear-gradient(135deg, #FFD700, #FF4FA0);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+        .menu-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.2rem; }
+        .name-input-wrap { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:0.75rem; padding:0.8rem; margin-bottom:0.75rem; text-align:left; }
+        .name-input-label { font-size:0.65rem; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; display:block; margin-bottom:5px; }
+        .name-input { width:100%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.12); border-radius:0.5rem; padding:0.6rem 0.8rem; color:white; font-family:'Nunito',sans-serif; font-size:0.95rem; font-weight:700; outline:none; transition:border-color 0.2s; }
+        .name-input:focus { border-color: var(--gold); }
+        .btn-start { width:100%; background:linear-gradient(135deg,#FFD700,#FF4FA0); border:none; color:#1A0A2E; font-family:'Bebas Neue',cursive; font-size:1.5rem; letter-spacing:0.06em; padding:1rem; border-radius:1rem; cursor:pointer; transition:all 0.15s; box-shadow:0 4px 20px rgba(255,215,0,0.2); }
+        .btn-start:hover { transform:scale(1.02); }
+        .btn-start:active { transform:scale(0.98); }
+
+        /* Gameover */
+        .gameover-card { background:var(--card); border:1px solid var(--border); border-radius:1.4rem; padding:1.4rem; text-align:center; animation:slideUp 0.4s ease forwards; }
+        .go-score-box { background:rgba(255,215,0,0.08); border:1px solid rgba(255,215,0,0.18); border-radius:1rem; padding:1rem; margin:0.75rem 0; }
+        .go-score { font-family:'Bebas Neue',cursive; font-size:4.5rem; color:var(--gold); line-height:1; }
+        .stats-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.5rem; margin-bottom:0.75rem; }
+        .stat-box { background:rgba(255,255,255,0.04); border:1px solid var(--border); border-radius:0.75rem; padding:0.6rem 0.4rem; text-align:center; }
+        .stat-box-val { font-family:'Bebas Neue',cursive; font-size:1.4rem; line-height:1.1; }
+        .stat-box-label { font-size:0.6rem; font-weight:700; color:var(--muted); text-transform:uppercase; margin-top:2px; }
+        .score-preview { background:#0A0014; border:1px solid rgba(255,215,0,0.2); border-radius:0.75rem; padding:0.75rem; font-family:monospace; font-size:0.75rem; color:#FFD700; line-height:1.7; white-space:pre; overflow-x:auto; margin-bottom:0.5rem; }
+        .share-btn { background:#25D366; color:white; font-family:'Rajdhani',sans-serif; font-size:1rem; font-weight:700; padding:0.75rem; border-radius:0.65rem; border:none; cursor:pointer; width:100%; display:flex; align-items:center; justify-content:center; gap:7px; transition:all 0.2s; margin-bottom:0.4rem; }
+        .share-btn:hover { filter:brightness(1.1); }
+        .btn-sm { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--muted); font-family:'Nunito',sans-serif; font-size:0.8rem; font-weight:700; padding:0.6rem 0.75rem; border-radius:0.6rem; cursor:pointer; flex:1; transition:all 0.2s; }
+        .btn-sm:hover { background:rgba(255,255,255,0.1); color:var(--text); }
+        .btn-play-again { flex:1; background:linear-gradient(135deg,#FFD700,#FF4FA0); border:none; color:#1A0A2E; font-family:'Bebas Neue',cursive; font-size:1.1rem; padding:0.9rem; border-radius:0.85rem; cursor:pointer; letter-spacing:0.05em; }
+        .btn-home { background:rgba(255,255,255,0.06); border:1px solid var(--border); color:var(--muted); font-size:1.1rem; padding:0.9rem 1rem; border-radius:0.85rem; cursor:pointer; }
+        .btn-pair { display:flex; gap:0.5rem; margin-top:0.75rem; }
+        .rank-badge { display:inline-flex; align-items:center; gap:6px; background:rgba(255,255,255,0.06); border:1px solid var(--border); border-radius:0.6rem; padding:0.35rem 0.75rem; margin-bottom:0.75rem; }
+
+        .emoji-burst { position:fixed; pointer-events:none; font-size:1.8rem; z-index:1000; animation:burstUp 0.9s ease forwards; }
+        canvas { display:none; }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<canvas id="share-canvas" width="600" height="700"></canvas>
+<script>
+
+// ── GENRE COLOURS ─────────────────────────────────────────────────────────────
+const GENRES = {
+    'Drama':    { bg:'#4A1060', accent:'#FF8EC8', emoji:'🎭' },
+    'Action':   { bg:'#1A2A60', accent:'#4FC3F7', emoji:'💥' },
+    'Romance':  { bg:'#601040', accent:'#FF4FA0', emoji:'❤️' },
+    'Comedy':   { bg:'#204020', accent:'#69F0AE', emoji:'😄' },
+    'Thriller': { bg:'#301A10', accent:'#FFAB40', emoji:'🔍' },
+    'Family':   { bg:'#1A3040', accent:'#81D4FA', emoji:'👨‍👩‍👧' },
+    'Biopic':   { bg:'#2A2010', accent:'#FFD700', emoji:'📖' },
+    'Fantasy':  { bg:'#1A1060', accent:'#CE93D8', emoji:'✨' },
+};
+
+// ── MOVIE DATABASE ─────────────────────────────────────────────────────────────
+const MOVIES = [
+  { title:"Sholay", year:1975, genre:"Action",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Ramesh Sippy",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actors",value:"Amitabh Bachchan, Dharmendra, Sanjeev Kumar",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Hema Malini, Jaya Bachchan",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Yeh Dosti' — friendship anthem of India",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Running for 5 years at Minerva Cinema, Mumbai — Indian record",color:"chip-orange"},
+      {icon:"👹",label:"Villain",value:"Gabbar Singh — most iconic Bollywood villain ever",color:"chip-gold"},
+      {icon:"📅",label:"Released",value:"15 August 1975 — India's Independence Day",color:"chip-pink"},
+    ]},
+  { title:"Dilwale Dulhania Le Jayenge", year:1995, genre:"Romance",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Aditya Chopra's directorial debut",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Shah Rukh Khan as Raj",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Kajol as Simran",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Tujhe Dekha Toh' — mustard fields of Punjab",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Ran for 25+ years at Maratha Mandir, Mumbai — world record",color:"chip-orange"},
+      {icon:"🏆",label:"Awards",value:"10 Filmfare Awards including Best Film",color:"chip-gold"},
+      {icon:"📍",label:"Famous scene",value:"Raj extending hand on moving train — 'Senorita'",color:"chip-pink"},
+    ]},
+  { title:"3 Idiots", year:2009, genre:"Comedy",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Rajkumar Hirani",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Aamir Khan, R. Madhavan, Sharman Joshi",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Kareena Kapoor Khan",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Behti Hawa Sa Tha Woh' and 'All Izz Well'",color:"chip-green"},
+      {icon:"💰",label:"Box Office",value:"First Bollywood film to cross ₹200 crore worldwide",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Based on Chetan Bhagat's novel 'Five Point Someone'",color:"chip-gold"},
+      {icon:"🏆",label:"Awards",value:"Filmfare Best Film, Best Director, Best Actor",color:"chip-pink"},
+    ]},
+  { title:"Mughal-E-Azam", year:1960, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"K. Asif — took 16 years to complete",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Prithviraj Kapoor, Dilip Kumar",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Madhubala as Anarkali",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Pyaar Kiya Toh Darna Kya' — defiant anthem",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Held box office record for 15 years — highest grossing Indian film until 1975",color:"chip-orange"},
+      {icon:"🏛️",label:"Setting",value:"Mughal Emperor Akbar forbids love between prince and courtesan",color:"chip-gold"},
+      {icon:"🎨",label:"Iconic",value:"Sheesh Mahal scene — 1000 mirrors used on set",color:"chip-pink"},
+    ]},
+  { title:"Dangal", year:2016, genre:"Biopic",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Nitesh Tiwari",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Aamir Khan as Mahavir Singh Phogat",color:"chip-pink"},
+      {icon:"💰",label:"Box Office",value:"₹2,000 crore worldwide — highest grossing Indian film ever",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Based on real wrestlers Geeta and Babita Phogat",color:"chip-blue"},
+      {icon:"🏆",label:"Awards",value:"National Award — Best Popular Film",color:"chip-gold"},
+      {icon:"🌍",label:"Record",value:"Biggest Bollywood hit in China — ₹1,200 crore from China alone",color:"chip-green"},
+      {icon:"💃",label:"Lead Actress",value:"Fatima Sana Shaikh, Sanya Malhotra",color:"chip-pink"},
+    ]},
+  { title:"Kabhi Khushi Kabhie Gham", year:2001, genre:"Family",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Karan Johar",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Cast",value:"Amitabh Bachchan, Shah Rukh Khan, Hrithik Roshan",color:"chip-pink"},
+      {icon:"💃",label:"Actresses",value:"Jaya Bachchan, Kajol, Kareena Kapoor",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Say Shava Shava' and 'Suraj Hua Maddham'",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Biggest ensemble star cast in Bollywood history at the time",color:"chip-orange"},
+      {icon:"📅",label:"Released",value:"2001 — Diwali blockbuster",color:"chip-gold"},
+      {icon:"🏠",label:"Theme",value:"'It's all about loving your parents'",color:"chip-pink"},
+    ]},
+  { title:"Lagaan", year:2001, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Ashutosh Gowariker",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Aamir Khan as Bhuvan",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Gracy Singh and Rachel Shelley",color:"chip-blue"},
+      {icon:"🏆",label:"Awards",value:"Oscar nominated for Best Foreign Language Film",color:"chip-orange"},
+      {icon:"🏏",label:"Theme",value:"Village cricket match vs British army to waive off tax",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Shot entirely in Bhuj, Gujarat — 16 weeks of shooting",color:"chip-gold"},
+      {icon:"🎵",label:"Iconic Song",value:"'Chale Chalo' — inspirational anthem",color:"chip-pink"},
+    ]},
+  { title:"Kuch Kuch Hota Hai", year:1998, genre:"Romance",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Karan Johar's directorial debut",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Shah Rukh Khan",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Kajol and Rani Mukerji",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Kuch Kuch Hota Hai' — title track",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"SRK and Kajol's most celebrated on-screen pairing",color:"chip-orange"},
+      {icon:"🏆",label:"Awards",value:"8 Filmfare Awards including Best Film",color:"chip-gold"},
+      {icon:"👧",label:"Iconic",value:"Little Anjali writing letters to reunite her parents",color:"chip-pink"},
+    ]},
+  { title:"PK", year:2014, genre:"Comedy",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Rajkumar Hirani",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Aamir Khan as an alien",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Anushka Sharma",color:"chip-blue"},
+      {icon:"💰",label:"Box Office",value:"₹769 crore worldwide — 4th highest Bollywood grosser",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Controversial — questioned religious practices and blind faith",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Tharki Chokro' and 'Nanga Punga Dost'",color:"chip-gold"},
+      {icon:"📡",label:"Plot",value:"Alien searches for his remote control — questions God",color:"chip-pink"},
+    ]},
+  { title:"Dil Chahta Hai", year:2001, genre:"Comedy",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Farhan Akhtar's directorial debut",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actors",value:"Aamir Khan, Saif Ali Khan, Akshaye Khanna",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Preity Zinta, Dimple Kapadia, Sonali Kulkarni",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Defined an entire generation — coolest youth film of its era",color:"chip-orange"},
+      {icon:"🎵",label:"Iconic Song",value:"'Dil Chahta Hai' — title track changed Bollywood music",color:"chip-green"},
+      {icon:"📍",label:"Locations",value:"Mumbai, Goa, Sydney — set a travel trend",color:"chip-gold"},
+      {icon:"🏆",label:"Awards",value:"National Award for Best Screenplay",color:"chip-pink"},
+    ]},
+  { title:"Bajrangi Bhaijaan", year:2015, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Kabir Khan",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Salman Khan as Pawan Kumar Chaturvedi",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Kareena Kapoor, Harshaali Malhotra as Munni",color:"chip-blue"},
+      {icon:"💰",label:"Box Office",value:"₹969 crore worldwide",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"A mute Pakistani girl lost in India — Salman helps her home",color:"chip-green"},
+      {icon:"😢",label:"Iconic",value:"'Chand Sitare' scene — one of Bollywood's most emotional",color:"chip-gold"},
+      {icon:"🕌",label:"Theme",value:"India-Pakistan friendship — crossed political boundaries",color:"chip-pink"},
+    ]},
+  { title:"Gangs of Wasseypur", year:2012, genre:"Thriller",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Anurag Kashyap",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actors",value:"Manoj Bajpayee, Nawazuddin Siddiqui, Richa Chadha",color:"chip-pink"},
+      {icon:"📅",label:"Duration",value:"Originally 5 hours — released as two parts",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Selected for Cannes Film Festival Directors' Fortnight",color:"chip-orange"},
+      {icon:"🏙️",label:"Setting",value:"Coal mafia wars in Dhanbad over three generations",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Keh Ke Loonga' and 'Ik Bagal Mein Chand Hoga'",color:"chip-gold"},
+      {icon:"🏆",label:"Legacy",value:"Called the Indian Godfather — changed Hindi cinema forever",color:"chip-pink"},
+    ]},
+  { title:"Zindagi Na Milegi Dobara", year:2011, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Zoya Akhtar",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actors",value:"Hrithik Roshan, Farhan Akhtar, Abhay Deol",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Katrina Kaif, Kalki Koechlin",color:"chip-blue"},
+      {icon:"📍",label:"Locations",value:"Shot entirely in Spain — drove Bollywood's Spain tourism",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Three friends on a bachelor trip — face their fears",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Senorita' and 'Dil Dhadakne Do'",color:"chip-gold"},
+      {icon:"🏆",label:"Awards",value:"National Award — Best Screenplay",color:"chip-pink"},
+    ]},
+  { title:"Queen", year:2014, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Vikas Bahl",color:"chip-gold",highlight:true},
+      {icon:"💃",label:"Lead Actress",value:"Kangana Ranaut — career-defining performance",color:"chip-pink"},
+      {icon:"🌍",label:"Locations",value:"Paris and Amsterdam — solo honeymoon",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Rani goes on honeymoon alone after fiancé calls off wedding",color:"chip-orange"},
+      {icon:"🏆",label:"Awards",value:"National Award Best Actress — Kangana Ranaut",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'London Thumakda' — wedding anthem",color:"chip-gold"},
+      {icon:"💪",label:"Theme",value:"Women's independence and self-discovery",color:"chip-pink"},
+    ]},
+  { title:"Hum Aapke Hain Koun", year:1994, genre:"Family",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Sooraj Barjatya",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Salman Khan as Prem",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Madhuri Dixit as Nisha",color:"chip-blue"},
+      {icon:"💰",label:"Box Office",value:"Highest grossing Indian film of 1994 — ran for 3 years",color:"chip-orange"},
+      {icon:"🎵",label:"Iconic Song",value:"'Didi Tera Devar Deewana' — wedding classic",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"14 songs in one film — still played at every Indian wedding",color:"chip-gold"},
+      {icon:"💍",label:"Theme",value:"Two families unite through marriage — pure family drama",color:"chip-pink"},
+    ]},
+  { title:"Andaz Apna Apna", year:1994, genre:"Comedy",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Rajkumar Santoshi",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actors",value:"Aamir Khan and Salman Khan together",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Raveena Tandon and Karisma Kapoor",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Flopped on release — became cult classic over decades",color:"chip-orange"},
+      {icon:"😂",label:"Iconic",value:"Paresh Rawal as Crime Master Gogo",color:"chip-green"},
+      {icon:"🗣️",label:"Dialogue",value:"'Crime Master Gogo naam hai mera'",color:"chip-gold"},
+      {icon:"👥",label:"Unique",value:"Only film to star Aamir AND Salman together",color:"chip-pink"},
+    ]},
+  { title:"Kabir Singh", year:2019, genre:"Romance",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Sandeep Vanga — remake of Telugu Arjun Reddy",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Shahid Kapoor — career best performance",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Kiara Advani as Preeti",color:"chip-blue"},
+      {icon:"💰",label:"Box Office",value:"₹379 crore — highest grossing romance of 2019",color:"chip-orange"},
+      {icon:"🎵",label:"Iconic Song",value:"'Tujhe Kitna Chahne Lage' — most streamed Bollywood song",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Controversial for glorifying toxic relationships",color:"chip-gold"},
+      {icon:"🏆",label:"Awards",value:"Shahid Kapoor won Best Actor at multiple awards",color:"chip-pink"},
+    ]},
+  { title:"Taare Zameen Par", year:2007, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Aamir Khan's directorial debut",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Aamir Khan as art teacher Ram Shankar Nikumbh",color:"chip-pink"},
+      {icon:"👦",label:"Child Actor",value:"Darsheel Safary as Ishaan Awasthi — dyslexic child",color:"chip-blue"},
+      {icon:"🏆",label:"Awards",value:"National Award for Best Direction",color:"chip-orange"},
+      {icon:"🌍",label:"Impact",value:"Changed how India sees learning disabilities",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Maa' — made every parent cry",color:"chip-gold"},
+      {icon:"⭐",label:"Trivia",value:"India's entry for Academy Awards Best Foreign Film",color:"chip-pink"},
+    ]},
+  { title:"Rang De Basanti", year:2006, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Rakeysh Omprakash Mehra",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Aamir Khan, Siddharth, Kunal Kapoor, Sharman Joshi",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Soha Ali Khan, Alice Patten as British filmmaker",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Inspired MiG-21 crash protests in real life",color:"chip-orange"},
+      {icon:"🎵",label:"Iconic Song",value:"'Roobaroo' and 'Rang De Basanti'",color:"chip-green"},
+      {icon:"🏆",label:"Awards",value:"BAFTA nomination — first Indian film in 4 decades",color:"chip-gold"},
+      {icon:"⚡",label:"Impact",value:"Sparked real youth political movements in India",color:"chip-pink"},
+    ]},
+  { title:"Gully Boy", year:2019, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Zoya Akhtar",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Ranveer Singh as Murad — from Dharavi slums",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Alia Bhatt as Safeena",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Based on real Mumbai rappers Divine and Naezy",color:"chip-orange"},
+      {icon:"🎵",label:"Iconic Song",value:"'Apna Time Aayega' — motivational anthem of a generation",color:"chip-green"},
+      {icon:"🌍",label:"Award",value:"India's official Oscar entry for Best International Film",color:"chip-gold"},
+      {icon:"🎤",label:"Music",value:"Launched India's underground hip-hop to mainstream",color:"chip-pink"},
+    ]},
+  { title:"Deewar", year:1975, genre:"Action",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Yash Chopra",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Amitabh Bachchan as Vijay — the angry young man",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Nirupa Roy, Neetu Singh, Parveen Babi",color:"chip-blue"},
+      {icon:"🗣️",label:"Dialogue",value:"'Mere paas maa hai' — most famous line in Bollywood",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Written by Salim-Javed — defined the 70s Bollywood hero",color:"chip-green"},
+      {icon:"🏆",label:"Legacy",value:"Made Amitabh Bachchan the biggest star of his era",color:"chip-gold"},
+      {icon:"🤜",label:"Theme",value:"Two brothers — one becomes cop, one becomes criminal",color:"chip-pink"},
+    ]},
+  { title:"Swades", year:2004, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Ashutosh Gowariker",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Shah Rukh Khan as NASA scientist returning to India",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Gayatri Joshi in her only major film",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Considered SRK's finest acting performance",color:"chip-orange"},
+      {icon:"💰",label:"Box Office",value:"Flopped at box office — now called Bollywood's masterpiece",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Yeh Jo Des Hai Tera' — emotional patriotic anthem",color:"chip-gold"},
+      {icon:"💡",label:"Theme",value:"NRI helps a village get electricity — discovers belonging",color:"chip-pink"},
+    ]},
+  { title:"Mother India", year:1957, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Mehboob Khan",color:"chip-gold",highlight:true},
+      {icon:"💃",label:"Lead Actress",value:"Nargis — iconic performance as Radha",color:"chip-pink"},
+      {icon:"🏆",label:"Awards",value:"First Indian film nominated for Oscar — Best Foreign Film",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Nargis married co-star Sunil Dutt who saved her from a fire on set",color:"chip-orange"},
+      {icon:"🌾",label:"Theme",value:"Struggling mother raises sons through poverty and hardship",color:"chip-green"},
+      {icon:"👑",label:"Legacy",value:"Defined Indian womanhood — played in theatres for over 3 years",color:"chip-gold"},
+      {icon:"📅",label:"Era",value:"Post-independence India — rural life and sacrifice",color:"chip-pink"},
+    ]},
+  { title:"Andhadhun", year:2018, genre:"Thriller",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Sriram Raghavan",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Ayushmann Khurrana as a blind pianist",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Tabu and Radhika Apte",color:"chip-blue"},
+      {icon:"💰",label:"Box Office",value:"₹456 crore worldwide — massive hit for a thriller",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Is he really blind? The film never fully reveals the truth",color:"chip-green"},
+      {icon:"🏆",label:"Awards",value:"National Award Best Hindi Film and Best Screenplay",color:"chip-gold"},
+      {icon:"🎵",label:"Iconic Song",value:"'Naina Da Kya Kasoor' — haunting background score",color:"chip-pink"},
+    ]},
+  { title:"Padmaavat", year:2018, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Sanjay Leela Bhansali",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Ranveer Singh as Alauddin Khilji",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Deepika Padukone as Rani Padmavati",color:"chip-blue"},
+      {icon:"💰",label:"Box Office",value:"₹585 crore worldwide despite controversy",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Banned in several states — massive protest by Karni Sena",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Ghoomar' — Deepika's most celebrated dance",color:"chip-gold"},
+      {icon:"🔥",label:"Iconic",value:"Jauhar scene — most visually stunning in Bollywood history",color:"chip-pink"},
+    ]},
+  { title:"Baahubali: The Conclusion", year:2017, genre:"Fantasy",
+    clues:[
+      {icon:"🎬",label:"Director",value:"SS Rajamouli — Telugu filmmaker",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Prabhas as Baahubali and Mahendra",color:"chip-pink"},
+      {icon:"💰",label:"Box Office",value:"₹1,810 crore worldwide — biggest Indian film ever at the time",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"'Why did Kattappa kill Baahubali?' — biggest cliffhanger in Indian cinema",color:"chip-blue"},
+      {icon:"🏆",label:"Awards",value:"National Award Best Direction, Best Special Effects",color:"chip-green"},
+      {icon:"💃",label:"Lead Actress",value:"Anushka Shetty as Devasena",color:"chip-gold"},
+      {icon:"🗡️",label:"Iconic",value:"Battle scene — 10,000 warriors, 3 years of production",color:"chip-pink"},
+    ]},
+  { title:"RRR", year:2022, genre:"Action",
+    clues:[
+      {icon:"🎬",label:"Director",value:"SS Rajamouli — Telugu filmmaker",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actors",value:"Ram Charan and Jr NTR",color:"chip-pink"},
+      {icon:"💰",label:"Box Office",value:"₹1,200+ crore worldwide",color:"chip-orange"},
+      {icon:"🏆",label:"Awards",value:"Oscar for Best Original Song — 'Naatu Naatu'",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"First Indian film to win an Academy Award for a song",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Naatu Naatu' — global dance phenomenon",color:"chip-gold"},
+      {icon:"🌍",label:"Global",value:"Became global phenomenon — screened worldwide and praised by Hollywood",color:"chip-pink"},
+    ]},
+  { title:"KGF: Chapter 2", year:2022, genre:"Action",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Prashanth Neel — Kannada filmmaker",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Yash as Rocky Bhai",color:"chip-pink"},
+      {icon:"💰",label:"Box Office",value:"₹1,200 crore worldwide — biggest Kannada film ever",color:"chip-orange"},
+      {icon:"🎭",label:"Villain",value:"Sanjay Dutt as Adheera — unforgettable look",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Set in gold mines of Kolar — based on real historical events",color:"chip-green"},
+      {icon:"🗣️",label:"Dialogue",value:"'My name is Rocky and this is my story'",color:"chip-gold"},
+      {icon:"🌍",label:"Record",value:"Highest grossing Kannada film of all time",color:"chip-pink"},
+    ]},
+  { title:"Pushpa: The Rise", year:2021, genre:"Action",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Sukumar — Telugu filmmaker",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Allu Arjun as Pushpa Raj",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Rashmika Mandanna as Srivalli",color:"chip-blue"},
+      {icon:"🏆",label:"Awards",value:"Allu Arjun won National Award for Best Actor for Pushpa 2",color:"chip-orange"},
+      {icon:"🎵",label:"Iconic Song",value:"'Srivalli' and 'Oo Antava' — viral globally",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Red sandalwood smuggling — based on real illegal trade",color:"chip-gold"},
+      {icon:"💰",label:"Sequel",value:"Pushpa 2 crossed ₹1,800 crore — one of biggest Indian films ever",color:"chip-pink"},
+    ]},
+  { title:"Stree", year:2018, genre:"Comedy",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Amar Kaushik",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Rajkummar Rao and Shraddha Kapoor",color:"chip-pink"},
+      {icon:"⭐",label:"Trivia",value:"Based on the real Nale Ba urban legend of Karnataka",color:"chip-blue"},
+      {icon:"💰",label:"Box Office",value:"₹177 crore on ₹26 crore budget — biggest horror comedy hit",color:"chip-orange"},
+      {icon:"😱",label:"Theme",value:"Ghost abducts men of a small town — only women safe",color:"chip-green"},
+      {icon:"🗣️",label:"Famous line",value:"'O Stree! Kal Aana' written on walls to keep ghost away",color:"chip-gold"},
+      {icon:"🎵",label:"Iconic Song",value:"'Aao Kabhi Haveli Pe' — spooky and fun",color:"chip-pink"},
+    ]},
+  { title:"Dil Dhadakne Do", year:2015, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Zoya Akhtar",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Cast",value:"Ranveer Singh, Anil Kapoor, Farhan Akhtar, Priyanka Chopra",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Priyanka Chopra, Anushka Sharma",color:"chip-blue"},
+      {icon:"📍",label:"Location",value:"Mediterranean cruise — rich family dysfunctions",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Narrated by a dog — Pluto voiced by Aamir Khan",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Gallan Goodiyan' and 'Dil Dhadakne Do'",color:"chip-gold"},
+      {icon:"👨‍👩‍👧‍👦",label:"Theme",value:"Wealthy family secrets unravel on a family cruise",color:"chip-pink"},
+    ]},
+  { title:"Tumbbad", year:2018, genre:"Thriller",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Rahi Anil Barve — took 6 years to make",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Sohum Shah — also produced the film",color:"chip-pink"},
+      {icon:"⭐",label:"Trivia",value:"Took 6 years to complete — partly due to crowdfunding",color:"chip-blue"},
+      {icon:"💰",label:"Legacy",value:"Flopped in 2018 — re-released 2024 and became massive hit",color:"chip-orange"},
+      {icon:"👹",label:"Theme",value:"Hastar — forgotten god of prosperity trapped in womb of time",color:"chip-green"},
+      {icon:"🏆",label:"Awards",value:"Won multiple awards for VFX — 30+ visual effects shots",color:"chip-gold"},
+      {icon:"📅",label:"Setting",value:"Colonial India 1918-1947 — greed across generations",color:"chip-pink"},
+    ]},
+  { title:"Mughal-E-Azam", year:1960, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"K. Asif",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Dilip Kumar as Prince Salim",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Madhubala as Anarkali",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"The Sheesh Mahal set used 1,000 mirrors — took months to build",color:"chip-orange"},
+      {icon:"📅",label:"Production",value:"Took 16 years to produce — Indian film record",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Pyaar Kiya Toh Darna Kya' — defiant love song",color:"chip-gold"},
+      {icon:"🏆",label:"Legacy",value:"Highest grossing Indian film 1960-1975",color:"chip-pink"},
+    ]},
+  { title:"Sanju", year:2018, genre:"Biopic",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Rajkumar Hirani",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Ranbir Kapoor as Sanjay Dutt",color:"chip-pink"},
+      {icon:"💰",label:"Box Office",value:"₹586 crore worldwide",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"About real Sanjay Dutt's controversial life and drug addiction",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Kar Har Maidaan Fateh' — inspirational anthem",color:"chip-green"},
+      {icon:"🏆",label:"Awards",value:"Ranbir Kapoor won Best Actor at multiple awards ceremonies",color:"chip-gold"},
+      {icon:"📖",label:"Covers",value:"Drugs, TADA case, 349 girlfriends — real Sanjay Dutt story",color:"chip-pink"},
+    ]},
+  { title:"Jab We Met", year:2007, genre:"Romance",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Imtiaz Ali",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Shahid Kapoor as Aditya",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Kareena Kapoor as Geet — career-defining role",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Tum Se Hi' and 'Aao Milo Chalo'",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Kareena's dialogue 'Main apni favourite hoon' became iconic",color:"chip-orange"},
+      {icon:"🚂",label:"Theme",value:"Chance meeting on a train — journey across Punjab",color:"chip-gold"},
+      {icon:"🏆",label:"Legacy",value:"Called one of Bollywood's most rewatchable films",color:"chip-pink"},
+    ]},
+  { title:"Dabbang", year:2010, genre:"Action",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Abhinav Kashyap",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Salman Khan as Chulbul Pandey aka Robin Hood Pandey",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Sonakshi Sinha's Bollywood debut",color:"chip-blue"},
+      {icon:"💰",label:"Box Office",value:"₹145 crore — biggest Salman Khan hit at the time",color:"chip-orange"},
+      {icon:"🎵",label:"Iconic Song",value:"'Munni Badnaam Hui' — brought back item songs",color:"chip-green"},
+      {icon:"😎",label:"Character",value:"Corrupt yet heroic cop — sunglasses on backwards",color:"chip-gold"},
+      {icon:"⭐",label:"Trivia",value:"Revived the masala action genre in Bollywood",color:"chip-pink"},
+    ]},
+  { title:"Pink", year:2016, genre:"Thriller",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Aniruddha Roy Chowdhury",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Amitabh Bachchan as lawyer Deepak Sehgal",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Taapsee Pannu, Kirti Kulhari, Andrea Tariang",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Courtroom drama — 'No means No' message",color:"chip-orange"},
+      {icon:"🏆",label:"Awards",value:"National Award for Best Editing",color:"chip-green"},
+      {icon:"⚖️",label:"Theme",value:"Three women fight against false allegations of assault",color:"chip-gold"},
+      {icon:"💬",label:"Impact",value:"Changed national conversation about consent in India",color:"chip-pink"},
+    ]},
+  { title:"Devdas", year:2002, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Sanjay Leela Bhansali",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Shah Rukh Khan as Devdas",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Aishwarya Rai, Madhuri Dixit as Chandramukhi",color:"chip-blue"},
+      {icon:"💰",label:"Budget",value:"₹50 crore — most expensive Indian film of its time",color:"chip-orange"},
+      {icon:"🎵",label:"Iconic Song",value:"'Dola Re Dola' — Aishwarya and Madhuri together",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Based on Sarat Chandra Chattopadhyay's 1917 novel",color:"chip-gold"},
+      {icon:"🍾",label:"Theme",value:"Man destroyed by love — turned to alcohol and heartbreak",color:"chip-pink"},
+    ]},
+  { title:"Kapoor and Sons", year:2016, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Shakun Batra",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Cast",value:"Sidharth Malhotra, Fawad Khan, Alia Bhatt",color:"chip-pink"},
+      {icon:"👴",label:"Star",value:"Rishi Kapoor as 90-year-old grandfather — stunning prosthetics",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Family reunion exposes old wounds and hidden secrets",color:"chip-orange"},
+      {icon:"🏆",label:"Awards",value:"Critics unanimous — called best family drama of its decade",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Bolna' — beautiful romantic ballad",color:"chip-gold"},
+      {icon:"💔",label:"Theme",value:"Dysfunctional family — gay subplot handled with maturity",color:"chip-pink"},
+    ]},
+  { title:"Gangs of Wasseypur 2", year:2012, genre:"Thriller",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Anurag Kashyap",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Nawazuddin Siddiqui as Faizal Khan",color:"chip-pink"},
+      {icon:"⭐",label:"Trivia",value:"Second part of the 5-hour saga — released same year as Part 1",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Husn Parcham' and 'Moora'",color:"chip-orange"},
+      {icon:"🗣️",label:"Dialogue",value:"'Beta, tumse na ho payega' — meme anthem",color:"chip-green"},
+      {icon:"🏆",label:"Legacy",value:"Nawazuddin declared finest actor of his generation",color:"chip-gold"},
+      {icon:"🏙️",label:"Setting",value:"Coal mafia wars conclude — revenge across generations",color:"chip-pink"},
+    ]},
+  { title:"War", year:2019, genre:"Action",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Siddharth Anand",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actors",value:"Hrithik Roshan and Tiger Shroff",color:"chip-pink"},
+      {icon:"💰",label:"Box Office",value:"₹475 crore — highest grossing Bollywood action film of 2019",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Student turns against mentor — massive action sequences",color:"chip-blue"},
+      {icon:"🎵",label:"Iconic Song",value:"'Ghungroo' — Hrithik's iconic dance number",color:"chip-green"},
+      {icon:"🌍",label:"Locations",value:"Shot in 15 countries — Morocco, Portugal, New Zealand",color:"chip-gold"},
+      {icon:"💪",label:"Stars",value:"Two of Bollywood's best dancers-actors face off",color:"chip-pink"},
+    ]},
+  { title:"Rockstar", year:2011, genre:"Romance",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Imtiaz Ali",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Ranbir Kapoor as Janardhan 'Jordan'",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Nargis Fakhri as Heer",color:"chip-blue"},
+      {icon:"🎵",label:"Music",value:"A.R. Rahman — called his best Bollywood album",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Ranbir Kapoor's most celebrated performance",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Nadaan Parindey' and 'Sadda Haq'",color:"chip-gold"},
+      {icon:"🏆",label:"Awards",value:"Filmfare Best Actor — Ranbir Kapoor",color:"chip-pink"},
+    ]},
+  { title:"Chak De India", year:2007, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Shimit Amin",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Shah Rukh Khan as disgraced hockey coach Kabir Khan",color:"chip-pink"},
+      {icon:"🏑",label:"Sport",value:"Women's national hockey team wins World Cup",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Based loosely on real events — SRK's most restrained performance",color:"chip-orange"},
+      {icon:"🏆",label:"Awards",value:"National Award — Best Screenplay",color:"chip-green"},
+      {icon:"🎵",label:"Iconic Song",value:"'Chak De India' — sports anthem of India",color:"chip-gold"},
+      {icon:"🌍",label:"Impact",value:"Changed how India viewed women's sports",color:"chip-pink"},
+    ]},
+  { title:"Uri: The Surgical Strike", year:2019, genre:"Action",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Aditya Dhar",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Vicky Kaushal — made him a star overnight",color:"chip-pink"},
+      {icon:"💰",label:"Box Office",value:"₹342 crore on ₹25 crore budget — 13x return",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Based on real 2016 Indian Army surgical strike in Pakistan",color:"chip-blue"},
+      {icon:"🗣️",label:"Dialogue",value:"'How's the josh?' 'High sir!' — became national catchphrase",color:"chip-green"},
+      {icon:"🏆",label:"Awards",value:"National Award Best Direction — Aditya Dhar",color:"chip-gold"},
+      {icon:"🪖",label:"Theme",value:"Indian Army's response to Uri terror attack — real events",color:"chip-pink"},
+    ]},
+  { title:"Article 15", year:2019, genre:"Thriller",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Anubhav Sinha",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Ayushmann Khurrana as IPS officer Ayan Ranjan",color:"chip-pink"},
+      {icon:"⭐",label:"Trivia",value:"Based on real Badaun gang rape case of 2014",color:"chip-blue"},
+      {icon:"⚖️",label:"Theme",value:"Caste discrimination — Article 15 prohibits it but reality differs",color:"chip-orange"},
+      {icon:"🏆",label:"Awards",value:"Critics Choice Best Film at multiple ceremonies",color:"chip-green"},
+      {icon:"💬",label:"Impact",value:"Opened uncomfortable national conversation about caste",color:"chip-gold"},
+      {icon:"🎵",label:"Iconic Song",value:"'Kahaar' — haunting Dalit folk song",color:"chip-pink"},
+    ]},
+  { title:"Masaan", year:2015, genre:"Drama",
+    clues:[
+      {icon:"🎬",label:"Director",value:"Neeraj Ghaywan — debut film",color:"chip-gold",highlight:true},
+      {icon:"🎭",label:"Lead Actor",value:"Vicky Kaushal in his debut — cremation worker's son",color:"chip-pink"},
+      {icon:"💃",label:"Lead Actress",value:"Richa Chadha and Shweta Tripathi",color:"chip-blue"},
+      {icon:"🏆",label:"Awards",value:"FIPRESCI Prize and Promising Future at Cannes 2015",color:"chip-orange"},
+      {icon:"📍",label:"Setting",value:"Varanasi — ghats, grief, and social stigma",color:"chip-green"},
+      {icon:"⭐",label:"Trivia",value:"Two parallel stories of love, loss and social shame",color:"chip-gold"},
+      {icon:"🎵",label:"Music",value:"Indian Ocean's music — hauntingly beautiful",color:"chip-pink"},
+    ]},
+];
+
+// Remove duplicate Mughal-E-Azam entries
+const UNIQUE_MOVIES = MOVIES.filter((m,i,arr) => arr.findIndex(x=>x.title===m.title)===i);
+
+// ── TRICKY QUESTIONS ──────────────────────────────────────────────────────────
+const TRICKY = [
+  {q:"Which was the first Indian film to be nominated for the Academy Award for Best Foreign Language Film?",opts:["Mother India","Salaam Bombay","Lagaan","Guide"],ans:"Mother India",fact:"Mother India (1957) was India's first Oscar nomination for Best Foreign Language Film. It lost to The Nights of Cabiria but made history."},
+  {q:"Which Bollywood film held the record as highest grossing Indian film until 2015?",opts:["Sholay","Hum Aapke Hain Koun","3 Idiots","Dilwale Dulhania Le Jayenge"],ans:"Hum Aapke Hain Koun",fact:"HAHK (1994) held the box office record for years — it was the first film to use multiplex distribution strategy in India."},
+  {q:"'Mere paas maa hai' is from which film?",opts:["Sholay","Deewar","Trishul","Muqaddar Ka Sikandar"],ans:"Deewar",fact:"This iconic dialogue from Deewar (1975) was delivered by Shashi Kapoor. Written by Salim-Javed, it became the most quoted line in Bollywood history."},
+  {q:"Which film ran continuously at Maratha Mandir, Mumbai for 25+ years?",opts:["Sholay","Mughal-E-Azam","Dilwale Dulhania Le Jayenge","Hum Aapke Hain Koun"],ans:"Dilwale Dulhania Le Jayenge",fact:"DDLJ ran at Maratha Mandir from 1995 to 2022 — 1,278 weeks continuously. It finally stopped during the COVID pandemic."},
+  {q:"'Naatu Naatu' won an Oscar for Best Original Song. Which film was it from?",opts:["Baahubali 2","KGF 2","RRR","Pushpa"],ans:"RRR",fact:"'Naatu Naatu' from RRR won the Academy Award for Best Original Song in 2023 — the first Indian film song to win an Oscar."},
+  {q:"Which director made both Dilwale Dulhania Le Jayenge (1995) and Mohabbatein (2000)?",opts:["Karan Johar","Yash Chopra","Aditya Chopra","Subhash Ghai"],ans:"Aditya Chopra",fact:"Aditya Chopra directed DDLJ as his debut and then Mohabbatein. Both are considered defining romantic films of their era."},
+  {q:"Dangal is the highest grossing Indian film ever. How much did it earn worldwide?",opts:["₹1,200 crore","₹1,500 crore","₹2,000 crore","₹2,500 crore"],ans:"₹2,000 crore",fact:"Dangal earned approximately ₹2,000 crore worldwide — largely driven by its massive success in China where it earned ₹1,200 crore."},
+  {q:"Which actor played Gabbar Singh in the original Sholay (1975)?",opts:["Amjad Khan","Amitabh Bachchan","Danny Denzongpa","Feroz Khan"],ans:"Amjad Khan",fact:"Amjad Khan played Gabbar Singh in Sholay — originally Danny Denzongpa was cast but had prior commitments. Khan's performance became iconic."},
+  {q:"3 Idiots is based on a novel. What is the novel's name?",opts:["Revolution 2020","Five Point Someone","The 3 Mistakes of My Life","Hello"],ans:"Five Point Someone",fact:"3 Idiots (2009) was loosely based on Chetan Bhagat's debut novel 'Five Point Someone' — though there was controversy over credit."},
+  {q:"Which Bollywood film was India's entry for Oscar but also won the Oscar?",opts:["Lagaan","Mother India","Salaam Bombay","RRR"],ans:"RRR",fact:"RRR was not India's official Oscar entry — that was actually an oversight that caused controversy. But RRR won for Best Original Song ('Naatu Naatu') on its own merit."},
+  {q:"Who directed Lagaan — the Oscar-nominated cricket film?",opts:["Rakeysh Omprakash Mehra","Sanjay Leela Bhansali","Ashutosh Gowariker","Rajkumar Hirani"],ans:"Ashutosh Gowariker",fact:"Ashutosh Gowariker directed Lagaan (2001) — he also directed Swades (2004). Lagaan was nominated for Best Foreign Language Film at the 74th Academy Awards."},
+  {q:"Tumbbad was re-released in 2024 and became a massive hit. When was it originally released?",opts:["2015","2016","2018","2020"],ans:"2018",fact:"Tumbbad was released in 2018 and was a critical success but commercial failure. Its 2024 re-release introduced it to a new generation and it became a blockbuster."},
+  {q:"Which film marked Farhan Akhtar's directorial debut?",opts:["Rock On","Zindagi Na Milegi Dobara","Dil Chahta Hai","Lakshya"],ans:"Dil Chahta Hai",fact:"Farhan Akhtar made his directorial debut with Dil Chahta Hai (2001) — a film that defined an entire generation and won the National Award for Best Screenplay."},
+  {q:"Who played the villain Mogambo in Mr. India (1987)?",opts:["Amrish Puri","Amjad Khan","Danny Denzongpa","Kulbhushan Kharbanda"],ans:"Amrish Puri",fact:"Amrish Puri played Mogambo with his iconic line 'Mogambo Khush Hua!' — he became the most memorable Bollywood villain of the 1980s."},
+  {q:"Which was the first Bollywood film to earn ₹100 crore at the box office?",opts:["Hum Aapke Hain Koun","Dilwale Dulhania Le Jayenge","Kuch Kuch Hota Hai","Sholay"],ans:"Hum Aapke Hain Koun",fact:"Hum Aapke Hain Koun (1994) was the first Hindi film to cross ₹100 crore — it earned around ₹135 crore at the domestic box office."},
+  {q:"Which actress won the National Award for Queen (2014)?",opts:["Vidya Balan","Kangana Ranaut","Deepika Padukone","Priyanka Chopra"],ans:"Kangana Ranaut",fact:"Kangana Ranaut won the National Award for Best Actress for Queen (2014) — her most celebrated performance and a turning point in her career."},
+  {q:"Sholay was originally released in which year?",opts:["1973","1974","1975","1976"],ans:"1975",fact:"Sholay was released on 15 August 1975 — India's Independence Day. It ran for 5 years at Minerva Cinema, Mumbai — an Indian box office record."},
+  {q:"Which film had the dialogue 'How's the josh? High sir!'?",opts:["URI: The Surgical Strike","Raazi","Shershah","War"],ans:"URI: The Surgical Strike",fact:"URI: The Surgical Strike (2019) directed by Aditya Dhar gave India this famous dialogue. 'How's the josh?' became a national catchphrase used even by PM Modi."},
+  {q:"Which Bollywood actress starred in Devdas alongside Shah Rukh Khan AND won Miss World before acting?",opts:["Aishwarya Rai","Sushmita Sen","Priyanka Chopra","Diana Hayden"],ans:"Aishwarya Rai",fact:"Aishwarya Rai won Miss World 1994 before becoming a Bollywood superstar. She starred opposite SRK in Devdas (2002) in a career-defining performance."},
+  {q:"Which 2019 Bollywood film was a remake of the Telugu film Arjun Reddy?",opts:["Kabir Singh","Luka Chuppi","De De Pyaar De","Good Newwz"],ans:"Kabir Singh",fact:"Kabir Singh (2019) starring Shahid Kapoor was the official Hindi remake of Arjun Reddy (2017), directed by the same filmmaker Sandeep Vanga."},
+  {q:"The film 'Gully Boy' is based on the true stories of which two Mumbai rappers?",opts:["Raftaar and Honey Singh","Divine and Naezy","Badshah and Raftaar","Ikka and Divine"],ans:"Divine and Naezy",fact:"Gully Boy (2019) is inspired by the real lives of Mumbai rappers Vivian Fernandes (Divine) and Naved Shaikh (Naezy) from Dharavi."},
+  {q:"Which Rajkumar Hirani film did NOT star Aamir Khan?",opts:["3 Idiots","PK","Lage Raho Munna Bhai","Sanju"],ans:"Sanju",fact:"Sanju (2018) starred Ranbir Kapoor as Sanjay Dutt. All other major Hirani films — Munna Bhai series, 3 Idiots, PK — starred Aamir Khan."},
+  {q:"Which Indian film won the FIPRESCI Prize at Cannes 2015?",opts:["Dil Dhadakne Do","Masaan","Talvar","Aligarh"],ans:"Masaan",fact:"Masaan (2015) directed by Neeraj Ghaywan won the FIPRESCI Prize and the Promising Future award at Cannes — Vicky Kaushal's debut film."},
+  {q:"Which film is considered the first Indian film?",opts:["Raja Harishchandra","Alam Ara","Pundalik","Satyawadi Raja Harishchandra"],ans:"Raja Harishchandra",fact:"Raja Harishchandra (1913) directed by Dadasaheb Phalke is considered the first full-length Indian feature film. Dadasaheb Phalke is called the Father of Indian Cinema."},
+  {q:"In Mughal-E-Azam, Madhubala played a courtesan. What was her character's name?",opts:["Anarkali","Salma","Heera","Noor"],ans:"Anarkali",fact:"Madhubala played Anarkali — a courtesan who falls in love with Prince Salim — in Mughal-E-Azam (1960). It became her most iconic role."},
+];
+
+// ── DAILY CHALLENGE SYSTEM ─────────────────────────────────────────────────────
+function getTodayKey(){ const d=new Date(); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
+
+function getDailyMovies(){
+    const d=new Date();
+    const seed = d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()+500; // +500 to differ from Googly
+    const shuffled=[...UNIQUE_MOVIES];
+    let s=seed;
+    for(let i=shuffled.length-1;i>0;i--){s=(s*1103515245+12345)&0x7fffffff;const j=s%(i+1);[shuffled[i],shuffled[j]]=[shuffled[j],shuffled[i]];}
+    return shuffled.slice(0,8);
+}
+
+function getTrickyQ(){
+    const d=new Date();
+    const dayOfYear=Math.floor((d-new Date(d.getFullYear(),0,0))/86400000);
+    return TRICKY[(dayOfYear+30)%TRICKY.length]; // +30 to differ from Googly
+}
+
+function getDailyState(){ const s=localStorage.getItem('filmiDaily_'+getTodayKey()); return s?JSON.parse(s):null; }
+function saveDailyState(s){ localStorage.setItem('filmiDaily_'+getTodayKey(),JSON.stringify(s)); }
+
+// ── GAME STATE ──────────────────────────────────────────────────────────────────
+let G = {
+    screen:'menu', score:0, timeLeft:60,
+    current:null, clues:[], options:[],
+    streak:0, bestStreak:0, total:0, correct:0,
+    highScore:parseInt(localStorage.getItem('filmiHS')||'0'),
+    playerName:localStorage.getItem('filmiName')||'',
+    muted:localStorage.getItem('filmiMuted')==='1',
+    used:[], mode:'practice',
+    dailyMovies:[], dailyIndex:0, dailyDone:false, dailyScore:0,
+    trickyQ:null, trickyAnswered:false, trickyCorrect:false,
+};
+
+// ── SOUND ─────────────────────────────────────────────────────────────────────
+const AC2 = window.AudioContext||window.webkitAudioContext;
+let audioCtx=null;
+function getAudio(){ if(!audioCtx)audioCtx=new AC2(); return audioCtx; }
+
+function playCorrect(){ if(G.muted)return; try{
+    const ctx=getAudio(),t=ctx.currentTime;
+    // Applause burst
+    const buf=ctx.createBuffer(1,ctx.sampleRate*0.7,ctx.sampleRate);
+    const d=buf.getChannelData(0); for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*0.35;
+    const ns=ctx.createBufferSource(); ns.buffer=buf;
+    const f=ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.setValueAtTime(1200,t); f.frequency.exponentialRampToValueAtTime(2500,t+0.3); f.Q.value=0.6;
+    const ng=ctx.createGain(); ng.gain.setValueAtTime(0,t); ng.gain.linearRampToValueAtTime(0.3,t+0.05); ng.gain.exponentialRampToValueAtTime(0.001,t+0.7);
+    ns.connect(f);f.connect(ng);ng.connect(ctx.destination);ns.start(t);ns.stop(t+0.7);
+    // Ding
+    const o=ctx.createOscillator(),og=ctx.createGain();
+    o.type='triangle';o.frequency.value=1200;
+    og.gain.setValueAtTime(0.25,t+0.05);og.gain.exponentialRampToValueAtTime(0.001,t+0.4);
+    o.connect(og);og.connect(ctx.destination);o.start(t+0.05);o.stop(t+0.4);
+}catch(e){}}
+
+function playWrong(){ if(G.muted)return; try{
+    const ctx=getAudio(),t=ctx.currentTime;
+    const o=ctx.createOscillator(),og=ctx.createGain();
+    o.type='sawtooth';o.frequency.setValueAtTime(280,t);o.frequency.exponentialRampToValueAtTime(140,t+0.4);
+    og.gain.setValueAtTime(0.18,t);og.gain.exponentialRampToValueAtTime(0.001,t+0.45);
+    o.connect(og);og.connect(ctx.destination);o.start(t);o.stop(t+0.45);
+}catch(e){}}
+
+function playTimeUp(){ if(G.muted)return; try{
+    const ctx=getAudio(),t=ctx.currentTime;
+    [0,0.2,0.4].forEach((dl,i)=>{const o=ctx.createOscillator(),g=ctx.createGain();o.frequency.value=500-i*80;o.type='square';g.gain.setValueAtTime(0.12,t+dl);g.gain.exponentialRampToValueAtTime(0.001,t+dl+0.15);o.connect(g);g.connect(ctx.destination);o.start(t+dl);o.stop(t+dl+0.15);});
+}catch(e){}}
+
+function toggleMute(){
+    G.muted=!G.muted;
+    localStorage.setItem('filmiMuted',G.muted?'1':'0');
+    document.querySelectorAll('#mute-btn').forEach(b=>{b.textContent=G.muted?'🔇':'🔊';b.title=G.muted?'Unmute':'Mute';});
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function pickClues(m){
+    const h=m.clues.find(c=>c.highlight);
+    const rest=m.clues.filter(c=>!c.highlight).sort(()=>Math.random()-0.5).slice(0,4);
+    return [h,...rest];
+}
+
+function pickNext(){
+    if(G.used.length>=UNIQUE_MOVIES.length)G.used=[];
+    let idx; do{idx=Math.floor(Math.random()*UNIQUE_MOVIES.length);}while(G.used.includes(idx));
+    G.used.push(idx);
+    const m=UNIQUE_MOVIES[idx];
+    const wrong=UNIQUE_MOVIES.filter((_,i)=>i!==idx).sort(()=>Math.random()-0.5).slice(0,3);
+    G.current=m; G.clues=pickClues(m);
+    G.options=[m,...wrong].sort(()=>Math.random()-0.5);
+}
+
+function getGenre(g){ return GENRES[g]||GENRES['Drama']; }
+
+function getRank(s){
+    if(s>=400)return{emoji:'🏆',rank:'BLOCKBUSTER',color:'#FFD700'};
+    if(s>=280)return{emoji:'💎',rank:'SUPERHIT',color:'#CE93D8'};
+    if(s>=180)return{emoji:'🥇',rank:'HIT',color:'#FFAB40'};
+    if(s>=100)return{emoji:'⚡',rank:'AVERAGE',color:'#69F0AE'};
+    if(s>=50)return{emoji:'🔥',rank:'RISING',color:'#FF8A65'};
+    return{emoji:'🎬',rank:'FLOP',color:'#90A4AE'};
+}
+
+// ── TIMER ─────────────────────────────────────────────────────────────────────
+let timer;
+function startTimer(){
+    timer=setInterval(()=>{
+        G.timeLeft--;
+        if(G.timeLeft<=0){playTimeUp();endGame();return;}
+        const tc=G.timeLeft>20?'var(--green)':G.timeLeft>10?'var(--gold)':'var(--red)';
+        const pct=(G.timeLeft/60)*100;
+        const tv=document.getElementById('timer-val');
+        const tf=document.getElementById('timer-fill');
+        if(tv){tv.textContent=G.timeLeft+'s';tv.style.color=tc;}
+        if(tf){tf.style.width=pct+'%';tf.style.background=tc;}
+    },1000);
+}
+
+function saveName(){ const i=document.getElementById('ni'); if(i){G.playerName=i.value.trim()||'Player';localStorage.setItem('filmiName',G.playerName);} }
+
+function startGame(){
+    saveName(); try{getAudio();}catch(e){}
+    trackEvent('filmi_start',{p:G.playerName||'anon',mode:'practice'});
+    G={...G,screen:'playing',score:0,timeLeft:60,streak:0,bestStreak:0,total:0,correct:0,used:[],mode:'practice'};
+    pickNext(); startTimer(); render();
+}
+
+function startDaily(){
+    saveName();
+    const saved=getDailyState();
+    if(saved&&saved.done){G.screen='gameover';G.mode='daily';G.dailyScore=saved.score;G.score=saved.score;G.correct=saved.correct;G.total=saved.total;G.bestStreak=saved.bestStreak;render();return;}
+    try{getAudio();}catch(e){}
+    trackEvent('filmi_start',{p:G.playerName||'anon',mode:'daily'});
+    const dm=getDailyMovies();
+    G={...G,screen:'playing',score:0,timeLeft:60,streak:0,bestStreak:0,total:0,correct:0,mode:'daily',dailyMovies:dm,dailyIndex:0,dailyDone:false};
+    const m=dm[0];
+    const wrong=UNIQUE_MOVIES.filter(x=>x.title!==m.title).sort(()=>Math.random()-0.5).slice(0,3);
+    G.current=m;G.clues=pickClues(m);G.options=[m,...wrong].sort(()=>Math.random()-0.5);
+    startTimer(); render();
+}
+
+function startTricky(){
+    saveName();
+    const k='filmiTricky_'+getTodayKey();
+    const saved=localStorage.getItem(k);
+    G.screen='tricky'; G.trickyQ=getTrickyQ();
+    if(saved){const s=JSON.parse(saved);G.trickyAnswered=true;G.trickyCorrect=s.correct;}
+    else{G.trickyAnswered=false;G.trickyCorrect=false;}
+    render();
+}
+
+function answerTricky(sel){
+    const ok=sel===G.trickyQ.ans;
+    G.trickyAnswered=true;G.trickyCorrect=ok;
+    if(ok)playCorrect();else playWrong();
+    localStorage.setItem('filmiTricky_'+getTodayKey(),JSON.stringify({correct:ok,ans:sel}));
+    trackEvent('filmi_tricky',{correct:ok});
+    render();
+}
+
+function ans(name,btn){
+    G.total++;
+    const ok=name===G.current.title;
+    if(btn){
+        btn.classList.add(ok?'correct':'wrong');
+        if(!ok)document.querySelectorAll('.btn-ans').forEach(b=>{if(b.dataset.name===G.current.title)b.classList.add('correct');});
+        setTimeout(()=>document.querySelectorAll('.btn-ans').forEach(b=>b.classList.remove('correct','wrong')),650);
+    }
+    if(ok){
+        playCorrect();G.correct++;G.streak++;
+        if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+        G.score+=10+(G.streak*3);
+        if(G.streak%5===0)G.timeLeft+=3;
+        spawnE(['🎬','🔥','💥','⭐','🎭'][Math.floor(Math.random()*5)]);
+        if(G.streak%3===0)toast(G.streak+' in a row! 🔥','#1B5E20');
+    }else{
+        playWrong();G.streak=0;
+        toast('Was: '+G.current.title,'#7B1A1A');
+    }
+
+    if(G.mode==='daily'){
+        G.dailyIndex++;
+        if(G.dailyIndex>=G.dailyMovies.length){
+            clearInterval(timer);G.dailyDone=true;G.dailyScore=G.score;
+            saveDailyState({done:true,score:G.score,correct:G.correct,total:G.total,bestStreak:G.bestStreak});
+            if(G.score>G.highScore){G.highScore=G.score;localStorage.setItem('filmiHS',G.score.toString());}
+            G.screen='gameover';render();return;
+        }
+        const m=G.dailyMovies[G.dailyIndex];
+        const wrong=UNIQUE_MOVIES.filter(x=>x.title!==m.title).sort(()=>Math.random()-0.5).slice(0,3);
+        G.current=m;G.clues=pickClues(m);G.options=[m,...wrong].sort(()=>Math.random()-0.5);
+        render();return;
+    }
+    pickNext();render();
+}
+
+function endGame(){
+    clearInterval(timer);G.screen='gameover';
+    if(G.score>G.highScore){G.highScore=G.score;localStorage.setItem('filmiHS',G.score.toString());}
+    trackEvent('filmi_end',{score:G.score,correct:G.correct,mode:G.mode});
+    render();
+}
+
+function backToMenu(){G.screen='menu';render();}
+
+function spawnE(e){ const el=document.createElement('div');el.className='emoji-burst';el.textContent=e;el.style.left=(15+Math.random()*70)+'%';el.style.top='38%';document.body.appendChild(el);setTimeout(()=>el.remove(),900); }
+
+function toast(msg,bg){
+    const o=document.getElementById('toast');if(o)o.remove();
+    const el=document.createElement('div');el.id='toast';el.textContent=msg;
+    el.style.cssText=`position:fixed;top:16px;left:50%;transform:translateX(-50%);background:${bg};color:white;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;padding:0.4rem 1.2rem;border-radius:2rem;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:9999;pointer-events:none;animation:toastIn 0.25s ease,toastOut 0.3s ease 1.1s forwards;`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1500);
+}
+
+// ── SCORECARD ─────────────────────────────────────────────────────────────────
+function bar(n,m){return'█'.repeat(Math.min(n,m))+'░'.repeat(m-Math.min(n,m));}
+
+function genText(){
+    const acc=G.total>0?Math.round(G.correct/G.total*100):0;
+    const{emoji,rank}=getRank(G.score);
+    const d=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const n=G.playerName||'Player';
+    const mode=G.mode==='daily'?'Daily Challenge':'Practice';
+    return`🎬 Filmi — ${mode}\n👤 ${n}  •  📅 ${d}\n${'─'.repeat(28)}\n${emoji} Rank: ${rank}\n⭐ Score:     ${G.score}\n🔥 Streak:   ${G.bestStreak}  ${bar(G.bestStreak,10)}\n🎯 Accuracy: ${acc}%\n✅ Correct:  ${G.correct}/${G.total}\n${'─'.repeat(28)}\n🏅 Personal Best: ${G.highScore}\n\nCan you beat ${n}? 👇\nplayfilmi.in`;
+}
+
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+function genImg(){
+    const cv=document.getElementById('share-canvas');const ctx=cv.getContext('2d');
+    const W=600,H=700;cv.width=W;cv.height=H;
+    const acc=G.total>0?Math.round(G.correct/G.total*100):0;
+    const{emoji,rank,color}=getRank(G.score);
+    const d=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const n=G.playerName||'Player';
+    // BG
+    ctx.fillStyle='#1A0A2E';ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha=0.2;ctx.fillStyle='#FF4FA0';ctx.beginPath();ctx.arc(100,100,200,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#4FC3F7';ctx.beginPath();ctx.arc(500,600,180,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;
+    // Gold-pink gradient top bar
+    const grad=ctx.createLinearGradient(0,0,W,0);grad.addColorStop(0,'#FFD700');grad.addColorStop(1,'#FF4FA0');
+    ctx.fillStyle=grad;ctx.fillRect(0,0,W,5);
+    // Title
+    ctx.font='bold 52px "Arial Black",sans-serif';ctx.fillStyle='#FFD700';ctx.textAlign='center';ctx.fillText('Filmi',W/2,70);
+    ctx.font='17px Arial';ctx.fillStyle='rgba(255,255,255,0.45)';ctx.fillText(n+'  •  '+d,W/2,98);
+    // Rank
+    ctx.fillStyle='rgba(255,255,255,0.07)';rr(ctx,W/2-110,112,220,76,16);ctx.fill();
+    ctx.font='46px Arial';ctx.fillText(emoji,W/2-28,172);ctx.font='bold 22px Arial';ctx.fillStyle=color;ctx.fillText(rank,W/2+55,163);
+    // Score
+    ctx.font='bold 100px "Arial Black",sans-serif';ctx.fillStyle='#FFD700';ctx.fillText(G.score,W/2,322);
+    ctx.font='18px Arial';ctx.fillStyle='rgba(255,255,255,0.38)';ctx.fillText('SCORE',W/2,348);
+    // Stats
+    const st=[{l:'STREAK',v:G.bestStreak+'🔥',c:'#FF8A65'},{l:'ACCURACY',v:acc+'%',c:'#69F0AE'},{l:'CORRECT',v:G.correct+'/'+G.total,c:'#4FC3F7'}];
+    st.forEach((s,i)=>{const x=80+i*180;ctx.fillStyle='rgba(255,255,255,0.06)';rr(ctx,x-65,368,130,72,12);ctx.fill();ctx.font='bold 24px Arial';ctx.fillStyle=s.c;ctx.textAlign='center';ctx.fillText(s.v,x,405);ctx.font='12px Arial';ctx.fillStyle='rgba(255,255,255,0.32)';ctx.fillText(s.l,x,423);});
+    const bY=466,bW=W-120;
+    ctx.font='13px Arial';ctx.fillStyle='rgba(255,255,255,0.32)';ctx.textAlign='left';ctx.fillText('Best Streak',60,bY);ctx.textAlign='right';ctx.fillText(G.bestStreak+'/10',W-60,bY);
+    ctx.fillStyle='rgba(255,255,255,0.07)';rr(ctx,60,bY+8,bW,10,5);ctx.fill();
+    if(G.bestStreak>0){ctx.fillStyle='#FF8A65';rr(ctx,60,bY+8,bW*Math.min(G.bestStreak/10,1),10,5);ctx.fill();}
+    const bY2=504;ctx.font='13px Arial';ctx.fillStyle='rgba(255,255,255,0.32)';ctx.textAlign='left';ctx.fillText('Accuracy',60,bY2);ctx.textAlign='right';ctx.fillText(acc+'%',W-60,bY2);
+    ctx.fillStyle='rgba(255,255,255,0.07)';rr(ctx,60,bY2+8,bW,10,5);ctx.fill();
+    if(acc>0){ctx.fillStyle='#FF4FA0';rr(ctx,60,bY2+8,bW*(acc/100),10,5);ctx.fill();}
+    ctx.fillStyle='rgba(255,215,0,0.07)';rr(ctx,60,542,bW,44,10);ctx.fill();
+    ctx.font='14px Arial';ctx.fillStyle='rgba(255,215,0,0.45)';ctx.textAlign='center';ctx.fillText('🏅  Personal Best: '+G.highScore,W/2,569);
+    ctx.font='bold 15px Arial';ctx.fillStyle='rgba(255,255,255,0.45)';ctx.fillText('Can you beat '+n+'? 👉 playfilmi.in',W/2,628);
+    ctx.fillStyle=grad;ctx.fillRect(0,H-4,W,4);
+    return cv.toDataURL('image/png');
+}
+
+function copyText(){trackEvent('filmi_share',{m:'copy'});navigator.clipboard.writeText(genText()).then(()=>{const b=document.getElementById('copy-btn');if(b){b.textContent='✅ Copied!';setTimeout(()=>b.textContent='📋 Copy',2000);}});}
+function dlImg(){trackEvent('filmi_share',{m:'img'});const a=document.createElement('a');a.href=genImg();a.download='filmi-score.png';a.click();}
+function shareWA(){trackEvent('filmi_share',{m:'wa'});window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(genText()),'_blank');}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────────
+const muteBtn=()=>`<button onclick="toggleMute()" id="mute-btn" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:1rem;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;flex-shrink:0;">${G.muted?'🔇':'🔊'}</button>`;
+const waSVG=`<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+
+function renderMenu(){
+    const ds=getDailyState(),dd=ds&&ds.done;
+    const tk='filmiTricky_'+getTodayKey(),ts=localStorage.getItem(tk),td=!!ts,tc=td?JSON.parse(ts).correct:null;
+    const today=new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+    return`<div class="menu-card slide-up">
+        <div class="filmstrip"></div>
+        <div class="float" style="text-align:center;margin-bottom:0.8rem">
+            <div class="menu-title">Filmi</div>
+            <div class="menu-sub">Guess the Bollywood Movie 🎬</div>
+        </div>
+        <div class="name-input-wrap" style="margin-bottom:0.75rem">
+            <label class="name-input-label">Your Name</label>
+            <input id="ni" class="name-input" type="text" maxlength="20" placeholder="Enter your name..." value="${G.playerName}" onkeydown="if(event.key==='Enter')startGame()" onfocus="this.style.borderColor='#FFD700'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"/>
+        </div>
+        <div style="background:rgba(255,215,0,0.07);border:1px solid rgba(255,215,0,0.22);border-radius:1rem;padding:0.9rem;margin-bottom:0.6rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.45rem">
+                <div><div style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:#FFD700">🗓️ Daily Challenge</div><div style="font-size:0.68rem;color:var(--muted);margin-top:1px">${today} · 8 movies · one attempt</div></div>
+                ${dd?`<div style="font-size:0.72rem;font-weight:700;color:#69F0AE;background:rgba(105,240,174,0.12);padding:3px 10px;border-radius:20px">✅ ${ds.score} pts</div>`:`<div style="font-size:0.72rem;font-weight:700;color:#FFD700;background:rgba(255,215,0,0.12);padding:3px 10px;border-radius:20px">NEW</div>`}
+            </div>
+            <button onclick="startDaily()" style="width:100%;background:${dd?'rgba(255,255,255,0.05)':'rgba(255,215,0,0.85)'};border:none;color:${dd?'rgba(255,255,255,0.35)':'#1A0A2E'};font-family:'Bebas Neue',cursive;font-size:1rem;padding:0.65rem;border-radius:0.6rem;cursor:pointer;letter-spacing:0.04em;">${dd?'VIEW RESULTS':'PLAY TODAY\'S CHALLENGE'}</button>
+        </div>
+        <div style="background:rgba(255,79,160,0.07);border:1px solid rgba(255,79,160,0.22);border-radius:1rem;padding:0.9rem;margin-bottom:0.6rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.45rem">
+                <div><div style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:#FF8EC8">🧠 Filmi Trivia</div><div style="font-size:0.68rem;color:var(--muted);margin-top:1px">${today} · one question · brain teaser</div></div>
+                ${td?`<div style="font-size:0.72rem;font-weight:700;color:${tc?'#69F0AE':'#FF8A80'};background:${tc?'rgba(105,240,174,0.12)':'rgba(255,82,82,0.12)'};padding:3px 10px;border-radius:20px">${tc?'✅ Correct':'❌ Wrong'}</div>`:`<div style="font-size:0.72rem;font-weight:700;color:#FF8EC8;background:rgba(255,79,160,0.12);padding:3px 10px;border-radius:20px">NEW</div>`}
+            </div>
+            <button onclick="startTricky()" style="width:100%;background:${td?'rgba(255,255,255,0.05)':'rgba(255,79,160,0.25)'};border:1px solid rgba(255,79,160,0.3);color:${td?'rgba(255,255,255,0.35)':'#FF8EC8'};font-family:'Bebas Neue',cursive;font-size:1rem;padding:0.65rem;border-radius:0.6rem;cursor:pointer;letter-spacing:0.04em;">${td?'SEE ANSWER':'ANSWER TODAY\'S TRIVIA'}</button>
+        </div>
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:1rem;padding:0.9rem;margin-bottom:0.75rem">
+            <div style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:var(--text);margin-bottom:3px">⚡ Practice Mode</div>
+            <div style="font-size:0.68rem;color:var(--muted);margin-bottom:0.55rem">60 seconds · unlimited · ${UNIQUE_MOVIES.length} films</div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:0.68rem;color:rgba(255,215,0,0.45)">🏅 Best: ${G.highScore}</div>
+                <button class="btn-start" onclick="startGame()" style="width:auto;padding:0.55rem 1.4rem;font-size:0.95rem;">PLAY</button>
+            </div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:0.68rem;color:var(--muted)">🔊 Sound</div>
+            <button onclick="toggleMute()" id="mute-btn" style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-family:'Nunito',sans-serif;font-size:0.78rem;font-weight:700;padding:0.28rem 0.85rem;border-radius:2rem;cursor:pointer;">${G.muted?'🔇 OFF':'🔊 ON'}</button>
+        </div>
+    </div>`;
+}
+
+function renderGame(){
+    const m=G.current,gn=getGenre(m.genre);
+    const tc=G.timeLeft>20?'var(--green)':G.timeLeft>10?'var(--gold)':'var(--red)';
+    const pct=(G.timeLeft/60)*100;
+    const acc=G.total>0?Math.round(G.correct/G.total*100):0;
+    return`
+    <div class="top-bar">
+        <div class="top-stat"><div class="top-stat-label">Time</div><div id="timer-val" class="top-stat-value" style="color:${tc}">${G.timeLeft}s</div></div>
+        <div class="top-stat"><div class="top-stat-label">Score</div><div class="top-stat-value" style="color:var(--gold)">${G.score}</div></div>
+        <div class="top-stat"><div class="top-stat-label">Streak</div><div class="top-stat-value" style="color:var(--pink)">${G.streak}🔥</div></div>
+        <div class="top-stat"><div class="top-stat-label">Correct</div><div class="top-stat-value" style="color:var(--green)">${G.correct}/${G.total}</div></div>
+        ${muteBtn()}
+    </div>
+    <div class="timer-bar-bg"><div id="timer-fill" class="timer-bar-fill" style="width:${pct}%;background:${tc}"></div></div>
+    <div class="movie-card" style="background:${gn.bg}20">
+        <div class="movie-card-header" style="background:linear-gradient(135deg,${gn.bg}50,transparent)">
+            <div class="movie-poster" style="background:${gn.bg}">
+                <div class="poster-icon">${gn.emoji}</div>
+                <div class="poster-year">${m.year}</div>
+            </div>
+            <div class="movie-meta">
+                <div class="movie-genre-badge" style="background:${gn.bg}80;color:${gn.accent};border:1px solid ${gn.bg}">${m.genre}</div>
+                <div class="movie-mystery">??? ???</div>
+                <div class="movie-mystery-sub">Which ${m.year} ${m.genre.toLowerCase()} film is this?</div>
+            </div>
+        </div>
+        <div class="clues-section">
+            <div class="clues-label">🎬 Your Clues</div>
+            <div class="clues-grid">
+                ${G.clues.map((c,i)=>`
+                    <div class="clue-chip ${c.color}${i===0?' full':''}">
+                        <span class="chip-icon">${c.icon}</span>
+                        <div><div class="chip-label">${c.label}</div><div class="chip-value">${c.value}</div></div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    </div>
+    <div class="answers-grid">
+        ${G.options.map(o=>`<button class="btn-ans" data-name="${o.title}" onclick="ans(this.dataset.name,this)">${o.title}</button>`).join('')}
+    </div>
+    <div style="text-align:center;font-size:0.65rem;color:var(--muted);padding:0.2rem 0">
+        ${G.mode==='daily'?`Daily · Film ${G.dailyIndex+1} of ${G.dailyMovies.length}`:`Best: ${G.bestStreak} 🔥 · Accuracy: ${acc}%`}
+    </div>`;
+}
+
+function renderGameOver(){
+    const acc=G.total>0?Math.round(G.correct/G.total*100):0;
+    const isNew=G.score>0&&G.score===G.highScore&&G.mode!=='daily';
+    const{emoji,rank,color}=getRank(G.score);
+    const n=G.playerName||'Player';
+    const txt=genText();
+    return`<div class="gameover-card" style="position:relative">
+        <button onclick="toggleMute()" id="mute-btn" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:1rem;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">${G.muted?'🔇':'🔊'}</button>
+        <div style="color:var(--muted);font-size:0.82rem;margin-bottom:4px">👤 ${n}${G.mode==='daily'?' · 🗓️ Daily Challenge':''}</div>
+        ${isNew?`<div style="font-size:3rem;margin-bottom:6px" class="pop-in">🏆</div><div style="font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--gold);margin-bottom:2px">NEW HIGH SCORE!</div>`:`<div style="font-size:2.5rem;margin-bottom:4px">🎬</div><div style="font-family:'Bebas Neue',cursive;font-size:2rem;color:var(--text);margin-bottom:2px">${G.mode==='daily'?'DAILY COMPLETE!':'THAT\'S A WRAP!'}</div>`}
+        <div class="rank-badge"><span style="font-size:1.5rem">${emoji}</span><span style="font-family:'Bebas Neue',cursive;font-size:1.1rem;color:${color}">${rank}</span></div>
+        <div class="go-score-box"><div style="font-size:0.65rem;color:rgba(255,215,0,0.4);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:4px">Final Score</div><div class="go-score">${G.score}</div></div>
+        <div class="stats-row">
+            <div class="stat-box"><div class="stat-box-val" style="color:#FF8A65">${G.bestStreak}🔥</div><div class="stat-box-label">Streak</div></div>
+            <div class="stat-box"><div class="stat-box-val" style="color:#69F0AE">${acc}%</div><div class="stat-box-label">Accuracy</div></div>
+            <div class="stat-box"><div class="stat-box-val" style="color:#4FC3F7">${G.correct}/${G.total}</div><div class="stat-box-label">Correct</div></div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:0.85rem;padding:0.85rem;margin-bottom:0.75rem;text-align:left">
+            <div style="font-size:0.6rem;color:var(--muted);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">Share Your Score</div>
+            <div class="score-preview">${txt}</div>
+            <button class="share-btn" onclick="shareWA()">${waSVG}Share on WhatsApp</button>
+            <div style="display:flex;gap:7px;margin-top:6px">
+                <button id="copy-btn" class="btn-sm" onclick="copyText()" style="flex:1">📋 Copy</button>
+                <button class="btn-sm" onclick="dlImg()">🖼️ Image</button>
+            </div>
+        </div>
+        <div style="background:rgba(255,215,0,0.05);border:1px solid rgba(255,215,0,0.12);border-radius:0.75rem;padding:0.6rem;margin-bottom:0.75rem;text-align:center">
+            <div style="font-size:0.6rem;color:rgba(255,215,0,0.35);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Personal Best</div>
+            <div style="font-family:'Bebas Neue',cursive;font-size:2.2rem;color:var(--gold)">${G.highScore}</div>
+        </div>
+        <div class="btn-pair">
+            <button class="btn-play-again" onclick="G.mode==='daily'?backToMenu():startGame()">${G.mode==='daily'?'BACK TO MENU':'PLAY AGAIN'}</button>
+            <button class="btn-home" onclick="backToMenu()">🏠</button>
+        </div>
+    </div>`;
+}
+
+function renderTricky(){
+    const q=G.trickyQ;
+    const today=new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'});
+    return`<div class="gameover-card" style="position:relative">
+        <button onclick="toggleMute()" id="mute-btn" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:1rem;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">${G.muted?'🔇':'🔊'}</button>
+        <div style="font-size:0.68rem;color:rgba(255,79,160,0.6);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">🧠 Filmi Trivia · ${today}</div>
+        <div style="background:rgba(255,79,160,0.08);border:1px solid rgba(255,79,160,0.2);border-radius:1rem;padding:1.1rem;margin-bottom:1rem;text-align:left">
+            <div style="font-family:'Bebas Neue',cursive;font-size:1.15rem;color:#FF8EC8;line-height:1.4">${q.q}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem">
+            ${q.opts.map(opt=>{
+                let bg='rgba(255,255,255,0.05)',border='rgba(255,255,255,0.1)',col='var(--text)';
+                if(G.trickyAnswered){if(opt===q.ans){bg='rgba(105,240,174,0.15)';border='#69F0AE';col='#69F0AE';}else{bg='rgba(255,255,255,0.02)';col='rgba(255,255,255,0.25)';}}
+                return`<button ${G.trickyAnswered?'disabled':''} onclick="answerTricky('${opt.replace(/'/g,"\\'")}')" style="background:${bg};border:1.5px solid ${border};color:${col};font-family:'Nunito',sans-serif;font-size:0.85rem;font-weight:700;padding:0.8rem 0.4rem;border-radius:0.75rem;cursor:${G.trickyAnswered?'default':'pointer'};text-align:center;line-height:1.3;">${opt}</button>`;
+            }).join('')}
+        </div>
+        ${G.trickyAnswered?`
+            <div style="background:${G.trickyCorrect?'rgba(105,240,174,0.1)':'rgba(255,82,82,0.1)'};border:1px solid ${G.trickyCorrect?'rgba(105,240,174,0.25)':'rgba(255,82,82,0.25)'};border-radius:0.85rem;padding:1rem;margin-bottom:1rem;text-align:left">
+                <div style="font-size:1.5rem;margin-bottom:4px">${G.trickyCorrect?'✅':'❌'}</div>
+                <div style="font-size:0.85rem;font-weight:700;color:${G.trickyCorrect?'#69F0AE':'#FF8A80'};margin-bottom:4px">${G.trickyCorrect?'Correct!':'Wrong!'} Answer: ${q.ans}</div>
+                <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);line-height:1.5">${q.fact}</div>
+            </div>`:''}
+        <button onclick="backToMenu()" style="width:100%;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.55);font-family:'Bebas Neue',cursive;font-size:1rem;padding:0.8rem;border-radius:0.75rem;cursor:pointer;letter-spacing:0.04em;">← BACK TO MENU</button>
+    </div>`;
+}
+
+function render(){
+    const r=document.getElementById('root');
+    switch(G.screen){
+        case'menu':r.innerHTML=renderMenu();break;
+        case'playing':r.innerHTML=renderGame();break;
+        case'gameover':r.innerHTML=renderGameOver();break;
+        case'tricky':r.innerHTML=renderTricky();break;
+    }
+}
+render();
+</script>
+</body>
+</html>
