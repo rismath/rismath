@@ -38,22 +38,23 @@
         body {
             background: var(--bg-gradient);
             font-family: 'Nunito', sans-serif; color: var(--text);
-            height: 100vh; overflow: hidden; touch-action: manipulation;
-            display: flex; align-items: center; justify-content: center; margin: 0;
+            min-height: 100vh; touch-action: manipulation;
+            display: flex; align-items: flex-start; justify-content: center;
+            padding: 3.5rem 1rem 1rem; margin: 0; overflow-y: auto;
             transition: background 0.5s ease;
         }
 
         .glass-card {
             background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border-radius: 2.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245,166,35,0.08);
-            width: 92%; max-width: 380px; padding: 2rem; position: relative; z-index: 10;
+            width: 100%; max-width: 400px; padding: 1.5rem; position: relative; z-index: 10;
         }
 
         .game-title { font-family: 'Baloo 2', cursive; font-weight: 800; }
 
         .tile {
             background: var(--tile); border-radius: 1.2rem; font-family: 'Baloo 2', cursive;
-            font-size: 2.2rem; color: var(--primary); aspect-ratio: 1;
+            font-size: clamp(1.4rem, 6vw, 2.2rem); color: var(--primary); aspect-ratio: 1;
             display: flex; align-items: center; justify-content: center;
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer; user-select: none;
@@ -76,10 +77,11 @@
         }
 
         .input-field {
-            background: rgba(255,255,255,0.05); border: 2px solid rgba(245,166,35,0.4); border-radius: 1rem;
+            background: rgba(255,255,255,0.06); border: 2px solid rgba(245,166,35,0.4); border-radius: 1rem;
             padding: 0.8rem; width: 100%; text-align: center; font-weight: 800; font-size: 1.2rem;
-            margin-bottom: 1.5rem; outline: none; color: var(--text);
+            margin-bottom: 1.5rem; outline: none; color: #F5A623;
         }
+        .input-field::placeholder { color: rgba(245,166,35,0.35); }
 
         .floating-text {
             position: absolute; font-weight: 900; font-size: 1.2rem;
@@ -89,7 +91,20 @@
     </style>
 </head>
 <body>
-    <div id="game-root" class="w-full flex justify-center p-4"></div>
+    
+<!-- Home button -->
+<a href="https://rismath.com" style="
+  position:fixed;top:12px;left:12px;z-index:10000;
+  background:rgba(245,166,35,0.12);border:1.5px solid rgba(245,166,35,0.3);
+  color:#F5A623;font-family:'Nunito',sans-serif;font-size:.72rem;font-weight:800;
+  padding:.3rem .65rem;border-radius:2rem;text-decoration:none;
+  display:flex;align-items:center;gap:.3rem;
+  backdrop-filter:blur(8px);letter-spacing:.04em;
+">
+  ← Home
+</a>
+
+<div id="game-root" class="w-full flex justify-center p-4"></div>
 
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -393,7 +408,7 @@
                         <div class="text-right"><p class="text-[9px] font-black opacity-30 uppercase">Level</p><p id="lvl-val" class="game-title text-2xl" style="color:#F5A623;">1</p></div>
                     </div>
                     <div class="rounded-full h-1.5 mb-8 overflow-hidden" style="background:rgba(255,255,255,0.08);"><div id="progress-bar" class="h-full w-full transition-all duration-1000" style="background:#F5A623;"></div></div>
-                    <div class="text-center mb-8"><p class="text-[10px] font-black opacity-30 uppercase tracking-widest">Target</p><h2 id="target-num" class="game-title text-9xl -mt-2">0</h2></div>
+                    <div class="text-center mb-8"><p class="text-[10px] font-black opacity-30 uppercase tracking-widest">Target</p><h2 id="target-num" class="game-title -mt-2" style="font-size:clamp(4rem,20vw,7rem);">0</h2></div>
                     <div id="tiles-container" class="grid grid-cols-3 gap-4"></div>
                 </div>`;
             } else {
