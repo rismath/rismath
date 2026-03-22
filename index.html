@@ -4,409 +4,274 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RisMath — Tap. Play. Repeat.</title>
-<meta name="description" content="Simple, addictive games you can play in 60 seconds. Built for fast minds.">
+<meta name="description" content="Simple, addictive games you can play in 60 seconds.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #080B14;
-    --surface: #0E1220;
-    --surface2: #141828;
-    --accent: #FF4D6D;
-    --accent2: #FFB547;
-    --accent3: #4DFFB4;
-    --text: #F0F2FF;
-    --muted: #6B7280;
-    --border: rgba(255,255,255,0.06);
-  }
+:root{
+  --bg:#080B14;--surface:#0E1220;--text:#F0F2FF;--muted:#6B7280;--border:rgba(255,255,255,0.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+/* Grid background */
+body::before{content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(255,77,109,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,77,109,0.025) 1px,transparent 1px);
+  background-size:52px 52px;pointer-events:none;z-index:0;}
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+/* Blobs */
+.b{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;}
+.b1{width:480px;height:480px;background:#FF4D6D;top:-160px;right:-120px;opacity:.15;}
+.b2{width:380px;height:380px;background:#4DFFB4;bottom:-120px;left:-100px;opacity:.12;}
 
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background-image:
-      linear-gradient(rgba(255,77,109,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,77,109,0.03) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none;
-    z-index: 0;
-  }
+.wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 1.25rem;}
 
-  .blob {
-    position: fixed;
-    border-radius: 50%;
-    filter: blur(120px);
-    pointer-events: none;
-    z-index: 0;
-    opacity: 0.18;
-  }
-  .blob-1 { width: 500px; height: 500px; background: #FF4D6D; top: -150px; right: -100px; }
-  .blob-2 { width: 400px; height: 400px; background: #4DFFB4; bottom: -100px; left: -100px; }
-  .blob-3 { width: 300px; height: 300px; background: #FFB547; top: 40%; left: 40%; opacity: 0.1; }
+/* Header */
+header{padding:1.5rem 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);margin-bottom:2.5rem;}
+.logo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;letter-spacing:-.02em;}
+.logo span{color:#FF4D6D;}
+.tagline{font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
 
-  .container {
-    position: relative;
-    z-index: 1;
-    max-width: 900px;
-    margin: 0 auto;
-    padding: 0 1.5rem;
-  }
+/* Section label */
+.slabel{font-size:.65rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
+  display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border);}
 
-  header {
-    padding: 2.5rem 0 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
+/* Game grid */
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem;margin-bottom:3rem;}
+@media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr);}}
 
-  .logo {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.5rem;
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    color: var(--text);
-  }
-  .logo span { color: var(--accent); }
+/* Card */
+.card{display:flex;flex-direction:column;text-decoration:none;color:var(--text);
+  background:var(--surface);border:1px solid var(--border);border-radius:1.1rem;
+  overflow:hidden;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+  animation:fadeUp .5s ease both;}
+.card:hover{transform:translateY(-5px);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 0 1px var(--c);}
+.card:hover{border-color:var(--c);}
 
-  .badge {
-    background: rgba(255,77,109,0.12);
-    border: 1px solid rgba(255,77,109,0.25);
-    color: var(--accent);
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    padding: 0.3rem 0.75rem;
-    border-radius: 2rem;
-  }
+.card:nth-child(1){animation-delay:.05s;--c:#FF4D6D;}
+.card:nth-child(2){animation-delay:.12s;--c:#FFB547;}
+.card:nth-child(3){animation-delay:.19s;--c:#4DFFB4;}
+.card:nth-child(4){animation-delay:.26s;--c:#5B8DEF;}
 
-  .hero {
-    padding: 5rem 0 4rem;
-    text-align: center;
-    animation: fadeUp 0.6s ease both;
-  }
+/* Thumbnail */
+.thumb{width:100%;aspect-ratio:16/10;position:relative;overflow:hidden;flex-shrink:0;}
 
-  .hero-eyebrow {
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--accent);
-    margin-bottom: 1.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-  .hero-eyebrow::before, .hero-eyebrow::after {
-    content: '';
-    width: 2rem;
-    height: 1px;
-    background: var(--accent);
-    opacity: 0.5;
-  }
+/* RisMath thumbnail */
+.thumb-rismath{background:linear-gradient(135deg,#1a0814 0%,#3d0a1e 100%);}
+.thumb-rismath .nums{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.4rem;flex-wrap:wrap;padding:.5rem;}
+.thumb-rismath .n{font-family:'Syne',sans-serif;font-weight:800;color:#FF4D6D;opacity:.9;line-height:1;text-shadow:0 0 20px rgba(255,77,109,.5);}
+.thumb-rismath .n.big{font-size:clamp(1.4rem,4vw,2.2rem);}
+.thumb-rismath .n.med{font-size:clamp(1rem,3vw,1.5rem);opacity:.6;}
+.thumb-rismath .n.sm{font-size:clamp(.7rem,2vw,1rem);opacity:.35;}
+.thumb-rismath .badge-lvl{position:absolute;bottom:.5rem;right:.5rem;background:rgba(255,77,109,.2);
+  border:1px solid rgba(255,77,109,.4);color:#FF4D6D;font-size:.55rem;font-weight:700;
+  letter-spacing:.1em;text-transform:uppercase;padding:.2rem .45rem;border-radius:2rem;}
 
-  h1 {
-    font-family: 'Syne', sans-serif;
-    font-size: clamp(2.8rem, 8vw, 5.5rem);
-    font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-    margin-bottom: 1.5rem;
-  }
-  h1 .line2 {
-    display: block;
-    background: linear-gradient(135deg, #FF4D6D, #FFB547);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
+/* Googly thumbnail */
+.thumb-googly{background:linear-gradient(135deg,#0d1a0a 0%,#1a3312 100%);}
+.thumb-googly .field{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.thumb-googly .circle{width:55%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,181,71,.25);
+  display:flex;align-items:center;justify-content:center;position:relative;}
+.thumb-googly .circle::before{content:'';position:absolute;inset:8px;border-radius:50%;
+  border:1px solid rgba(255,181,71,.12);}
+.thumb-googly .bat-emoji{font-size:clamp(1.5rem,5vw,2.5rem);}
+.thumb-googly .dots{position:absolute;inset:0;}
+.thumb-googly .dot{position:absolute;width:4px;height:4px;border-radius:50%;background:#FFB547;opacity:.4;}
 
-  .hero-sub {
-    font-size: 1.05rem;
-    color: var(--muted);
-    max-width: 400px;
-    margin: 0 auto 3rem;
-    line-height: 1.7;
-  }
+/* Filmi thumbnail */
+.thumb-filmi{background:linear-gradient(135deg,#0d0a1a 0%,#1a1030 100%);}
+.thumb-filmi .reel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.5rem;}
+.thumb-filmi .film-strip{display:flex;flex-direction:column;gap:3px;}
+.thumb-filmi .frame{width:clamp(18px,4vw,28px);height:clamp(12px,3vw,20px);background:rgba(77,255,180,.15);
+  border:1px solid rgba(77,255,180,.25);border-radius:2px;}
+.thumb-filmi .frame.lit{background:rgba(77,255,180,.35);border-color:rgba(77,255,180,.6);}
+.thumb-filmi .center-icon{font-size:clamp(1.4rem,4vw,2.2rem);z-index:1;}
+.thumb-filmi .glow{position:absolute;width:60px;height:60px;background:#4DFFB4;
+  border-radius:50%;filter:blur(30px);opacity:.15;}
 
-  .hero-stats {
-    display: flex;
-    gap: 2.5rem;
-    justify-content: center;
-    flex-wrap: wrap;
-  }
-  .stat-num {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.8rem;
-    font-weight: 800;
-    line-height: 1;
-  }
-  .stat-label {
-    font-size: 0.7rem;
-    color: var(--muted);
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    margin-top: 0.3rem;
-  }
+/* Sparkle thumbnail */
+.thumb-sparkle{background:linear-gradient(135deg,#080d1a 0%,#0d1530 100%);}
+.thumb-sparkle .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.thumb-sparkle .room{width:70%;height:70%;border:1px solid rgba(91,141,239,.25);border-radius:4px;
+  position:relative;background:rgba(91,141,239,.05);}
+.thumb-sparkle .shelf{position:absolute;left:5%;right:5%;height:2px;background:rgba(91,141,239,.3);}
+.thumb-sparkle .shelf:nth-child(1){top:25%;}
+.thumb-sparkle .shelf:nth-child(2){top:55%;}
+.thumb-sparkle .win{position:absolute;top:8%;right:8%;width:22%;aspect-ratio:1;
+  background:rgba(91,141,239,.15);border:1px solid rgba(91,141,239,.3);border-radius:2px;}
+.thumb-sparkle .sparkles-layer{position:absolute;inset:0;}
+.thumb-sparkle .sp{position:absolute;font-size:.7rem;opacity:.7;}
 
-  .section-label {
-    font-size: 0.68rem;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: var(--muted);
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-  }
-  .section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: var(--border);
-  }
+/* Card body */
+.cbody{padding:.85rem 1rem 1rem;flex:1;display:flex;flex-direction:column;gap:.4rem;}
+.cname{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:-.01em;}
+.cdesc{font-size:.72rem;color:var(--muted);line-height:1.5;flex:1;}
+.cfoot{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);}
+.ctag{font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);
+  padding:.18rem .5rem;border-radius:2rem;}
+.cplay{font-size:.72rem;font-weight:600;color:var(--c);display:flex;align-items:center;gap:.3rem;transition:gap .15s ease;}
+.card:hover .cplay{gap:.5rem;}
+.cplay svg{width:13px;height:13px;fill:var(--c);}
 
-  .games { padding-bottom: 6rem; }
+/* Footer */
+footer{border-top:1px solid var(--border);padding:1.5rem 0;text-align:center;
+  color:var(--muted);font-size:.75rem;position:relative;z-index:1;margin-top:1rem;}
+footer a{color:#FF4D6D;text-decoration:none;}
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.25rem;
-  }
+/* Studio info below games */
+.studio{text-align:center;padding:2rem 0 3rem;animation:fadeUp .6s .35s ease both;opacity:0;}
+.studio-name{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:.5rem;}
+.studio-name span{color:#FF4D6D;}
+.studio-sub{font-size:.85rem;color:var(--muted);max-width:340px;margin:0 auto;line-height:1.7;}
 
-  .card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 1.25rem;
-    padding: 2rem;
-    text-decoration: none;
-    color: var(--text);
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    position: relative;
-    overflow: hidden;
-    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  }
-
-  .card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    opacity: 0;
-    transition: opacity 0.2s ease;
-    border-radius: inherit;
-  }
-
-  .card:hover { transform: translateY(-4px); }
-  .card:hover::before { opacity: 1; }
-
-  .card-red  { --c: #FF4D6D; }
-  .card-amber{ --c: #FFB547; }
-  .card-teal { --c: #4DFFB4; }
-  .card-blue { --c: #5B8DEF; }
-
-  .card:hover {
-    border-color: var(--c);
-    box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 0 1px var(--c);
-  }
-  .card::before {
-    background: radial-gradient(ellipse at top left, color-mix(in srgb, var(--c) 8%, transparent), transparent 60%);
-  }
-
-  .card-icon {
-    width: 52px;
-    height: 52px;
-    border-radius: 0.875rem;
-    background: color-mix(in srgb, var(--c) 15%, transparent);
-    border: 1px solid color-mix(in srgb, var(--c) 30%, transparent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.6rem;
-  }
-
-  .card-body { flex: 1; }
-  .card-name {
-    font-family: 'Syne', sans-serif;
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin-bottom: 0.4rem;
-    letter-spacing: -0.01em;
-  }
-  .card-desc {
-    font-size: 0.875rem;
-    color: var(--muted);
-    line-height: 1.6;
-  }
-
-  .card-footer {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-top: 1rem;
-    border-top: 1px solid var(--border);
-  }
-
-  .card-tag {
-    font-size: 0.65rem;
-    font-weight: 600;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--c);
-    background: color-mix(in srgb, var(--c) 12%, transparent);
-    padding: 0.25rem 0.6rem;
-    border-radius: 2rem;
-  }
-
-  .play-btn {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: var(--c);
-    transition: gap 0.2s ease;
-  }
-  .card:hover .play-btn { gap: 0.7rem; }
-  .play-btn svg { width: 16px; height: 16px; fill: var(--c); }
-
-  .card:nth-child(1) { animation: fadeUp 0.5s 0.1s ease both; }
-  .card:nth-child(2) { animation: fadeUp 0.5s 0.18s ease both; }
-  .card:nth-child(3) { animation: fadeUp 0.5s 0.26s ease both; }
-  .card:nth-child(4) { animation: fadeUp 0.5s 0.34s ease both; }
-
-  footer {
-    border-top: 1px solid var(--border);
-    padding: 2rem 0;
-    text-align: center;
-    color: var(--muted);
-    font-size: 0.8rem;
-    position: relative;
-    z-index: 1;
-  }
-  footer a { color: var(--accent); text-decoration: none; }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(24px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-
-  @media (max-width: 480px) {
-    .hero { padding: 3rem 0; }
-    .hero-stats { gap: 1.5rem; }
-    .grid { grid-template-columns: 1fr; }
-  }
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
-<div class="blob blob-1"></div>
-<div class="blob blob-2"></div>
-<div class="blob blob-3"></div>
+<div class="b b1"></div>
+<div class="b b2"></div>
 
-<div class="container">
+<div class="wrap">
 
   <header>
     <div class="logo">Ris<span>Math</span></div>
-    <div class="badge">🎮 Free to Play</div>
+    <div class="tagline">Free Games · Play Instantly</div>
   </header>
 
-  <section class="hero">
-    <div class="hero-eyebrow">Game Studio</div>
-    <h1>
-      Tap. Play.
-      <span class="line2">Repeat.</span>
-    </h1>
-    <p class="hero-sub">Simple, addictive games built for fast minds. No downloads. No sign-ups. Just play.</p>
-    <div class="hero-stats">
-      <div class="stat">
-        <div class="stat-num">4</div>
-        <div class="stat-label">Games</div>
+  <div class="slabel">Play now</div>
+
+  <div class="grid">
+
+    <!-- RisMath -->
+    <a href="/rismath" class="card">
+      <div class="thumb thumb-rismath">
+        <div class="nums">
+          <span class="n big">7</span>
+          <span class="n big">×</span>
+          <span class="n big">8</span>
+          <span class="n med">= ?</span>
+          <span class="n sm">3+9</span>
+          <span class="n sm">12÷4</span>
+          <span class="n sm">15−6</span>
+          <span class="n med">42</span>
+          <span class="n sm">56</span>
+          <span class="n sm">24</span>
+        </div>
+        <div class="badge-lvl">Level 8</div>
       </div>
-      <div class="stat">
-        <div class="stat-num">60s</div>
-        <div class="stat-label">Avg Session</div>
+      <div class="cbody">
+        <div class="cname">RisMath</div>
+        <div class="cdesc">Streak-based math speed game. 3 correct = level up. 1 wrong = level down.</div>
+        <div class="cfoot">
+          <span class="ctag">Math</span>
+          <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
+        </div>
       </div>
-      <div class="stat">
-        <div class="stat-num">∞</div>
-        <div class="stat-label">Replayable</div>
+    </a>
+
+    <!-- Googly -->
+    <a href="/googly" class="card">
+      <div class="thumb thumb-googly">
+        <div class="field">
+          <div class="circle">
+            <span class="bat-emoji">🏏</span>
+          </div>
+          <!-- scattered dots -->
+          <div class="dots">
+            <div class="dot" style="top:20%;left:15%"></div>
+            <div class="dot" style="top:70%;left:20%"></div>
+            <div class="dot" style="top:30%;right:18%"></div>
+            <div class="dot" style="bottom:20%;right:25%"></div>
+            <div class="dot" style="top:55%;left:50%"></div>
+          </div>
+        </div>
       </div>
-    </div>
-  </section>
+      <div class="cbody">
+        <div class="cname">Googly</div>
+        <div class="cdesc">How well do you know IPL? Test your cricket knowledge now.</div>
+        <div class="cfoot">
+          <span class="ctag">Cricket</span>
+          <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
+        </div>
+      </div>
+    </a>
 
-  <section class="games">
-    <div class="section-label">Play now</div>
-    <div class="grid">
+    <!-- Filmi -->
+    <a href="/filmi" class="card">
+      <div class="thumb thumb-filmi">
+        <div class="reel">
+          <div class="film-strip">
+            <div class="frame"></div>
+            <div class="frame lit"></div>
+            <div class="frame"></div>
+            <div class="frame lit"></div>
+            <div class="frame"></div>
+          </div>
+          <div class="center-icon">🎬</div>
+          <div class="film-strip">
+            <div class="frame lit"></div>
+            <div class="frame"></div>
+            <div class="frame lit"></div>
+            <div class="frame"></div>
+            <div class="frame lit"></div>
+          </div>
+        </div>
+        <div class="glow"></div>
+      </div>
+      <div class="cbody">
+        <div class="cname">Filmi</div>
+        <div class="cdesc">Are you a true Bollywood fan? Guess movies, actors and iconic dialogues.</div>
+        <div class="cfoot">
+          <span class="ctag">Bollywood</span>
+          <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
+        </div>
+      </div>
+    </a>
 
-      <a href="/rismath" class="card card-red">
-        <div class="card-icon">🔢</div>
-        <div class="card-body">
-          <div class="card-name">RisMath</div>
-          <div class="card-desc">Streak-based math speed game. 3 correct = level up. 1 wrong = level down. Can you reach Level 8?</div>
+    <!-- Sparkle -->
+    <a href="/sparkle" class="card">
+      <div class="thumb thumb-sparkle">
+        <div class="scene">
+          <div class="room">
+            <div class="shelf" style="top:25%"></div>
+            <div class="shelf" style="top:55%"></div>
+            <div class="win"></div>
+          </div>
+          <div class="sparkles-layer">
+            <span class="sp" style="top:18%;left:22%">✦</span>
+            <span class="sp" style="top:45%;right:20%">✧</span>
+            <span class="sp" style="bottom:25%;left:35%">·</span>
+            <span class="sp" style="top:30%;left:55%">✦</span>
+            <span class="sp" style="bottom:18%;right:30%">✧</span>
+          </div>
         </div>
-        <div class="card-footer">
-          <span class="card-tag">Math</span>
-          <span class="play-btn">Play now <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
+      </div>
+      <div class="cbody">
+        <div class="cname">Sparkle</div>
+        <div class="cdesc">Hidden object mystery in a grand study. Zoom in. Explore. Find what's hidden.</div>
+        <div class="cfoot">
+          <span class="ctag">Hidden Object</span>
+          <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
         </div>
-      </a>
+      </div>
+    </a>
 
-      <a href="/googly" class="card card-amber">
-        <div class="card-icon">🏏</div>
-        <div class="card-body">
-          <div class="card-name">Googly</div>
-          <div class="card-desc">How well do you know IPL cricket? Test your knowledge of players, teams and iconic moments.</div>
-        </div>
-        <div class="card-footer">
-          <span class="card-tag">Cricket</span>
-          <span class="play-btn">Play now <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
-        </div>
-      </a>
+  </div>
 
-      <a href="/filmi" class="card card-teal">
-        <div class="card-icon">🎬</div>
-        <div class="card-body">
-          <div class="card-name">Filmi</div>
-          <div class="card-desc">Are you a true Bollywood fan? Guess movies, actors and iconic dialogues from Hindi cinema.</div>
-        </div>
-        <div class="card-footer">
-          <span class="card-tag">Bollywood</span>
-          <span class="play-btn">Play now <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
-        </div>
-      </a>
-
-      <a href="/sparkle" class="card card-blue">
-        <div class="card-icon">✨</div>
-        <div class="card-body">
-          <div class="card-name">Sparkle</div>
-          <div class="card-desc">A hidden object mystery set in a grand study. Zoom in. Explore every corner. Find what's hidden.</div>
-        </div>
-        <div class="card-footer">
-          <span class="card-tag">Hidden Object</span>
-          <span class="play-btn">Play now <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
-        </div>
-      </a>
-
-    </div>
-  </section>
+  <!-- Studio info -->
+  <div class="studio">
+    <div class="studio-name">Ris<span>Math</span> Studio</div>
+    <div class="studio-sub">Simple games built for fast minds. No downloads, no sign-ups. Just tap and play.</div>
+  </div>
 
 </div>
 
 <footer>
-  <div class="container">
-    Made with ♥ by RisMath Studio · <a href="mailto:hello@rismath.com">hello@rismath.com</a>
+  <div class="wrap">
+    Made with ♥ · <a href="mailto:hello@rismath.com">hello@rismath.com</a>
   </div>
 </footer>
 
