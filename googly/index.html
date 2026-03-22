@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Googly — Guess the IPL Cricketer 🏏</title>
+    <meta name="theme-color" content="#050D1F">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="Googly">
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-5K57FR3XVW"></script>
+    <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-5K57FR3XVW');function trackEvent(n,p){gtag('event',n,p||{});}</script>
+    <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Rajdhani:wght@500;600;700&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050D1F;
+            --card: #0B1730;
+            --card2: #0F1F3D;
+            --border: rgba(255,255,255,0.08);
+            --gold: #F5C842;
+            --gold2: #E8A020;
+            --green: #00C853;
+            --red: #FF1744;
+            --text: #E8F0FF;
+            --muted: rgba(232,240,255,0.45);
+        }
+        * { box-sizing:border-box; margin:0; padding:0; }
+
+        body {
+            background: var(--bg);
+            font-family: 'Nunito', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 0.75rem;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Stadium floodlight effect */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -100px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(ellipse at 50% 0%, rgba(245,200,66,0.12) 0%, rgba(245,200,66,0.04) 40%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Animated crowd dots */
+        body::after {
+            content: '';
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 60px;
+            background: repeating-linear-gradient(90deg, rgba(255,255,255,0.015) 0px, rgba(255,255,255,0.015) 2px, transparent 2px, transparent 8px);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        #root { width:100%; max-width:440px; position:relative; z-index:1; }
+
+        /* ── ANIMATIONS ── */
+        @keyframes fadeUp { from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);} }
+        @keyframes popIn { 0%{transform:scale(0.5);opacity:0;}70%{transform:scale(1.06);}100%{transform:scale(1);opacity:1;} }
+        @keyframes floodIn { from{opacity:0;transform:translateY(-10px) scale(0.96);}to{opacity:1;transform:translateY(0) scale(1);} }
+        @keyframes shimmer { 0%{background-position:-200% 0;}100%{background-position:200% 0;} }
+        @keyframes burstUp { 0%{transform:translateY(0) scale(1);opacity:1;}100%{transform:translateY(-120px) scale(0.3);opacity:0;} }
+        @keyframes toastIn { from{opacity:0;transform:translateX(-50%) scale(0.88);}to{opacity:1;transform:translateX(-50%) scale(1);} }
+        @keyframes toastOut { from{opacity:1;}to{opacity:0;transform:translateX(-50%) scale(0.9);} }
+        @keyframes chipIn { from{opacity:0;transform:scale(0.7);}to{opacity:1;transform:scale(1);} }
+        @keyframes pulse { 0%,100%{opacity:1;}50%{opacity:0.6;} }
+        @keyframes float { 0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);} }
+
+        .fade-up { animation: fadeUp 0.4s ease forwards; }
+        .pop-in { animation: popIn 0.45s cubic-bezier(0.175,0.885,0.32,1.275) forwards; }
+        .flood-in { animation: floodIn 0.35s ease forwards; }
+        .float { animation: float 3s ease-in-out infinite; }
+
+        /* ── HEADER BAR ── */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0.8rem;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            margin-bottom: 0.75rem;
+        }
+        .top-stat { text-align: center; }
+        .top-stat-label { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+        .top-stat-value { font-family: 'Black Han Sans', sans-serif; font-size: 1.6rem; line-height: 1.1; }
+
+        /* ── TIMER BAR ── */
+        .timer-wrap { margin-bottom: 0.75rem; }
+        .timer-track { height: 6px; background: rgba(255,255,255,0.08); border-radius: 3px; overflow: hidden; }
+        .timer-fill { height: 100%; border-radius: 3px; transition: width 1s linear, background 0.5s; }
+
+        /* ── PLAYER CARD ── */
+        .player-card {
+            border-radius: 1.2rem;
+            padding: 0;
+            margin-bottom: 0.75rem;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--border);
+            animation: floodIn 0.3s ease forwards;
+        }
+
+        .player-card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            padding: 0.9rem 1rem;
+            position: relative;
+        }
+
+        /* Jersey visual */
+        .jersey {
+            width: 72px;
+            height: 84px;
+            border-radius: 0.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .jersey-number {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 2.2rem;
+            line-height: 1;
+            color: rgba(255,255,255,0.9);
+            text-shadow: 0 2px 8px rgba(0,0,0,0.5);
+            z-index: 1;
+        }
+        .jersey-label {
+            font-size: 0.55rem;
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            color: rgba(255,255,255,0.6);
+            text-transform: uppercase;
+            z-index: 1;
+            margin-top: 2px;
+        }
+        /* Cricket bat silhouette */
+        .jersey-bat {
+            position: absolute;
+            bottom: 6px;
+            right: 8px;
+            font-size: 1.4rem;
+            opacity: 0.2;
+        }
+
+        .player-meta { flex: 1; }
+        .player-role-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+        .player-mystery {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 1.6rem;
+            color: rgba(255,255,255,0.15);
+            letter-spacing: 0.15em;
+            line-height: 1.1;
+        }
+        .player-mystery-sub {
+            font-size: 0.72rem;
+            color: var(--muted);
+            margin-top: 3px;
+        }
+
+        /* ── CLUE CHIPS GRID ── */
+        .clues-section {
+            padding: 0.75rem 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .clues-label {
+            font-size: 0.6rem;
+            font-weight: 700;
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.6rem;
+        }
+        .clues-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+        .clue-chip {
+            border-radius: 0.65rem;
+            padding: 0.55rem 0.7rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.45rem;
+            animation: chipIn 0.3s ease forwards;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .clue-chip:nth-child(1) { animation-delay: 0.05s; opacity: 0; }
+        .clue-chip:nth-child(2) { animation-delay: 0.1s; opacity: 0; }
+        .clue-chip:nth-child(3) { animation-delay: 0.15s; opacity: 0; }
+        .clue-chip:nth-child(4) { animation-delay: 0.2s; opacity: 0; }
+        .clue-chip:nth-child(5) { animation-delay: 0.25s; opacity: 0; }
+        .clue-chip.full { grid-column: 1 / -1; }
+        .chip-icon { font-size: 1rem; line-height: 1; flex-shrink: 0; margin-top: 1px; }
+        .chip-text { flex: 1; }
+        .chip-label { font-size: 0.58rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; opacity: 0.55; margin-bottom: 1px; }
+        .chip-value { font-size: 0.8rem; font-weight: 700; line-height: 1.3; }
+
+        /* Chip colour themes */
+        .chip-gold { background: rgba(245,200,66,0.12); }
+        .chip-gold .chip-value { color: #F5C842; }
+        .chip-gold .chip-label { color: #F5C842; }
+        .chip-blue { background: rgba(64,156,255,0.12); }
+        .chip-blue .chip-value { color: #64B5F6; }
+        .chip-blue .chip-label { color: #64B5F6; }
+        .chip-green { background: rgba(0,200,83,0.1); }
+        .chip-green .chip-value { color: #69F0AE; }
+        .chip-green .chip-label { color: #69F0AE; }
+        .chip-orange { background: rgba(255,111,0,0.12); }
+        .chip-orange .chip-value { color: #FFAB40; }
+        .chip-orange .chip-label { color: #FFAB40; }
+        .chip-pink { background: rgba(255,64,129,0.1); }
+        .chip-pink .chip-value { color: #FF80AB; }
+        .chip-pink .chip-label { color: #FF80AB; }
+
+        /* ── ANSWER BUTTONS ── */
+        .answers-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .btn-ans {
+            background: var(--card2);
+            border: 1.5px solid rgba(255,255,255,0.1);
+            color: var(--text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 1rem;
+            font-weight: 600;
+            padding: 0.85rem 0.5rem;
+            border-radius: 0.85rem;
+            cursor: pointer;
+            transition: all 0.12s;
+            text-align: center;
+            line-height: 1.25;
+            letter-spacing: 0.01em;
+        }
+        .btn-ans:hover { background: rgba(245,200,66,0.12); border-color: rgba(245,200,66,0.4); transform: scale(1.02); }
+        .btn-ans:active { transform: scale(0.97); }
+        .btn-ans.correct { background: rgba(0,200,83,0.2) !important; border-color: #00C853 !important; color: #69F0AE !important; }
+        .btn-ans.wrong { background: rgba(255,23,68,0.2) !important; border-color: #FF1744 !important; color: #FF8A80 !important; }
+
+        /* ── MENU ── */
+        .menu-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.4rem;
+            padding: 1.8rem 1.4rem;
+            text-align: center;
+        }
+        .menu-title {
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 3.2rem;
+            line-height: 1;
+            background: linear-gradient(135deg, #F5C842, #FF8C00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 4px;
+        }
+        .menu-sub { font-size: 0.85rem; color: var(--muted); margin-bottom: 1.5rem; }
+
+        .name-input-wrap {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 0.75rem;
+            padding: 0.9rem;
+            margin-bottom: 1rem;
+            text-align: left;
+        }
+        .name-input-label { font-size: 0.65rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; display: block; margin-bottom: 6px; }
+        .name-input {
+            width: 100%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 0.5rem;
+            padding: 0.6rem 0.8rem;
+            color: white;
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .name-input:focus { border-color: var(--gold); }
+
+        .pb-box {
+            background: rgba(245,200,66,0.08);
+            border: 1px solid rgba(245,200,66,0.2);
+            border-radius: 0.85rem;
+            padding: 0.9rem;
+            margin-bottom: 1.2rem;
+        }
+        .pb-label { font-size: 0.62rem; font-weight: 700; color: rgba(245,200,66,0.5); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
+        .pb-value { font-family: 'Black Han Sans', sans-serif; font-size: 2.8rem; color: var(--gold); line-height: 1; }
+
+        .btn-start {
+            width: 100%;
+            background: linear-gradient(135deg, #F5C842, #E8A020);
+            border: none;
+            color: #050D1F;
+            font-family: 'Black Han Sans', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border-radius: 1rem;
+            cursor: pointer;
+            transition: all 0.15s;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 20px rgba(245,200,66,0.25);
+        }
+        .btn-start:hover { transform: scale(1.02); box-shadow: 0 6px 28px rgba(245,200,66,0.35); }
+        .btn-start:active { transform: scale(0.98); }
+
+        .how-to-play {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            padding: 0.9rem;
+            text-align: left;
+        }
+        .how-title { font-size: 0.75rem; font-weight: 800; color: var(--text); margin-bottom: 0.5rem; }
+        .how-row { display: flex; gap: 0.5rem; align-items: flex-start; margin-bottom: 0.3rem; }
+        .how-icon { font-size: 0.85rem; flex-shrink: 0; margin-top: 1px; }
+        .how-text { font-size: 0.78rem; color: var(--muted); line-height: 1.4; }
+
+        /* ── GAME OVER ── */
+        .gameover-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 1.4rem;
+            padding: 1.4rem;
+            text-align: center;
+            animation: fadeUp 0.4s ease forwards;
+        }
+        .go-score-box {
+            background: rgba(245,200,66,0.08);
+            border: 1px solid rgba(245,200,66,0.18);
+            border-radius: 1rem;
+            padding: 1rem;
+            margin: 0.75rem 0;
+        }
+        .go-score { font-family: 'Black Han Sans', sans-serif; font-size: 4.5rem; color: var(--gold); line-height: 1; }
+        .go-score-label { font-size: 0.65rem; font-weight: 700; color: rgba(245,200,66,0.4); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 4px; }
+        .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; }
+        .stat-box { background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 0.75rem; padding: 0.6rem 0.4rem; text-align: center; }
+        .stat-box-val { font-family: 'Black Han Sans', sans-serif; font-size: 1.4rem; line-height: 1.1; }
+        .stat-box-label { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; margin-top: 2px; }
+        .share-section { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 0.85rem; padding: 0.85rem; margin-bottom: 0.75rem; text-align: left; }
+        .share-label { font-size: 0.6rem; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.5rem; }
+        .score-preview { background: #020608; border: 1px solid rgba(0,200,83,0.2); border-radius: 0.6rem; padding: 0.75rem; font-family: monospace; font-size: 0.75rem; color: #69F0AE; line-height: 1.7; white-space: pre; overflow-x: auto; margin-bottom: 0.5rem; }
+        .share-btn { background: #25D366; color: white; font-family: 'Rajdhani', sans-serif; font-size: 1rem; font-weight: 700; padding: 0.75rem; border-radius: 0.65rem; border: none; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 7px; transition: all 0.2s; margin-bottom: 0.4rem; letter-spacing: 0.03em; }
+        .share-btn:hover { filter: brightness(1.1); }
+        .btn-row { display: flex; gap: 0.4rem; }
+        .btn-sm { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); font-family: 'Nunito', sans-serif; font-size: 0.8rem; font-weight: 700; padding: 0.6rem 0.75rem; border-radius: 0.6rem; cursor: pointer; flex: 1; transition: all 0.2s; }
+        .btn-sm:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+        .btn-play-again { flex: 1; background: linear-gradient(135deg, #00C853, #00897B); border: none; color: white; font-family: 'Black Han Sans', sans-serif; font-size: 1.1rem; padding: 0.9rem; border-radius: 0.85rem; cursor: pointer; transition: all 0.15s; letter-spacing: 0.05em; }
+        .btn-play-again:hover { transform: scale(1.02); }
+        .btn-home { background: rgba(255,255,255,0.06); border: 1px solid var(--border); color: var(--muted); font-family: 'Nunito', sans-serif; font-size: 1.1rem; padding: 0.9rem 1rem; border-radius: 0.85rem; cursor: pointer; }
+        .btn-pair { display: flex; gap: 0.5rem; margin-top: 0.75rem; }
+
+        /* ── UTILS ── */
+        .emoji-burst { position:fixed; pointer-events:none; font-size:1.8rem; z-index:1000; animation:burstUp 0.9s ease forwards; }
+        canvas { display: none; }
+
+        /* Team colour map used in JS */
+        .rank-badge { display: inline-flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); border: 1px solid var(--border); border-radius: 0.6rem; padding: 0.35rem 0.75rem; margin-bottom: 0.75rem; }
+        .rank-emoji { font-size: 1.5rem; }
+        .rank-text { font-family: 'Black Han Sans', sans-serif; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+<div id="root"></div>
+<canvas id="share-canvas" width="600" height="700"></canvas>
+
+<script>
+// ── TEAM COLOURS ─────────────────────────────────────────────────────────────
+const TEAM_COLORS = {
+    'MI':    { bg:'#004BA0', accent:'#00B4D8', name:'Mumbai Indians' },
+    'CSK':   { bg:'#F5C000', accent:'#1A1A1A', name:'Chennai Super Kings' },
+    'RCB':   { bg:'#C8102E', accent:'#1A1A1A', name:'Royal Challengers Bangalore' },
+    'KKR':   { bg:'#3A1F7A', accent:'#F5C842', name:'Kolkata Knight Riders' },
+    'SRH':   { bg:'#FF6200', accent:'#1A1A1A', name:'Sunrisers Hyderabad' },
+    'RR':    { bg:'#E91E8C', accent:'#002D72', name:'Rajasthan Royals' },
+    'DC':    { bg:'#004C97', accent:'#EF1C25', name:'Delhi Capitals' },
+    'PBKS':  { bg:'#DD1F2D', accent:'#C5B358', name:'Punjab Kings' },
+    'GT':    { bg:'#1C3A5B', accent:'#C8A44A', name:'Gujarat Titans' },
+    'LSG':   { bg:'#A2DAFF', accent:'#0D4F8C', name:'Lucknow SuperGiants' },
+};
+
+// ── PLAYER DATA ──────────────────────────────────────────────────────────────
+const PLAYERS = [
+  { name:"Virat Kohli", team:"RCB", role:"Batsman",
+    clues:[
+      {icon:"🏏",label:"IPL Runs",value:"8,600+ runs — all-time record scorer",color:"chip-gold",highlight:true},
+      {icon:"🧢",label:"Orange Cap",value:"Won Orange Cap 2016 (973 runs) and 2024 (741 runs)",color:"chip-orange"},
+      {icon:"💯",label:"Centuries",value:"8 IPL centuries — most by any player",color:"chip-gold"},
+      {icon:"⭐",label:"Record",value:"Only player to score 900+ runs in a single season",color:"chip-blue"},
+      {icon:"🏟️",label:"Team",value:"Royal Challengers Bangalore only (since 2008)",color:"chip-green"},
+    ]},
+  { name:"MS Dhoni", team:"CSK", role:"WK-Captain",
+    clues:[
+      {icon:"🏆",label:"IPL Titles",value:"5 IPL titles as captain — all-time record",color:"chip-gold",highlight:true},
+      {icon:"👑",label:"Record",value:"Most matches played in IPL history — 260+",color:"chip-orange"},
+      {icon:"⚠️",label:"Finals",value:"Won 5 finals but also lost 6 IPL finals as captain",color:"chip-pink"},
+      {icon:"🏟️",label:"Teams",value:"Chennai Super Kings · Rising Pune Supergiant",color:"chip-green"},
+      {icon:"🎖️",label:"Nickname",value:"Thala — most beloved captain in IPL history",color:"chip-blue"},
+    ]},
+  { name:"Rohit Sharma", team:"MI", role:"Captain-Batsman",
+    clues:[
+      {icon:"🏆",label:"IPL Titles",value:"6 titles total — 5 as MI captain + 1 with Deccan",color:"chip-gold",highlight:true},
+      {icon:"⭐",label:"Unique",value:"Scored a century AND took a hat-trick in IPL",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Deccan Chargers · Mumbai Indians",color:"chip-blue"},
+      {icon:"👑",label:"Record",value:"Most IPL titles as captain ever",color:"chip-green"},
+      {icon:"🎯",label:"Famous for",value:"Pulling off improbable last-over chases for MI",color:"chip-pink"},
+    ]},
+  { name:"Lasith Malinga", team:"MI", role:"Bowler",
+    clues:[
+      {icon:"🎳",label:"IPL Wickets",value:"170 wickets — MI all-time highest",color:"chip-gold",highlight:true},
+      {icon:"🏟️",label:"Teams",value:"Mumbai Indians (2009–2019)",color:"chip-blue"},
+      {icon:"📊",label:"Stats",value:"Economy 7.14 · Avg 19.8 · 122 matches",color:"chip-green"},
+      {icon:"🎯",label:"Famous for",value:"Round-arm slingy action and unplayable yorkers",color:"chip-pink"},
+      {icon:"🏆",label:"IPL Titles",value:"4 IPL titles with Mumbai Indians",color:"chip-orange"},
+    ]},
+  { name:"Chris Gayle", team:"RCB", role:"Opener",
+    clues:[
+      {icon:"💥",label:"Record",value:"Highest IPL score — 175* off 66 balls in 2013",color:"chip-gold",highlight:true},
+      {icon:"6️⃣",label:"Sixes",value:"357 sixes — most in IPL history",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"KKR · RCB · PBKS (never played for Pune Warriors)",color:"chip-blue"},
+      {icon:"🌟",label:"Nickname",value:"Universe Boss · The Big Show",color:"chip-pink"},
+      {icon:"📊",label:"Stats",value:"4,965 runs · SR 148.96 · 6 centuries",color:"chip-green"},
+    ]},
+  { name:"AB de Villiers", team:"RCB", role:"Batsman", initials:"ABD",
+    clues:[
+      {icon:"🌟",label:"Nickname",value:"Mr. 360 — no field placement could stop him",color:"chip-gold",highlight:true},
+      {icon:"📊",label:"Stats",value:"SR 151.68 — highest among 4000+ run scorers",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Delhi Daredevils · Royal Challengers Bangalore",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Never won an IPL title or an Orange Cap",color:"chip-pink"},
+      {icon:"🎯",label:"Famous for",value:"360° batting — could hit any ball anywhere",color:"chip-green"},
+    ]},
+  { name:"David Warner", team:"SRH", role:"Opener", initials:"DW",
+    clues:[
+      {icon:"🧢",label:"Orange Cap",value:"Won Orange Cap 3 times — 2015, 2017, 2019",color:"chip-orange",highlight:true},
+      {icon:"🏆",label:"IPL Title",value:"Won IPL 2016 with Sunrisers Hyderabad",color:"chip-gold"},
+      {icon:"👑",label:"Record",value:"Only overseas player to win Orange Cap 3 times",color:"chip-pink"},
+      {icon:"📊",label:"Stats",value:"6,397 runs · 41.99 avg · 57 fifties · 4 centuries",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"Delhi · SRH · DC (never played for PBKS)",color:"chip-blue"},
+    ]},
+  { name:"Suresh Raina", team:"CSK", role:"Batsman", initials:"SR",
+    clues:[
+      {icon:"🌟",label:"Nickname",value:"Mr. IPL — most consecutive match scores",color:"chip-gold",highlight:true},
+      {icon:"👑",label:"Record",value:"First player to score 5,000 IPL runs",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Chennai Super Kings · Gujarat Lions",color:"chip-blue"},
+      {icon:"🏆",label:"IPL Titles",value:"4 titles with Chennai Super Kings",color:"chip-green"},
+      {icon:"📊",label:"Stats",value:"5,528 runs · 32.52 avg · SR 136",color:"chip-pink"},
+    ]},
+  { name:"KL Rahul", team:"LSG", role:"WK-Opener", initials:"KL",
+    clues:[
+      {icon:"🧢",label:"Orange Cap",value:"Won Orange Cap 2020 with KXIP — 670 runs",color:"chip-orange",highlight:true},
+      {icon:"📊",label:"Stats",value:"4,683 runs · 47.30 avg · 4 centuries",color:"chip-gold"},
+      {icon:"🏟️",label:"Teams",value:"RCB · SRH · PBKS · LSG · Delhi Capitals",color:"chip-blue"},
+      {icon:"⭐",label:"Trivia",value:"Captained PBKS then moved to lead LSG as franchise star",color:"chip-green"},
+      {icon:"🧤",label:"Role",value:"Opens batting and keeps wickets for his team",color:"chip-pink"},
+    ]},
+  { name:"Hardik Pandya", team:"MI", role:"All-rounder", initials:"HP",
+    clues:[
+      {icon:"🏆",label:"IPL Title",value:"Won IPL 2022 as GT captain — debut season",color:"chip-gold",highlight:true},
+      {icon:"👑",label:"Record",value:"First to win IPL with a new franchise",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Mumbai Indians · Gujarat Titans · MI",color:"chip-blue"},
+      {icon:"📊",label:"Stats",value:"2,278 runs · SR 147 · 69 wickets",color:"chip-green"},
+      {icon:"🎯",label:"Famous for",value:"Big hits at death + key powerplay wickets",color:"chip-pink"},
+    ]},
+  { name:"Jasprit Bumrah", team:"MI", role:"Bowler", initials:"JB",
+    clues:[
+      {icon:"🎯",label:"Famous for",value:"Unplayable yorkers — best death bowler in IPL history",color:"chip-gold",highlight:true},
+      {icon:"📊",label:"Stats",value:"160+ wickets · Best figures 5/10 vs KKR",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"Mumbai Indians (2013–present)",color:"chip-blue"},
+      {icon:"🏆",label:"IPL Titles",value:"4 IPL titles with Mumbai Indians",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Spotted by Gary Kirsten at age 19 in Ahmedabad",color:"chip-pink"},
+    ]},
+  { name:"Ravindra Jadeja", team:"CSK", role:"All-rounder", initials:"RJ",
+    clues:[
+      {icon:"⚔️",label:"Nickname",value:"Sir Jadeja — famous royal sword celebration",color:"chip-gold",highlight:true},
+      {icon:"⭐",label:"Trivia",value:"Hit 10 runs off last 2 balls to win 2023 IPL final",color:"chip-orange"},
+      {icon:"📊",label:"Stats",value:"2,756 runs + 132 wickets · Economy 7.62",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"RR · Kochi · CSK · Gujarat · CSK · RR (2026)",color:"chip-blue"},
+      {icon:"🏆",label:"IPL Titles",value:"4 titles with Chennai Super Kings",color:"chip-pink"},
+    ]},
+  { name:"Shikhar Dhawan", team:"PBKS", role:"Opener", initials:"SD",
+    clues:[
+      {icon:"📊",label:"IPL Runs",value:"6,769 runs — 2nd highest scorer in IPL history",color:"chip-gold",highlight:true},
+      {icon:"💯",label:"Record",value:"First player to hit back-to-back centuries in IPL (2020)",color:"chip-orange"},
+      {icon:"🌟",label:"Nickname",value:"Gabbar — after the Sholay villain",color:"chip-pink"},
+      {icon:"🎯",label:"Famous for",value:"Twirling moustache celebration after every milestone",color:"chip-blue"},
+      {icon:"🏟️",label:"Teams",value:"DD · Deccan · SRH · PBKS · MI",color:"chip-green"},
+    ]},
+  { name:"Andre Russell", team:"KKR", role:"All-rounder", initials:"AR",
+    clues:[
+      {icon:"📊",label:"Strike Rate",value:"SR 174+ — highest among veteran all-rounders",color:"chip-gold",highlight:true},
+      {icon:"🏆",label:"MVP",value:"2-time IPL MVP award winner (2015 and 2019)",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Delhi Daredevils · Kolkata Knight Riders",color:"chip-blue"},
+      {icon:"🌟",label:"Nickname",value:"Dre Russ — KKR's most destructive match-winner",color:"chip-pink"},
+      {icon:"🎯",label:"Famous for",value:"Single-handedly winning impossible chases for KKR",color:"chip-green"},
+    ]},
+  { name:"Yuzvendra Chahal", team:"RR", role:"Leg-Spinner", initials:"YC",
+    clues:[
+      {icon:"🎳",label:"IPL Wickets",value:"210+ wickets — all-time highest wicket-taker in IPL",color:"chip-gold",highlight:true},
+      {icon:"🧢",label:"Purple Cap",value:"Won Purple Cap 2022 — 27 wickets for RR",color:"chip-pink"},
+      {icon:"🏟️",label:"Teams",value:"MI · RCB · RR · PBKS (joined 2026)",color:"chip-blue"},
+      {icon:"👑",label:"Record",value:"All-time highest wicket-taker for RCB",color:"chip-orange"},
+      {icon:"🎯",label:"Famous for",value:"Googly that has bamboozled every top batter in IPL",color:"chip-green"},
+    ]},
+  { name:"Dwayne Bravo", team:"CSK", role:"All-rounder", initials:"DB",
+    clues:[
+      {icon:"🎵",label:"Trivia",value:"'Champion' song — became CSK's unofficial anthem",color:"chip-gold",highlight:true},
+      {icon:"👑",label:"Purple Cap",value:"Won Purple Cap twice — shared record (2013 & 2015)",color:"chip-pink"},
+      {icon:"🎳",label:"Stats",value:"183 wickets — most death-over wickets in IPL history",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Chennai Super Kings · Gujarat Lions",color:"chip-blue"},
+      {icon:"🏆",label:"IPL Titles",value:"3 titles with Chennai Super Kings",color:"chip-green"},
+    ]},
+  { name:"Kieron Pollard", team:"MI", role:"All-rounder", initials:"KP",
+    clues:[
+      {icon:"💜",label:"Loyalty",value:"12 seasons for MI — most loyal overseas player ever",color:"chip-pink",highlight:true},
+      {icon:"📊",label:"Stats",value:"3,412 runs · SR 147 · 69 wickets in IPL",color:"chip-orange"},
+      {icon:"🏆",label:"IPL Titles",value:"5 IPL titles with Mumbai Indians",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"Mumbai Indians (2010–2022)",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Massive sixes and match-winning cameos for MI",color:"chip-gold"},
+    ]},
+  { name:"Rishabh Pant", team:"DC", role:"WK-Batsman", initials:"RP",
+    clues:[
+      {icon:"⭐",label:"Trivia",value:"Led Delhi Capitals to IPL final in 2020",color:"chip-gold",highlight:true},
+      {icon:"📊",label:"Record",value:"Only Indian with a score of 128* in an IPL innings",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Delhi Daredevils / Delhi Capitals",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Outrageous scoops and reverse sweeps",color:"chip-pink"},
+      {icon:"🧤",label:"Role",value:"Wicketkeeper who attacks from ball one",color:"chip-green"},
+    ]},
+  { name:"Jos Buttler", team:"RR", role:"WK-Opener", initials:"JB",
+    clues:[
+      {icon:"⭐",label:"Trivia",value:"4 centuries in 2022 — tied single season record with Kohli",color:"chip-gold",highlight:true},
+      {icon:"🧢",label:"Orange Cap",value:"Won Orange Cap 2022 — 863 runs for RR",color:"chip-orange"},
+      {icon:"🏆",label:"IPL Final",value:"Led RR to 2022 IPL final — lost to Gujarat Titans",color:"chip-green"},
+      {icon:"👑",label:"Record",value:"Most centuries by an overseas player in IPL history",color:"chip-pink"},
+      {icon:"🏟️",label:"Teams",value:"Mumbai Indians · Rajasthan Royals",color:"chip-blue"},
+    ]},
+  { name:"Faf du Plessis", team:"RCB", role:"Opener", initials:"FDP",
+    clues:[
+      {icon:"📊",label:"IPL Runs",value:"4,748 runs · 34.41 avg · SR 130",color:"chip-gold",highlight:true},
+      {icon:"🏟️",label:"Teams",value:"CSK · Rising Pune · PBKS · RCB",color:"chip-blue"},
+      {icon:"🏆",label:"IPL Titles",value:"4 titles with Chennai Super Kings",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Lost 2021 Orange Cap to Ruturaj Gaikwad by just 2 runs",color:"chip-pink"},
+      {icon:"🎯",label:"Famous for",value:"Brilliant slip catching and elegant strokeplay",color:"chip-green"},
+    ]},
+  { name:"Ravichandran Ashwin", team:"RR", role:"Off-Spinner", initials:"RA",
+    clues:[
+      {icon:"⭐",label:"Trivia",value:"Mankad runout — used controversially in IPL 2019",color:"chip-gold",highlight:true},
+      {icon:"👑",label:"Record",value:"Most economical spinner in IPL — 6.97 economy",color:"chip-green"},
+      {icon:"🎳",label:"Stats",value:"180+ wickets across 212 matches",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"CSK · Punjab · DD · RR · MI",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Carrom ball and clever variations that confuse batters",color:"chip-pink"},
+    ]},
+  { name:"Gautam Gambhir", team:"KKR", role:"Opener-Captain", initials:"GG",
+    clues:[
+      {icon:"🏆",label:"IPL Titles",value:"Won IPL 2012 and 2014 as KKR captain",color:"chip-gold",highlight:true},
+      {icon:"👑",label:"Legacy",value:"Returned as KKR mentor in 2024 — won title again",color:"chip-orange"},
+      {icon:"📊",label:"Stats",value:"4,217 runs · 31.24 avg · 36 fifties",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"Delhi Daredevils · Kolkata Knight Riders",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Transformed KKR from meme franchise to champions",color:"chip-pink"},
+    ]},
+  { name:"Sanju Samson", team:"CSK", role:"WK-Batsman", initials:"SS",
+    clues:[
+      {icon:"📊",label:"IPL Runs",value:"4,719 runs · SR 138 · 3 centuries",color:"chip-gold",highlight:true},
+      {icon:"🏆",label:"IPL Final",value:"Led RR to 2022 IPL final — lost to Gujarat Titans",color:"chip-orange"},
+      {icon:"👑",label:"Record",value:"Most runs for Rajasthan Royals franchise in IPL",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"RCB · Delhi · RR · CSK (2026)",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Elegant wristwork and big sixes down the ground",color:"chip-pink"},
+    ]},
+  { name:"Suryakumar Yadav", team:"MI", role:"Batsman", initials:"SKY",
+    clues:[
+      {icon:"🌟",label:"Nickname",value:"SKY — became world No.1 T20I batter through IPL",color:"chip-gold",highlight:true},
+      {icon:"📊",label:"Stats",value:"SR 147+ — 360-degree hitter for MI",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"KKR · Mumbai Indians",color:"chip-blue"},
+      {icon:"🏆",label:"IPL Titles",value:"3 IPL titles with Mumbai Indians",color:"chip-green"},
+      {icon:"🎯",label:"Famous for",value:"Ramps, scoops and shots that don't exist in textbooks",color:"chip-pink"},
+    ]},
+  { name:"Shane Watson", team:"CSK", role:"All-rounder", initials:"SW",
+    clues:[
+      {icon:"⭐",label:"Trivia",value:"117* in 2018 IPL final — single-handedly won it for CSK",color:"chip-gold",highlight:true},
+      {icon:"📊",label:"Stats",value:"3,874 runs + 92 wickets in IPL",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"Rajasthan Royals · Punjab Kings · RCB · CSK",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Power hitting in powerplay and nippy medium pace",color:"chip-pink"},
+      {icon:"🏆",label:"IPL Titles",value:"Won IPL 2010 (RR), 2018 (CSK) as key player",color:"chip-orange"},
+    ]},
+  { name:"Ruturaj Gaikwad", team:"CSK", role:"Opener", initials:"RG",
+    clues:[
+      {icon:"🧢",label:"Orange Cap",value:"Won Orange Cap 2021 — 635 runs for CSK",color:"chip-orange",highlight:true},
+      {icon:"👑",label:"Record",value:"Became CSK captain in 2024 season",color:"chip-gold"},
+      {icon:"⭐",label:"Trivia",value:"Hit 6 sixes in an over in Vijay Hazare Trophy 2023",color:"chip-pink"},
+      {icon:"🏆",label:"IPL Titles",value:"Won IPL 2021 and 2023 with CSK",color:"chip-green"},
+      {icon:"📊",label:"Stats",value:"2,796 runs · 38.83 avg · SR 136",color:"chip-blue"},
+    ]},
+  { name:"Shubman Gill", team:"GT", role:"Opener", initials:"SG",
+    clues:[
+      {icon:"🧢",label:"Orange Cap",value:"Won Orange Cap 2023 — 890 runs for GT",color:"chip-orange",highlight:true},
+      {icon:"👑",label:"Record",value:"Youngest captain to lead a team in an IPL final (2023)",color:"chip-gold"},
+      {icon:"🏆",label:"IPL Title",value:"Won IPL 2022 with Gujarat Titans",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"Kolkata Knight Riders · Gujarat Titans",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Classic technique — fluent drives through covers",color:"chip-pink"},
+    ]},
+  { name:"Mohammed Shami", team:"GT", role:"Bowler", initials:"MS",
+    clues:[
+      {icon:"🧢",label:"Purple Cap",value:"Won Purple Cap 2023 — 28 wickets for GT",color:"chip-pink",highlight:true},
+      {icon:"🏆",label:"IPL Title",value:"Won IPL 2022 with Gujarat Titans",color:"chip-gold"},
+      {icon:"📊",label:"Stats",value:"114 wickets · Economy 8.56",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"KKR · Delhi · PBKS · Gujarat Titans",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Outswingers and deadly death yorkers",color:"chip-green"},
+    ]},
+  { name:"Kagiso Rabada", team:"PBKS", role:"Fast Bowler", initials:"KR",
+    clues:[
+      {icon:"🧢",label:"Purple Cap",value:"Won Purple Cap 2020 — 30 wickets for DC",color:"chip-pink",highlight:true},
+      {icon:"📊",label:"Stats",value:"97 wickets · Economy 8.29 · Avg 21.68",color:"chip-gold"},
+      {icon:"⭐",label:"Trivia",value:"Fastest SA bowler ever in IPL",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Delhi Capitals · Punjab Kings · GT",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Brutal bouncers and raw express pace",color:"chip-green"},
+    ]},
+  { name:"Dinesh Karthik", team:"RCB", role:"WK-Finisher", initials:"DK",
+    clues:[
+      {icon:"⭐",label:"Trivia",value:"Played for 8 IPL franchises — all-time record",color:"chip-gold",highlight:true},
+      {icon:"🏟️",label:"Teams",value:"DD · KKR · Gujarat · RCB · SRH · RR + more",color:"chip-blue"},
+      {icon:"📊",label:"Stats",value:"4,842 runs in 229 matches · Specialist finisher",color:"chip-green"},
+      {icon:"🎯",label:"Famous for",value:"Ice-cool finishing and razor-sharp glovework",color:"chip-pink"},
+      {icon:"🌟",label:"Record",value:"Never won IPL as captain — always the team man",color:"chip-orange"},
+    ]},
+  { name:"Glenn Maxwell", team:"RCB", role:"All-rounder", initials:"GM",
+    clues:[
+      {icon:"💥",label:"Strike Rate",value:"SR 155+ — one of the highest ever in IPL",color:"chip-gold",highlight:true},
+      {icon:"⭐",label:"Trivia",value:"95 off 43 balls vs CSK — one of IPL's all-time innings",color:"chip-orange"},
+      {icon:"🌟",label:"Nickname",value:"Big Show — entertainment cricket every single game",color:"chip-pink"},
+      {icon:"🏟️",label:"Teams",value:"MI · PBKS · DC · RCB",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Switch-hit and ramp shots that defy physics",color:"chip-green"},
+    ]},
+  { name:"Amit Mishra", team:"DC", role:"Leg-Spinner", initials:"AM",
+    clues:[
+      {icon:"🌟",label:"Record",value:"Only player with 3 hat-tricks in IPL history",color:"chip-gold",highlight:true},
+      {icon:"🎳",label:"Wickets",value:"174 wickets in IPL career",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"Hat-tricks in 2008, 2011 and 2013 seasons",color:"chip-pink"},
+      {icon:"🏟️",label:"Teams",value:"Deccan Chargers · SRH · Delhi Capitals",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Googly mastery on flat subcontinental tracks",color:"chip-green"},
+    ]},
+  { name:"Trent Boult", team:"RR", role:"Fast Bowler", initials:"TB",
+    clues:[
+      {icon:"⭐",label:"Trivia",value:"Released himself from MI contract to join RR in 2022",color:"chip-gold",highlight:true},
+      {icon:"🏆",label:"IPL Title",value:"Won IPL 2020 with Mumbai Indians",color:"chip-orange"},
+      {icon:"📊",label:"Stats",value:"104 wickets · Economy 8.02",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"Mumbai Indians · Rajasthan Royals · MI (2026)",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Left-arm swing and powerplay wickets",color:"chip-pink"},
+    ]},
+  { name:"Pat Cummins", team:"SRH", role:"Fast Bowler", initials:"PC",
+    clues:[
+      {icon:"💰",label:"Auction",value:"First player sold for over ₹20 crore — 2024 auction",color:"chip-gold",highlight:true},
+      {icon:"🏆",label:"IPL Final",value:"Led SRH to the 2024 IPL final as captain",color:"chip-orange"},
+      {icon:"📊",label:"Stats",value:"75 wickets · Economy 8.58",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"KKR · Delhi · Sunrisers Hyderabad",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Brutal bouncers and big-match wickets under pressure",color:"chip-pink"},
+    ]},
+  { name:"Harbhajan Singh", team:"CSK", role:"Off-Spinner", initials:"HB",
+    clues:[
+      {icon:"⭐",label:"Trivia",value:"Famous for Slapgate incident in IPL 2008",color:"chip-gold",highlight:true},
+      {icon:"🎳",label:"Wickets",value:"150 wickets · Economy 7.05",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Mumbai Indians · CSK · KKR",color:"chip-blue"},
+      {icon:"🏆",label:"IPL Titles",value:"3 titles with Mumbai Indians",color:"chip-green"},
+      {icon:"🎯",label:"Famous for",value:"Doosra and aggressive loud celebrations",color:"chip-pink"},
+    ]},
+  { name:"Yuvraj Singh", team:"PBKS", role:"All-rounder", initials:"YS",
+    clues:[
+      {icon:"💰",label:"Auction",value:"Sold for ₹14 crore and ₹16 crore at different auctions",color:"chip-gold",highlight:true},
+      {icon:"🏆",label:"IPL Titles",value:"Won 2016 (SRH) and 2019 (MI) as key player",color:"chip-orange"},
+      {icon:"📊",label:"Stats",value:"2,750 runs + 38 wickets in IPL",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"PBKS · Pune · SRH · MI · KKR · RCB · Delhi",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Left-handed power hitting and slow left-arm",color:"chip-pink"},
+    ]},
+  { name:"Ishan Kishan", team:"MI", role:"WK-Opener", initials:"IK",
+    clues:[
+      {icon:"💰",label:"Auction",value:"Bought by MI for ₹15.25 crore in 2022 — most expensive that year",color:"chip-gold",highlight:true},
+      {icon:"🏆",label:"IPL Titles",value:"Won 2 IPL titles with MI — 2019 and 2020",color:"chip-green"},
+      {icon:"📊",label:"Stats",value:"516 runs in 2020 IPL — MI's highest scorer that title season",color:"chip-orange"},
+      {icon:"🏟️",label:"Teams",value:"Gujarat Lions · Mumbai Indians · SRH (2025)",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Explosive left-handed starts and brilliant keeping for MI",color:"chip-pink"},
+    ]},
+  { name:"Quinton de Kock", team:"LSG", role:"WK-Opener", initials:"QDK",
+    clues:[
+      {icon:"💯",label:"Record",value:"Holds 3rd highest individual IPL score — 140*",color:"chip-gold",highlight:true},
+      {icon:"📊",label:"Stats",value:"3,322 runs · 33.55 avg · SR 135",color:"chip-orange"},
+      {icon:"⭐",label:"Trivia",value:"LSG's most reliable opener since the franchise started",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"SRH · DD · RCB · MI · LSG",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Fearless hitting from ball one and brilliant glovework",color:"chip-pink"},
+    ]},
+  { name:"Rinku Singh", team:"KKR", role:"Finisher", initials:"RS",
+    clues:[
+      {icon:"⭐",label:"Trivia",value:"Hit 5 sixes in 5 consecutive balls to win vs GT in 2023",color:"chip-gold",highlight:true},
+      {icon:"🎯",label:"Role",value:"KKR's ultimate finisher — specialist death batter",color:"chip-orange"},
+      {icon:"🏆",label:"IPL Title",value:"Won IPL 2024 with Kolkata Knight Riders",color:"chip-green"},
+      {icon:"🏟️",label:"Teams",value:"Kolkata Knight Riders (since 2018)",color:"chip-blue"},
+      {icon:"🌟",label:"Famous for",value:"Calm under pressure — never panics in last over chases",color:"chip-pink"},
+    ]},
+  { name:"Nicholas Pooran", team:"LSG", role:"WK-Batsman", initials:"NP",
+    clues:[
+      {icon:"📊",label:"Strike Rate",value:"SR 170+ in LSG colors — among highest active batters",color:"chip-gold",highlight:true},
+      {icon:"🏟️",label:"Teams",value:"PBKS · SRH · LSG",color:"chip-blue"},
+      {icon:"🎯",label:"Famous for",value:"Explosive 360-degree hitting and acrobatic keeping",color:"chip-orange"},
+      {icon:"🌟",label:"Role",value:"LSG's most destructive middle-order match-winner",color:"chip-green"},
+      {icon:"🏝️",label:"Nationality",value:"West Indian — one of best T20 batters in the world",color:"chip-pink"},
+    ]},
+];
+
+// ── TRICKY QUESTIONS (90 days) ───────────────────────────────────────────────
+const TRICKY = [
+  {q:"Who won the very first Orange Cap in IPL history (2008)?",opts:["Shaun Marsh","Sachin Tendulkar","Adam Gilchrist","Virender Sehwag"],ans:"Shaun Marsh",fact:"Shaun Marsh of Kings XI Punjab scored 616 runs to win the inaugural Orange Cap in 2008."},
+  {q:"Which bowler won the very first Purple Cap in IPL history (2008)?",opts:["Lasith Malinga","Sohail Tanvir","RP Singh","Pragyan Ojha"],ans:"Sohail Tanvir",fact:"Pakistan's Sohail Tanvir took 22 wickets for Rajasthan Royals in the inaugural season, including 6/14 vs CSK."},
+  {q:"Who is the ONLY player to win both the Orange Cap AND the IPL title in the same season (2014)?",opts:["Robin Uthappa","Gautam Gambhir","Suresh Raina","Virat Kohli"],ans:"Robin Uthappa",fact:"Robin Uthappa won the Orange Cap with 660 runs for KKR in 2014, the same year KKR won the title."},
+  {q:"David Warner has won the Orange Cap 3 times. Which year did he NOT win it?",opts:["2014","2015","2017","2019"],ans:"2014",fact:"Warner won the Orange Cap in 2015, 2017 and 2019. Robin Uthappa won it in 2014."},
+  {q:"Which player holds the record for most wickets in a single IPL season?",opts:["Dwayne Bravo","Harshal Patel","Lasith Malinga","Yuzvendra Chahal"],ans:"Dwayne Bravo",fact:"Dwayne Bravo took 32 wickets for CSK in 2013. Harshal Patel equalled this record in 2021 but Bravo holds it on better economy."},
+  {q:"Chris Gayle's 175* in 2013 was scored against which team?",opts:["Mumbai Indians","Pune Warriors","Chennai Super Kings","Delhi Daredevils"],ans:"Pune Warriors",fact:"Gayle's 175* off 66 balls was scored against Pune Warriors India on April 23, 2013."},
+  {q:"Who was the first bowler to win back-to-back Purple Caps in IPL?",opts:["Bhuvneshwar Kumar","Lasith Malinga","Dwayne Bravo","Amit Mishra"],ans:"Bhuvneshwar Kumar",fact:"Bhuvneshwar Kumar won the Purple Cap in 2016 and 2017 consecutively for Sunrisers Hyderabad."},
+  {q:"Which IPL team has won the most titles in IPL history?",opts:["Mumbai Indians","Chennai Super Kings","Kolkata Knight Riders","Rajasthan Royals"],ans:"Chennai Super Kings",fact:"CSK have won 5 IPL titles (2010, 2011, 2018, 2021, 2023), tied with MI but CSK won their 5th first."},
+  {q:"Ruturaj Gaikwad won the Orange Cap in 2021. How many runs did he score?",opts:["598","635","671","612"],ans:"635",fact:"Ruturaj Gaikwad scored 635 runs in 16 matches for CSK in 2021, pipping Faf du Plessis by just 2 runs."},
+  {q:"Which team won the inaugural IPL in 2008?",opts:["Chennai Super Kings","Mumbai Indians","Rajasthan Royals","Delhi Daredevils"],ans:"Rajasthan Royals",fact:"Rajasthan Royals, led by Shane Warne, won the inaugural IPL in 2008, defeating CSK in the final."},
+  {q:"Who scored the most runs in IPL 2016 — the all-time single season record?",opts:["AB de Villiers","Virat Kohli","David Warner","Rohit Sharma"],ans:"Virat Kohli",fact:"Virat Kohli scored 973 runs in 2016 — the all-time IPL season record. He also hit 4 centuries that season."},
+  {q:"Which player has won the Purple Cap the most times in IPL history?",opts:["Lasith Malinga","Dwayne Bravo","Bhuvneshwar Kumar","Yuzvendra Chahal"],ans:"Dwayne Bravo",fact:"Bravo, Kumar and Harshal Patel have each won the Purple Cap twice — the joint record."},
+  {q:"In which year did MS Dhoni lead CSK to their first IPL title?",opts:["2008","2009","2010","2011"],ans:"2010",fact:"CSK won their first IPL title in 2010, defeating Mumbai Indians in the final."},
+  {q:"Which player has hit the most sixes in IPL history?",opts:["Rohit Sharma","Chris Gayle","MS Dhoni","AB de Villiers"],ans:"Chris Gayle",fact:"Chris Gayle has hit 357 sixes in IPL — the all-time record. He is the undisputed six-hitting king of IPL."},
+  {q:"Shubman Gill won the Orange Cap in 2023 with how many runs?",opts:["812","856","890","921"],ans:"890",fact:"Shubman Gill scored 890 runs in 2023 for Gujarat Titans — the second highest in a single IPL season ever."},
+  {q:"Which team did Lasith Malinga represent throughout his IPL career?",opts:["Chennai Super Kings","Mumbai Indians","Royal Challengers Bangalore","Rajasthan Royals"],ans:"Mumbai Indians",fact:"Malinga played only for Mumbai Indians in IPL, from 2009 to 2019, taking 170 wickets."},
+  {q:"Who won the Orange Cap in IPL 2022?",opts:["Shubman Gill","Jos Buttler","Faf du Plessis","KL Rahul"],ans:"Jos Buttler",fact:"Jos Buttler won the 2022 Orange Cap with 863 runs for RR — including 4 centuries in the season."},
+  {q:"Rinku Singh's famous 5 sixes in 5 balls in 2023 was against which team?",opts:["Mumbai Indians","Chennai Super Kings","Gujarat Titans","Sunrisers Hyderabad"],ans:"Gujarat Titans",fact:"Rinku Singh hit 5 sixes off the last 5 balls vs Gujarat Titans on April 3, 2023, winning an 'impossible' chase for KKR."},
+  {q:"Which player has played for the most IPL franchises?",opts:["Yuvraj Singh","Dinesh Karthik","Suresh Raina","Harbhajan Singh"],ans:"Dinesh Karthik",fact:"Dinesh Karthik has played for 8 different IPL franchises — the all-time record."},
+  {q:"Who was the first player to score 5,000 runs in IPL?",opts:["Rohit Sharma","MS Dhoni","Suresh Raina","Virat Kohli"],ans:"Suresh Raina",fact:"Suresh Raina was the first player to reach 5,000 IPL runs, earning him the nickname 'Mr. IPL'."},
+  {q:"Which bowler took the first hat-trick in IPL history?",opts:["Lasith Malinga","Amit Mishra","Irfan Pathan","Brett Lee"],ans:"Lasith Malinga",fact:"Lasith Malinga took the first IPL hat-trick on April 22, 2011 for Mumbai Indians vs Kochi Tuskers Kerala."},
+  {q:"Amit Mishra holds the record for most hat-tricks in IPL. How many does he have?",opts:["2","3","4","1"],ans:"3",fact:"Amit Mishra took hat-tricks in 2008 (DC vs KKR), 2011 (DC vs RR), and 2013 (DC vs SRH) — the only player with 3 IPL hat-tricks."},
+  {q:"Which team won the IPL in its debut season — Gujarat Titans in 2022. Who captained them?",opts:["Shubman Gill","Hardik Pandya","David Miller","Mohammed Shami"],ans:"Hardik Pandya",fact:"Hardik Pandya captained Gujarat Titans to the IPL title in their debut 2022 season — a unique achievement."},
+  {q:"Who won the Purple Cap in IPL 2020?",opts:["Jasprit Bumrah","Kagiso Rabada","Pat Cummins","Trent Boult"],ans:"Kagiso Rabada",fact:"Kagiso Rabada took 30 wickets for Delhi Capitals in 2020 — winning the Purple Cap and leading DC to the final."},
+  {q:"Which player hit the fastest century in IPL history?",opts:["Chris Gayle","AB de Villiers","Yusuf Pathan","David Warner"],ans:"Chris Gayle",fact:"Chris Gayle holds the record for fastest IPL century — off just 30 balls, for RCB vs PWI in 2013."},
+  {q:"Virat Kohli has won the Orange Cap twice. In which years?",opts:["2016 and 2020","2016 and 2023","2016 and 2024","2018 and 2024"],ans:"2016 and 2024",fact:"Kohli won the Orange Cap in 2016 with 973 runs and again in 2024 with 741 runs — both times for RCB."},
+  {q:"Which IPL team has NEVER won the IPL title?",opts:["Kolkata Knight Riders","Royal Challengers Bangalore","Rajasthan Royals","Sunrisers Hyderabad"],ans:"Royal Challengers Bangalore",fact:"RCB — despite having Kohli, AB de Villiers, Gayle — have never won an IPL title. The ultimate nearly-team."},
+  {q:"Who won the Purple Cap in 2021 with a record-equalling 32 wickets?",opts:["Jasprit Bumrah","Harshal Patel","Mohammed Shami","Avesh Khan"],ans:"Harshal Patel",fact:"Harshal Patel took 32 wickets for RCB in 2021 — equalling Dwayne Bravo's record from 2013."},
+  {q:"Which player scored the second-highest runs in a single IPL season?",opts:["Virat Kohli 2016","Shubman Gill 2023","Jos Buttler 2022","David Warner 2019"],ans:"Shubman Gill 2023",fact:"Shubman Gill's 890 runs in 2023 is the second highest in a single IPL season, behind Kohli's 973 in 2016."},
+  {q:"Sanju Samson led Rajasthan Royals to the 2022 final. Who did they lose to?",opts:["Mumbai Indians","Chennai Super Kings","Gujarat Titans","Lucknow SuperGiants"],ans:"Gujarat Titans",fact:"Gujarat Titans, in their debut IPL season, defeated Rajasthan Royals in the 2022 final."},
+  {q:"Which player won the IPL's first Man of the Tournament award in 2008?",opts:["Shane Warne","Shaun Marsh","Adam Gilchrist","Yusuf Pathan"],ans:"Shane Warne",fact:"Shane Warne won the first IPL Man of the Tournament award in 2008, also captaining Rajasthan Royals to the title."},
+  {q:"MS Dhoni has won 5 IPL titles. How many finals has he LOST?",opts:["3","4","5","6"],ans:"6",fact:"Dhoni has lost 6 IPL finals as captain (2008, 2012, 2013, 2015, 2017, 2019) — making him both the most successful and most defeated finals captain."},
+  {q:"Which team won back-to-back IPL titles in 2015 and 2017?",opts:["Chennai Super Kings","Royal Challengers Bangalore","Mumbai Indians","Kolkata Knight Riders"],ans:"Mumbai Indians",fact:"Mumbai Indians won the IPL in 2015 and 2017 under Rohit Sharma's captaincy."},
+  {q:"Jadeja hit the winning runs in the 2023 IPL final. How many runs off the last 2 balls?",opts:["6 and 4","6 and 6","4 and 6","6 and 1"],ans:"6 and 4",fact:"Jadeja hit a six off ball 5 and a four off the last ball to win the 2023 IPL final for CSK against GT — one of cricket's greatest finishes."},
+  {q:"Who was the first overseas player to captain an IPL winning team?",opts:["Shane Warne","Ricky Ponting","MS Dhoni","Adam Gilchrist"],ans:"Shane Warne",fact:"Shane Warne captained Rajasthan Royals to win the inaugural IPL in 2008 — the first overseas captain to lift the trophy."},
+  {q:"Which year did KKR win their first IPL title?",opts:["2010","2011","2012","2014"],ans:"2012",fact:"KKR won their first IPL title in 2012 under Gautam Gambhir's captaincy, defeating CSK in the final."},
+  {q:"Who has scored the most runs in IPL history overall?",opts:["Rohit Sharma","MS Dhoni","Shikhar Dhawan","Virat Kohli"],ans:"Virat Kohli",fact:"Virat Kohli has scored 8,600+ runs in IPL — the all-time record. He has played every season for RCB since 2008."},
+  {q:"Which player won the Orange Cap in 2011 with a strike rate of 183?",opts:["David Warner","Chris Gayle","Virat Kohli","Suresh Raina"],ans:"Chris Gayle",fact:"Chris Gayle won the Orange Cap in 2011 with 608 runs at a stunning strike rate of 183.13 for RCB."},
+  {q:"The Purple Cap in IPL 2009 was won by which bowler from Deccan Chargers?",opts:["Pragyan Ojha","RP Singh","VVS Laxman","Andrew Symonds"],ans:"RP Singh",fact:"RP Singh took 23 wickets for Deccan Chargers in 2009 — the same year they won the IPL title."},
+  {q:"Which stadium hosted the first ever IPL match in 2008?",opts:["Eden Gardens","Chinnaswamy Stadium","Wankhede Stadium","MA Chidambaram Stadium"],ans:"Chinnaswamy Stadium",fact:"The first IPL match was played at M Chinnaswamy Stadium, Bengaluru on April 18, 2008 — RCB vs KKR."},
+  {q:"Harshal Patel won the Purple Cap twice — for two different teams. Which teams?",opts:["RCB and CSK","RCB and PBKS","MI and PBKS","RCB and MI"],ans:"RCB and PBKS",fact:"Harshal Patel won the Purple Cap for RCB in 2021 and for Punjab Kings in 2024 — the only player to win it for two different teams."},
+  {q:"Who holds the record for best bowling figures in IPL history?",opts:["Lasith Malinga","Alzarri Joseph","Sohail Tanvir","Dwayne Bravo"],ans:"Alzarri Joseph",fact:"Alzarri Joseph took 6/12 on his IPL debut for Mumbai Indians vs SRH in 2019 — the best bowling figures in IPL history."},
+  {q:"Which team did Pat Cummins captain to the 2024 IPL final?",opts:["KKR","CSK","SRH","MI"],ans:"SRH",fact:"Pat Cummins captained Sunrisers Hyderabad to the 2024 IPL final, where they lost to KKR."},
+  {q:"How many times has Mumbai Indians won the IPL?",opts:["4","5","6","3"],ans:"5",fact:"Mumbai Indians have won the IPL 5 times — 2013, 2015, 2017, 2019 and 2020 — under Rohit Sharma."},
+  {q:"Who won the Orange Cap in 2024?",opts:["Rohit Sharma","Virat Kohli","Shubman Gill","Travis Head"],ans:"Virat Kohli",fact:"Virat Kohli won the 2024 Orange Cap with 741 runs for RCB — his second Orange Cap, 8 years after his first."},
+  {q:"Which bowler took the most wickets in IPL 2023 to win the Purple Cap?",opts:["Yuzvendra Chahal","Jasprit Bumrah","Mohammed Shami","Piyush Chawla"],ans:"Mohammed Shami",fact:"Mohammed Shami took 28 wickets for Gujarat Titans in 2023 — winning the Purple Cap and the IPL title."},
+  {q:"Kolkata Knight Riders won the IPL in 2024. Who was their captain?",opts:["Andre Russell","Shreyas Iyer","Rinku Singh","Sunil Narine"],ans:"Shreyas Iyer",fact:"Shreyas Iyer captained KKR to their third IPL title in 2024, defeating Sunrisers Hyderabad in the final."},
+  {q:"Who won the Orange Cap in 2019?",opts:["Virat Kohli","David Warner","Rohit Sharma","KL Rahul"],ans:"David Warner",fact:"David Warner won his third Orange Cap in 2019 with 692 runs for SRH — the most Orange Caps by any player."},
+  {q:"Which team finished as runners-up in the most IPL seasons?",opts:["RCB","CSK","MI","DC"],ans:"RCB",fact:"Royal Challengers Bangalore have been runners-up 3 times (2009, 2011, 2016) without ever winning the title."},
+  {q:"In IPL 2013, who won both the Orange Cap and was on the losing finalist team?",opts:["Michael Hussey","Virat Kohli","Rohit Sharma","Shane Watson"],ans:"Michael Hussey",fact:"Michael Hussey won the 2013 Orange Cap with 733 runs for CSK, but CSK lost the final to MI that year."},
+  {q:"Which year did Sunrisers Hyderabad win their only IPL title?",opts:["2014","2015","2016","2017"],ans:"2016",fact:"SRH won their only IPL title in 2016, defeating RCB in the final. David Warner also won the Orange Cap that year."},
+  {q:"Gautam Gambhir returned as KKR mentor in 2024 and they won the title. But which two years did he win it as captain?",opts:["2010 and 2012","2012 and 2014","2011 and 2013","2012 and 2016"],ans:"2012 and 2014",fact:"Gambhir captained KKR to IPL titles in 2012 and 2014 — transforming them from a struggling franchise to back-to-back champions."},
+  {q:"Who is the youngest player to win the Orange Cap in IPL history?",opts:["Ruturaj Gaikwad","Shubman Gill","Sanju Samson","KL Rahul"],ans:"Shubman Gill",fact:"Shubman Gill was 23 years old when he won the Orange Cap in 2023 — the youngest player to win the award."},
+  {q:"Which bowler won the Purple Cap in 2018?",opts:["Jasprit Bumrah","Andrew Tye","Bhuvneshwar Kumar","Dwayne Bravo"],ans:"Andrew Tye",fact:"Australian Andrew Tye won the 2018 Purple Cap with 24 wickets for Kings XI Punjab."},
+  {q:"How many centuries did Jos Buttler score in IPL 2022?",opts:["3","4","5","2"],ans:"4",fact:"Buttler hit 4 centuries in 2022 — tying Kohli's record of 4 centuries in a single IPL season set in 2016."},
+  {q:"Which player top-scored in the 2009 IPL season to win the Orange Cap?",opts:["Adam Gilchrist","Matthew Hayden","Sachin Tendulkar","Virender Sehwag"],ans:"Matthew Hayden",fact:"Matthew Hayden of CSK won the 2009 Orange Cap with 572 runs."},
+  {q:"Who has the highest individual score in IPL playoffs history?",opts:["Chris Gayle","AB de Villiers","Brendon McCullum","KL Rahul"],ans:"Chris Gayle",fact:"Chris Gayle's 175* is the highest score in any IPL match, including playoffs, scored on April 23, 2013."},
+  {q:"Which team has won the IPL title the most times?",opts:["Mumbai Indians","Chennai Super Kings","KKR","RCB"],ans:"Chennai Super Kings",fact:"CSK have won 5 IPL titles — 2010, 2011, 2018, 2021, 2023 — the joint most with MI. CSK's consistency is unmatched."},
+  {q:"Who won the 2015 Purple Cap with 23 wickets?",opts:["Dwayne Bravo","Imran Tahir","Sunil Narine","Lasith Malinga"],ans:"Dwayne Bravo",fact:"Bravo won the 2015 Purple Cap for CSK with 26 wickets — his second Purple Cap, making IPL history."},
+  {q:"In which IPL season did Virat Kohli score 4 centuries?",opts:["2014","2015","2016","2017"],ans:"2016",fact:"Kohli scored 4 centuries in 2016 — no other player has ever scored more than 1 century in a single IPL season except Buttler (4 in 2022)."},
+  {q:"Who was the Purple Cap winner in IPL 2016?",opts:["Bhuvneshwar Kumar","Jasprit Bumrah","Dwayne Bravo","Imran Tahir"],ans:"Bhuvneshwar Kumar",fact:"Bhuvneshwar Kumar took 23 wickets for SRH in 2016 — the year SRH won the title. He won the Purple Cap back-to-back in 2016 and 2017."},
+  {q:"Which IPL team was banned for two years (2016–2017) and played as Rising Pune Supergiant?",opts:["Rajasthan Royals","Chennai Super Kings","Mumbai Indians","Deccan Chargers"],ans:"Chennai Super Kings",fact:"CSK were banned for two years due to the IPL spot-fixing scandal. They played as Rising Pune Supergiant in 2016 and 2017."},
+  {q:"Who scored the most runs in the 2014 IPL season to win the Orange Cap?",opts:["Robin Uthappa","Virat Kohli","Rohit Sharma","Glenn Maxwell"],ans:"Robin Uthappa",fact:"Robin Uthappa won the 2014 Orange Cap with 660 runs for KKR — the same season KKR won the title."},
+  {q:"MS Dhoni has played the most IPL matches. Approximately how many?",opts:["220","240","260","280"],ans:"260",fact:"Dhoni has played 260+ IPL matches — the all-time record for most matches played in IPL history."},
+  {q:"Rajasthan Royals won the first IPL. Who was their star Australian spinner captain?",opts:["Ricky Ponting","Adam Gilchrist","Shane Warne","Andrew Symonds"],ans:"Shane Warne",fact:"Shane Warne captained and mentored Rajasthan Royals to the 2008 title — widely considered one of IPL's greatest stories."},
+  {q:"Which player won the Orange Cap in 2010?",opts:["Sachin Tendulkar","Virender Sehwag","MS Dhoni","Suresh Raina"],ans:"Sachin Tendulkar",fact:"Sachin Tendulkar won the 2010 Orange Cap with 618 runs for Mumbai Indians — the year MI won their first title."},
+  {q:"The 2013 IPL was won by which team?",opts:["Mumbai Indians","Chennai Super Kings","Kolkata Knight Riders","Rajasthan Royals"],ans:"Mumbai Indians",fact:"Mumbai Indians won their second IPL title in 2013, defeating Chennai Super Kings in the final."},
+  {q:"Who scored the most runs in IPL 2012?",opts:["Chris Gayle","Virat Kohli","Gautam Gambhir","Rohit Sharma"],ans:"Chris Gayle",fact:"Chris Gayle won the 2012 Orange Cap with 733 runs for RCB — making it back-to-back Orange Caps (2011 and 2012)."},
+  {q:"KL Rahul won the Orange Cap in 2020. How many runs did he score?",opts:["620","650","670","700"],ans:"670",fact:"KL Rahul scored 670 runs for KXIP (now PBKS) in 2020 — winning the Orange Cap at a stunning average of 55.83."},
+  {q:"Which team finished bottom of the IPL table in the most seasons?",opts:["Pune Warriors","Kochi Tuskers","Delhi Capitals","Royal Challengers Bangalore"],ans:"Pune Warriors",fact:"Pune Warriors India finished last in all three of their IPL seasons (2011, 2012, 2013) before the franchise folded."},
+  {q:"Who won the Purple Cap in 2022?",opts:["Jasprit Bumrah","Yuzvendra Chahal","Wanindu Hasaranga","Mohammad Siraj"],ans:"Yuzvendra Chahal",fact:"Yuzvendra Chahal took 27 wickets for Rajasthan Royals in 2022 — winning the Purple Cap and leading RR to the final."},
+  {q:"Who is the only player to have played all seasons of the IPL for the same team?",opts:["MS Dhoni","Suresh Raina","Virat Kohli","Rohit Sharma"],ans:"Virat Kohli",fact:"Virat Kohli has played every single IPL season (2008 to present) for Royal Challengers Bangalore — never played for any other IPL team."},
+  {q:"Which team won the IPL in 2019?",opts:["Chennai Super Kings","Mumbai Indians","Kolkata Knight Riders","Delhi Capitals"],ans:"Mumbai Indians",fact:"Mumbai Indians won their fourth IPL title in 2019, defeating CSK in the final — their classic rivalry."},
+  {q:"Pat Cummins became the first player to be sold for over ₹20 crore. How much exactly?",opts:["₹20.5 crore","₹21 crore","₹22 crore","₹24.75 crore"],ans:"₹20.5 crore",fact:"Pat Cummins was sold to SRH for ₹20.5 crore in the IPL 2024 mega auction — breaking all previous auction records."},
+  {q:"Which player won the first ever IPL Man of the Match award?",opts:["Brendon McCullum","Sourav Ganguly","Anil Kumble","Virender Sehwag"],ans:"Brendon McCullum",fact:"Brendon McCullum scored 158* off 73 balls for KKR in the first ever IPL match — naturally winning Man of the Match."},
+  {q:"How many teams competed in the inaugural IPL season of 2008?",opts:["6","8","10","12"],ans:"8",fact:"The inaugural IPL in 2008 had 8 teams: MI, CSK, KKR, RCB, DD, PBKS, RR and Deccan Chargers."},
+  {q:"Who won the Purple Cap in 2019?",opts:["Imran Tahir","Jasprit Bumrah","Kagiso Rabada","Lasith Malinga"],ans:"Imran Tahir",fact:"South African leg-spinner Imran Tahir won the 2019 Purple Cap with 26 wickets for CSK."},
+  {q:"Deccan Chargers won the IPL in 2009. Who was their captain?",opts:["VVS Laxman","Adam Gilchrist","Andrew Symonds","Kumar Sangakkara"],ans:"Adam Gilchrist",fact:"Adam Gilchrist captained Deccan Chargers to the 2009 IPL title — the only title in the franchise's history before they were dissolved."},
+  {q:"Which team won the 2021 IPL title?",opts:["Delhi Capitals","Royal Challengers Bangalore","Chennai Super Kings","Kolkata Knight Riders"],ans:"Chennai Super Kings",fact:"CSK won the 2021 IPL title after returning from their 2-year ban, defeating KKR in the final at Dubai."},
+  {q:"Who won the Orange Cap in IPL 2015?",opts:["David Warner","Virat Kohli","Rohit Sharma","AB de Villiers"],ans:"David Warner",fact:"David Warner won his first Orange Cap in 2015 with 562 runs for SRH — beginning his dominance of the batting charts."},
+  {q:"Which player hit 6 sixes in an over in domestic cricket — NOT in IPL?",opts:["Rinku Singh","Yuvraj Singh","Ruturaj Gaikwad","Chris Gayle"],ans:"Ruturaj Gaikwad",fact:"Ruturaj Gaikwad hit 6 sixes in an over in the Vijay Hazare Trophy 2023 — a domestic 50-over match, NOT in IPL."},
+  {q:"Who was the Orange Cap holder in 2017?",opts:["Virat Kohli","David Warner","Rohit Sharma","KL Rahul"],ans:"David Warner",fact:"David Warner won his second Orange Cap in 2017 with 641 runs for SRH — the year they reached the final."},
+  {q:"Which IPL team was dissolved after failing to win a single season?",opts:["Pune Warriors India","Kochi Tuskers Kerala","Both of them","Rising Pune Supergiant"],ans:"Both of them",fact:"Both Pune Warriors India (2011–2013) and Kochi Tuskers Kerala (2011 only) were dissolved — they never won the IPL."},
+  {q:"Jasprit Bumrah's best IPL figures are 5/10. Against which team?",opts:["RCB","Chennai Super Kings","Kolkata Knight Riders","Delhi Capitals"],ans:"Kolkata Knight Riders",fact:"Bumrah took 5/10 against Kolkata Knight Riders — his best IPL bowling figures and one of the best ever in the tournament."},
+  {q:"Who won the 2023 IPL title?",opts:["Gujarat Titans","Rajasthan Royals","Chennai Super Kings","Mumbai Indians"],ans:"Chennai Super Kings",fact:"CSK won the 2023 IPL title, defeating GT in a dramatic final where Jadeja hit the winning runs off the last ball."},
+  {q:"Which team has appeared in the most IPL finals?",opts:["Mumbai Indians","Chennai Super Kings","KKR","RCB"],ans:"Chennai Super Kings",fact:"CSK have appeared in 10 IPL finals — the most by any team. They have won 5 and lost 5."},
+  {q:"Which country's player won the very first Purple Cap in IPL history?",opts:["India","Australia","Sri Lanka","Pakistan"],ans:"Pakistan",fact:"Pakistan's Sohail Tanvir won the inaugural Purple Cap in 2008 for Rajasthan Royals with 22 wickets."},
+  {q:"Who scored the most runs in IPL 2018?",opts:["Kane Williamson","Virat Kohli","Rohit Sharma","Ambati Rayudu"],ans:"Kane Williamson",fact:"Kane Williamson won the 2018 Orange Cap with 735 runs for SRH — the same year he was also rated the tournament's best captain."},
+  {q:"The highest team score in IPL history was scored by which team?",opts:["RCB","SRH","MI","CSK"],ans:"SRH",fact:"Sunrisers Hyderabad scored 277/3 against MI in 2024 — the highest team total in IPL history, with Travis Head and Abhishek Sharma both scoring centuries."},
+];
+
+// ── DAILY CHALLENGE SYSTEM ────────────────────────────────────────────────────
+function getTodayKey() {
+    const d = new Date();
+    return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`;
+}
+
+function getDailyPlayers() {
+    // Seed by date so same players show for everyone on same day
+    const d = new Date();
+    const seed = d.getFullYear() * 10000 + (d.getMonth()+1) * 100 + d.getDate();
+    const shuffled = [...PLAYERS];
+    let s = seed;
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        s = (s * 1103515245 + 12345) & 0x7fffffff;
+        const j = s % (i + 1);
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled.slice(0, 10);
+}
+
+function getTrickyQuestion() {
+    // Rotate through questions based on day of year
+    const d = new Date();
+    const dayOfYear = Math.floor((d - new Date(d.getFullYear(), 0, 0)) / 86400000);
+    return TRICKY[dayOfYear % TRICKY.length];
+}
+
+function getDailyState() {
+    const key = getTodayKey();
+    const saved = localStorage.getItem('googlyDaily_' + key);
+    return saved ? JSON.parse(saved) : null;
+}
+
+function saveDailyState(state) {
+    const key = getTodayKey();
+    localStorage.setItem('googlyDaily_' + key, JSON.stringify(state));
+}
+
+// ── GAME STATE ─────────────────────────────────────────────────────────────────
+let G = {
+    screen:'menu', score:0, timeLeft:60,
+    current:null, clues:[], options:[],
+    streak:0, bestStreak:0, total:0, correct:0,
+    highScore:parseInt(localStorage.getItem('iplHS')||'0'),
+    playerName:localStorage.getItem('iplName')||'',
+    muted: localStorage.getItem('googlyMuted')==='1',
+    used:[],
+    mode:'practice', // 'practice' | 'daily' | 'tricky'
+    dailyPlayers:[], dailyIndex:0, dailyDone:false, dailyScore:0,
+    trickyQ:null, trickyAnswered:false, trickyCorrect:false,
+};
+
+function toggleMute(){
+    G.muted=!G.muted;
+    localStorage.setItem('googlyMuted', G.muted?'1':'0');
+    // Update all mute buttons on screen
+    document.querySelectorAll('#mute-btn').forEach(btn => {
+        btn.textContent = G.muted ? '🔇' : '🔊';
+        btn.title = G.muted ? 'Unmute' : 'Mute';
+    });
+}
+
+// ── HELPERS ────────────────────────────────────────────────────────────────────
+function pickClues(p) {
+    const h = p.clues.find(c=>c.highlight);
+    const rest = p.clues.filter(c=>!c.highlight).sort(()=>Math.random()-0.5).slice(0,4);
+    return [h,...rest];
+}
+
+function pickNext() {
+    if(G.used.length>=PLAYERS.length) G.used=[];
+    let idx; do{idx=Math.floor(Math.random()*PLAYERS.length);}while(G.used.includes(idx));
+    G.used.push(idx);
+    const p=PLAYERS[idx];
+    const wrong=PLAYERS.filter((_,i)=>i!==idx).sort(()=>Math.random()-0.5).slice(0,3);
+    G.current=p; G.clues=pickClues(p);
+    G.options=[p,...wrong].sort(()=>Math.random()-0.5);
+}
+
+function getRank(s){
+    if(s>=400)return{emoji:'🏆',rank:'LEGEND',color:'#F5C842'};
+    if(s>=280)return{emoji:'💎',rank:'MASTER',color:'#81D4FA'};
+    if(s>=180)return{emoji:'🥇',rank:'EXPERT',color:'#FFB74D'};
+    if(s>=100)return{emoji:'⚡',rank:'PRO',color:'#69F0AE'};
+    if(s>=50)return{emoji:'🔥',rank:'RISING',color:'#FF8A65'};
+    return{emoji:'🏏',rank:'ROOKIE',color:'#90A4AE'};
+}
+
+function getTeamColor(team) {
+    return TEAM_COLORS[team] || {bg:'#1A2540',accent:'#F5C842'};
+}
+
+// ── SOUND ENGINE ──────────────────────────────────────────────────────────────
+const AC = window.AudioContext || window.webkitAudioContext;
+let audioCtx = null;
+
+function getAudio() {
+    if (!audioCtx) audioCtx = new AC();
+    return audioCtx;
+}
+
+function playCorrect() { if(G.muted) return;
+    try {
+        const ctx = getAudio();
+        // Stadium crowd cheer — layered noise burst with rising tone
+        const t = ctx.currentTime;
+
+        // Crowd noise — filtered white noise
+        const buf = ctx.createBuffer(1, ctx.sampleRate * 0.8, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.4;
+        const noise = ctx.createBufferSource();
+        noise.buffer = buf;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'bandpass';
+        filter.frequency.setValueAtTime(800, t);
+        filter.frequency.exponentialRampToValueAtTime(2000, t + 0.4);
+        filter.Q.value = 0.8;
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0, t);
+        noiseGain.gain.linearRampToValueAtTime(0.35, t + 0.05);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.8);
+        noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(ctx.destination);
+        noise.start(t); noise.stop(t + 0.8);
+
+        // Rising cheer tone
+        const osc = ctx.createOscillator();
+        const oscGain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(400, t);
+        osc.frequency.exponentialRampToValueAtTime(800, t + 0.15);
+        osc.frequency.exponentialRampToValueAtTime(600, t + 0.4);
+        oscGain.gain.setValueAtTime(0.25, t);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+        osc.connect(oscGain); oscGain.connect(ctx.destination);
+        osc.start(t); osc.stop(t + 0.5);
+
+        // Ding — success note
+        const ding = ctx.createOscillator();
+        const dingGain = ctx.createGain();
+        ding.type = 'triangle';
+        ding.frequency.value = 1046; // C6
+        dingGain.gain.setValueAtTime(0.3, t + 0.05);
+        dingGain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+        ding.connect(dingGain); dingGain.connect(ctx.destination);
+        ding.start(t + 0.05); ding.stop(t + 0.4);
+
+    } catch(e) {}
+}
+
+function playWrong() { if(G.muted) return;
+    try {
+        const ctx = getAudio();
+        const t = ctx.currentTime;
+
+        // Boo sound — descending trombone-like tone
+        const osc1 = ctx.createOscillator();
+        const gain1 = ctx.createGain();
+        osc1.type = 'sawtooth';
+        osc1.frequency.setValueAtTime(300, t);
+        osc1.frequency.exponentialRampToValueAtTime(150, t + 0.4);
+        gain1.gain.setValueAtTime(0.2, t);
+        gain1.gain.exponentialRampToValueAtTime(0.001, t + 0.5);
+        osc1.connect(gain1); gain1.connect(ctx.destination);
+        osc1.start(t); osc1.stop(t + 0.5);
+
+        // Low crowd groan noise
+        const buf = ctx.createBuffer(1, ctx.sampleRate * 0.6, ctx.sampleRate);
+        const data = buf.getChannelData(0);
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * 0.3;
+        const noise = ctx.createBufferSource();
+        noise.buffer = buf;
+        const filter = ctx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.value = 400;
+        const noiseGain = ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.25, t);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
+        noise.connect(filter); filter.connect(noiseGain); noiseGain.connect(ctx.destination);
+        noise.start(t); noise.stop(t + 0.6);
+
+    } catch(e) {}
+}
+
+function playTimeUp() { if(G.muted) return;
+    try {
+        const ctx = getAudio();
+        const t = ctx.currentTime;
+        // Three descending beeps
+        [0, 0.2, 0.4].forEach((delay, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.frequency.value = 600 - i * 100;
+            osc.type = 'square';
+            gain.gain.setValueAtTime(0.15, t + delay);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + delay + 0.15);
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.start(t + delay); osc.stop(t + delay + 0.15);
+        });
+    } catch(e) {}
+}
+
+// ── TIMER ──────────────────────────────────────────────────────────────────────
+let timer;
+function startTimer(){
+    timer=setInterval(()=>{
+        G.timeLeft--;
+        if(G.timeLeft<=0){ playTimeUp(); endGame(); return; }
+        const tc=G.timeLeft>20?'var(--green)':G.timeLeft>10?'var(--gold)':'var(--red)';
+        const pct=(G.timeLeft/60)*100;
+        const tVal=document.getElementById('timer-val');
+        const tFill=document.getElementById('timer-fill');
+        if(tVal){tVal.textContent=G.timeLeft+'s';tVal.style.color=tc;}
+        if(tFill){tFill.style.width=pct+'%';tFill.style.background=tc;}
+    },1000);
+}
+
+function saveName(){const i=document.getElementById('ni');if(i){G.playerName=i.value.trim()||'Player';localStorage.setItem('iplName',G.playerName);}}
+
+function startGame(){
+    saveName();
+    try { getAudio(); } catch(e) {}
+    trackEvent('ipl_start',{p:G.playerName||'anon', mode:'practice'});
+    G={...G,screen:'playing',score:0,timeLeft:60,streak:0,bestStreak:0,total:0,correct:0,used:[],mode:'practice'};
+    pickNext(); startTimer(); render();
+}
+
+function startDaily(){
+    saveName();
+    const saved = getDailyState();
+    if(saved && saved.done){
+        // Already played today — show results
+        G.screen='daily-result';
+        G.dailyScore=saved.score; G.dailyDone=true;
+        G.correct=saved.correct; G.total=saved.total;
+        G.bestStreak=saved.bestStreak;
+        render(); return;
+    }
+    try { getAudio(); } catch(e) {}
+    trackEvent('ipl_start',{p:G.playerName||'anon', mode:'daily'});
+    const dailyPlayers = getDailyPlayers();
+    G={...G,screen:'playing',score:0,timeLeft:60,streak:0,bestStreak:0,total:0,correct:0,
+        mode:'daily',dailyPlayers,dailyIndex:0,dailyDone:false};
+    // Set first daily player
+    const p = dailyPlayers[0];
+    const wrong = PLAYERS.filter(pl=>pl.name!==p.name).sort(()=>Math.random()-0.5).slice(0,3);
+    G.current=p; G.clues=pickClues(p); G.options=[p,...wrong].sort(()=>Math.random()-0.5);
+    startTimer(); render();
+}
+
+function startTricky(){
+    saveName();
+    const todayKey = 'googlyTricky_'+getTodayKey();
+    const saved = localStorage.getItem(todayKey);
+    if(saved){
+        const s = JSON.parse(saved);
+        G.screen='tricky'; G.trickyQ=getTrickyQuestion();
+        G.trickyAnswered=true; G.trickyCorrect=s.correct;
+        render(); return;
+    }
+    G.screen='tricky';
+    G.trickyQ=getTrickyQuestion();
+    G.trickyAnswered=false; G.trickyCorrect=false;
+    render();
+}
+
+function answerTricky(selected){
+    const correct = selected === G.trickyQ.ans;
+    G.trickyAnswered=true; G.trickyCorrect=correct;
+    if(correct) playCorrect(); else playWrong();
+    const todayKey = 'googlyTricky_'+getTodayKey();
+    localStorage.setItem(todayKey, JSON.stringify({correct, ans:selected}));
+    trackEvent('ipl_tricky',{correct, date:getTodayKey()});
+    render();
+}
+
+function ans(name,btn){
+    G.total++;
+    const ok=name===G.current.name;
+    if(btn){
+        btn.classList.add(ok?'correct':'wrong');
+        if(!ok)document.querySelectorAll('.btn-ans').forEach(b=>{if(b.dataset.name===G.current.name)b.classList.add('correct');});
+        setTimeout(()=>document.querySelectorAll('.btn-ans').forEach(b=>b.classList.remove('correct','wrong')),650);
+    }
+    if(ok){
+        playCorrect();
+        G.correct++;G.streak++;
+        if(G.streak>G.bestStreak)G.bestStreak=G.streak;
+        G.score+=10+(G.streak*3);
+        if(G.streak%5===0)G.timeLeft+=3;
+        spawnE(['🏏','🔥','💥','⚡','🎯'][Math.floor(Math.random()*5)]);
+        if(G.streak%3===0)toast(G.streak+' in a row! 🔥','#1B5E20');
+    }else{
+        playWrong();
+        G.streak=0;
+        toast('Was: '+G.current.name,'#7B1A1A');
+    }
+
+    if(G.mode==='daily'){
+        G.dailyIndex++;
+        if(G.dailyIndex>=G.dailyPlayers.length){
+            // Daily complete
+            clearInterval(timer);
+            G.dailyDone=true; G.dailyScore=G.score;
+            saveDailyState({done:true,score:G.score,correct:G.correct,total:G.total,bestStreak:G.bestStreak,date:getTodayKey()});
+            trackEvent('ipl_daily_complete',{score:G.score,correct:G.correct});
+            if(G.score>G.highScore){G.highScore=G.score;localStorage.setItem('iplHS',G.score.toString());}
+            G.screen='gameover'; render(); return;
+        }
+        // Next daily player
+        const p = G.dailyPlayers[G.dailyIndex];
+        const wrong = PLAYERS.filter(pl=>pl.name!==p.name).sort(()=>Math.random()-0.5).slice(0,3);
+        G.current=p; G.clues=pickClues(p); G.options=[p,...wrong].sort(()=>Math.random()-0.5);
+        render(); return;
+    }
+
+    pickNext(); render();
+}
+
+function endGame(){
+    clearInterval(timer); G.screen='gameover';
+    if(G.score>G.highScore){G.highScore=G.score;localStorage.setItem('iplHS',G.score.toString());}
+    trackEvent('ipl_end',{score:G.score,correct:G.correct});
+    render();
+}
+
+function backToMenu(){G.screen='menu';render();}
+
+function spawnE(e){const el=document.createElement('div');el.className='emoji-burst';el.textContent=e;el.style.left=(15+Math.random()*70)+'%';el.style.top='38%';document.body.appendChild(el);setTimeout(()=>el.remove(),900);}
+
+function toast(msg,bg){
+    const o=document.getElementById('toast');if(o)o.remove();
+    const el=document.createElement('div');el.id='toast';el.textContent=msg;
+    el.style.cssText=`position:fixed;top:16px;left:50%;transform:translateX(-50%);background:${bg};color:white;font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;padding:0.4rem 1.2rem;border-radius:2rem;box-shadow:0 4px 20px rgba(0,0,0,0.5);z-index:9999;pointer-events:none;letter-spacing:0.03em;animation:toastIn 0.25s ease,toastOut 0.3s ease 1.1s forwards;`;
+    document.body.appendChild(el);setTimeout(()=>el.remove(),1500);
+}
+
+// ── SCORECARD ──────────────────────────────────────────────────────────────────
+function bar(n,m){return'█'.repeat(Math.min(n,m))+'░'.repeat(m-Math.min(n,m));}
+
+function genText(){
+    const acc=G.total>0?Math.round(G.correct/G.total*100):0;
+    const{emoji,rank}=getRank(G.score);
+    const d=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const n=G.playerName||'Player';
+    const mode=G.mode==='daily'?'Daily Challenge':'Practice';
+    return`🏏 Googly — ${mode}\n👤 ${n}  •  📅 ${d}\n${'─'.repeat(28)}\n${emoji} Rank: ${rank}\n⭐ Score:     ${G.score}\n🔥 Streak:   ${G.bestStreak}  ${bar(G.bestStreak,10)}\n🎯 Accuracy: ${acc}%\n✅ Correct:  ${G.correct}/${G.total}\n${'─'.repeat(28)}\n🏅 Personal Best: ${G.highScore}\n\nCan you beat ${n}? 👇\nplaygoogly.in`;
+}
+
+function rr(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();}
+
+function genImg(){
+    const cv=document.getElementById('share-canvas');const ctx=cv.getContext('2d');
+    const W=600,H=700;cv.width=W;cv.height=H;
+    const acc=G.total>0?Math.round(G.correct/G.total*100):0;
+    const{emoji,rank,color}=getRank(G.score);
+    const d=new Date().toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+    const n=G.playerName||'Player';
+    ctx.fillStyle='#050D1F';ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha=0.18;ctx.fillStyle='#F5C842';ctx.beginPath();ctx.arc(W/2,0,300,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;
+    ctx.fillStyle='#F5C842';ctx.fillRect(0,0,W,5);
+    ctx.font='bold 50px "Arial Black",sans-serif';ctx.fillStyle='#F5C842';ctx.textAlign='center';ctx.fillText('Googly',W/2,70);
+    ctx.font='17px Arial';ctx.fillStyle='rgba(255,255,255,0.45)';ctx.fillText(n+'  •  '+d,W/2,98);
+    ctx.fillStyle='rgba(255,255,255,0.07)';rr(ctx,W/2-110,114,220,76,16);ctx.fill();
+    ctx.font='48px Arial';ctx.fillText(emoji,W/2-28,172);ctx.font='bold 27px Arial';ctx.fillStyle=color;ctx.fillText(rank,W/2+57,165);
+    ctx.font='bold 100px "Arial Black",sans-serif';ctx.fillStyle='#F5C842';ctx.fillText(G.score,W/2,322);
+    ctx.font='18px Arial';ctx.fillStyle='rgba(255,255,255,0.38)';ctx.fillText('SCORE',W/2,348);
+    const st=[{l:'STREAK',v:G.bestStreak+'🔥',c:'#FF8A65'},{l:'ACCURACY',v:acc+'%',c:'#69F0AE'},{l:'CORRECT',v:G.correct+'/'+G.total,c:'#81D4FA'}];
+    st.forEach((s,i)=>{const x=80+i*180;ctx.fillStyle='rgba(255,255,255,0.06)';rr(ctx,x-65,368,130,72,12);ctx.fill();ctx.font='bold 24px Arial';ctx.fillStyle=s.c;ctx.textAlign='center';ctx.fillText(s.v,x,405);ctx.font='12px Arial';ctx.fillStyle='rgba(255,255,255,0.32)';ctx.fillText(s.l,x,423);});
+    const bY=466,bW=W-120;
+    ctx.font='13px Arial';ctx.fillStyle='rgba(255,255,255,0.32)';ctx.textAlign='left';ctx.fillText('Best Streak',60,bY);ctx.textAlign='right';ctx.fillText(G.bestStreak+'/10',W-60,bY);
+    ctx.fillStyle='rgba(255,255,255,0.07)';rr(ctx,60,bY+8,bW,10,5);ctx.fill();
+    if(G.bestStreak>0){ctx.fillStyle='#FF8A65';rr(ctx,60,bY+8,bW*Math.min(G.bestStreak/10,1),10,5);ctx.fill();}
+    const bY2=504;ctx.font='13px Arial';ctx.fillStyle='rgba(255,255,255,0.32)';ctx.textAlign='left';ctx.fillText('Accuracy',60,bY2);ctx.textAlign='right';ctx.fillText(acc+'%',W-60,bY2);
+    ctx.fillStyle='rgba(255,255,255,0.07)';rr(ctx,60,bY2+8,bW,10,5);ctx.fill();
+    if(acc>0){ctx.fillStyle='#00C853';rr(ctx,60,bY2+8,bW*(acc/100),10,5);ctx.fill();}
+    ctx.fillStyle='rgba(245,200,66,0.07)';rr(ctx,60,542,bW,44,10);ctx.fill();
+    ctx.font='14px Arial';ctx.fillStyle='rgba(245,200,66,0.45)';ctx.textAlign='center';ctx.fillText('🏅  Personal Best: '+G.highScore,W/2,569);
+    ctx.font='bold 15px Arial';ctx.fillStyle='rgba(255,255,255,0.45)';ctx.fillText('Can you beat '+n+'? 👉 playgoogly.in',W/2,628);
+    ctx.fillStyle='#F5C842';ctx.fillRect(0,H-4,W,4);
+    return cv.toDataURL('image/png');
+}
+
+function copyText(){trackEvent('ipl_share',{m:'copy'});navigator.clipboard.writeText(genText()).then(()=>{const b=document.getElementById('cb');if(b){b.textContent='✅ Copied!';setTimeout(()=>b.textContent='📋 Copy',2000);}});}
+function dlImg(){trackEvent('ipl_share',{m:'img'});const a=document.createElement('a');a.href=genImg();a.download='ipl-quiz.png';a.click();}
+function shareWA(){trackEvent('ipl_share',{m:'wa'});window.open('https://api.whatsapp.com/send?text='+encodeURIComponent(genText()),'_blank');}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────────
+function renderMenu(){
+    const dailySaved = getDailyState();
+    const dailyDone = dailySaved && dailySaved.done;
+    const todayTricky = localStorage.getItem('googlyTricky_'+getTodayKey());
+    const trickyDone = !!todayTricky;
+    const trickyCorrect = todayTricky ? JSON.parse(todayTricky).correct : null;
+    const today = new Date().toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+
+    return`<div class="menu-card fade-up">
+        <div class="float" style="margin-bottom:0.8rem">
+            <div style="font-size:2.8rem;margin-bottom:0.2rem">🏏</div>
+            <div class="menu-title">Googly</div>
+            <div class="menu-sub">Guess the IPL Cricketer</div>
+        </div>
+
+        <div class="name-input-wrap" style="margin-bottom:0.75rem">
+            <label class="name-input-label">Your Name</label>
+            <input id="ni" class="name-input" type="text" maxlength="20" placeholder="Enter your name..." value="${G.playerName}" onkeydown="if(event.key==='Enter')startGame()" onfocus="this.style.borderColor='#F5C842'" onblur="this.style.borderColor='rgba(255,255,255,0.12)'"/>
+        </div>
+
+        <!-- Daily Challenge -->
+        <div style="background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.25);border-radius:1rem;padding:1rem;margin-bottom:0.6rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+                <div>
+                    <div style="font-family:'Black Han Sans',sans-serif;font-size:1rem;color:#F5C842">🗓️ Daily Challenge</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:1px">${today} · 10 players · one attempt</div>
+                </div>
+                ${dailyDone ? `<div style="font-size:0.75rem;font-weight:700;color:#69F0AE;background:rgba(0,200,83,0.15);padding:3px 10px;border-radius:20px">✅ ${dailySaved.score} pts</div>` : `<div style="font-size:0.75rem;font-weight:700;color:#F5C842;background:rgba(245,200,66,0.15);padding:3px 10px;border-radius:20px">NEW</div>`}
+            </div>
+            <button onclick="startDaily()" style="width:100%;background:${dailyDone?'rgba(255,255,255,0.06)':'#C8A020'};border:none;color:${dailyDone?'rgba(255,255,255,0.4)':'#050D1F'};font-family:'Black Han Sans',sans-serif;font-size:1rem;padding:0.7rem;border-radius:0.6rem;cursor:pointer;letter-spacing:0.04em;">
+                ${dailyDone ? 'VIEW RESULTS' : 'PLAY TODAY\'S CHALLENGE'}
+            </button>
+        </div>
+
+        <!-- Tricky Question -->
+        <div style="background:rgba(255,107,0,0.08);border:1px solid rgba(255,107,0,0.25);border-radius:1rem;padding:1rem;margin-bottom:0.6rem">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+                <div>
+                    <div style="font-family:'Black Han Sans',sans-serif;font-size:1rem;color:#FFAB40">🧠 Tricky Question</div>
+                    <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-top:1px">${today} · one question · brain teaser</div>
+                </div>
+                ${trickyDone ? `<div style="font-size:0.75rem;font-weight:700;color:${trickyCorrect?'#69F0AE':'#FF8A80'};background:${trickyCorrect?'rgba(0,200,83,0.15)':'rgba(255,23,68,0.15)'};padding:3px 10px;border-radius:20px">${trickyCorrect?'✅ Correct':'❌ Wrong'}</div>` : `<div style="font-size:0.75rem;font-weight:700;color:#FFAB40;background:rgba(255,107,0,0.15);padding:3px 10px;border-radius:20px">NEW</div>`}
+            </div>
+            <button onclick="startTricky()" style="width:100%;background:${trickyDone?'rgba(255,255,255,0.06)':'rgba(255,107,0,0.3)'};border:1px solid rgba(255,107,0,0.3);color:${trickyDone?'rgba(255,255,255,0.4)':'#FFAB40'};font-family:'Black Han Sans',sans-serif;font-size:1rem;padding:0.7rem;border-radius:0.6rem;cursor:pointer;letter-spacing:0.04em;">
+                ${trickyDone ? 'SEE ANSWER' : 'ANSWER TODAY\'S QUESTION'}
+            </button>
+        </div>
+
+        <!-- Practice Mode -->
+        <div style="background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:1rem;padding:1rem;margin-bottom:0.75rem">
+            <div style="font-family:'Black Han Sans',sans-serif;font-size:1rem;color:var(--text);margin-bottom:0.4rem">⚡ Practice Mode</div>
+            <div style="font-size:0.7rem;color:rgba(255,255,255,0.4);margin-bottom:0.6rem">60 seconds · unlimited plays · all ${PLAYERS.length} players</div>
+            <div style="display:flex;align-items:center;justify-content:space-between">
+                <div style="font-size:0.7rem;color:rgba(245,200,66,0.5)">🏅 Best: ${G.highScore}</div>
+                <button class="btn-start" onclick="startGame()" style="width:auto;padding:0.6rem 1.4rem;font-size:0.95rem;margin-bottom:0">PLAY</button>
+            </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between">
+            <div style="font-size:0.7rem;color:var(--muted)">🔊 Sound</div>
+            <button onclick="toggleMute()" id="mute-btn" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);color:var(--muted);font-family:'Nunito',sans-serif;font-size:0.8rem;font-weight:700;padding:0.3rem 0.9rem;border-radius:2rem;cursor:pointer;">${G.muted?'🔇 OFF':'🔊 ON'}</button>
+        </div>
+    </div>`;
+}
+
+function renderGame(){
+    const p=G.current;
+    const tc=G.timeLeft>20?'var(--green)':G.timeLeft>10?'var(--gold)':'var(--red)';
+    const pct=(G.timeLeft/60)*100;
+    const acc=G.total>0?Math.round(G.correct/G.total*100):0;
+    const tc2=getTeamColor(p.team);
+
+    return`
+    <div class="top-bar">
+        <div class="top-stat">
+            <div class="top-stat-label">Time</div>
+            <div id="timer-val" class="top-stat-value" style="color:${tc}">${G.timeLeft}s</div>
+        </div>
+        <div class="top-stat">
+            <div class="top-stat-label">Score</div>
+            <div class="top-stat-value" style="color:var(--gold)">${G.score}</div>
+        </div>
+        <div class="top-stat">
+            <div class="top-stat-label">Streak</div>
+            <div class="top-stat-value" style="color:#FF8A65">${G.streak}🔥</div>
+        </div>
+        <div class="top-stat">
+            <div class="top-stat-label">Correct</div>
+            <div class="top-stat-value" style="color:var(--green)">${G.correct}/${G.total}</div>
+        </div>
+        <button onclick="toggleMute()" id="mute-btn" title="${G.muted?'Unmute':'Mute'}" style="background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:1rem;width:34px;height:34px;border-radius:50%;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;padding:0;">${G.muted?'🔇':'🔊'}</button>
+    </div>
+
+    <div class="timer-wrap">
+        <div class="timer-track">
+            <div id="timer-fill" class="timer-fill" style="width:${pct}%;background:${tc}"></div>
+        </div>
+    </div>
+
+    <div class="player-card" style="background:${tc2.bg}18">
+        <div class="player-card-header" style="background:linear-gradient(135deg,${tc2.bg}40,transparent)">
+            <div class="jersey" style="background:${tc2.bg}">
+                <svg width="44" height="52" viewBox="0 0 44 52" fill="none" xmlns="http://www.w3.org/2000/svg" style="opacity:0.85;z-index:1">
+                    <path d="M22 4 C18 4 14 6 12 9 L4 14 L8 20 L12 17 L12 48 L32 48 L32 17 L36 20 L40 14 L32 9 C30 6 26 4 22 4Z" fill="rgba(255,255,255,0.9)"/>
+                    <rect x="16" y="46" width="12" height="4" rx="2" fill="rgba(255,255,255,0.6)"/>
+                </svg>
+                <div class="jersey-label">${p.team}</div>
+            </div>
+            <div class="player-meta">
+                <div class="player-role-badge" style="background:${tc2.bg}60;color:${tc2.accent};border:1px solid ${tc2.bg}">${p.role}</div>
+                <div class="player-mystery">??? ???</div>
+                <div class="player-mystery-sub">Who is this ${p.team} player?</div>
+            </div>
+        </div>
+        <div class="clues-section">
+            <div class="clues-label">🔍 Your Clues</div>
+            <div class="clues-grid">
+                ${G.clues.map((c,i)=>`
+                    <div class="clue-chip ${c.color}${i===0?' full':''}">
+                        <span class="chip-icon">${c.icon}</span>
+                        <div class="chip-text">
+                            <div class="chip-label">${c.label}</div>
+                            <div class="chip-value">${c.value}</div>
+                        </div>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    </div>
+
+    <div class="answers-grid">
+        ${G.options.map(o=>`
+            <button class="btn-ans" data-name="${o.name}" onclick="ans(this.dataset.name,this)">${o.name}</button>
+        `).join('')}
+    </div>
+
+    <div style="text-align:center;font-size:0.65rem;color:var(--muted);padding:0.2rem 0">
+        ${G.mode==='daily'
+            ? `Daily Challenge · Player ${G.dailyIndex+1} of ${G.dailyPlayers.length}`
+            : `Best Streak: ${G.bestStreak} 🔥  ·  Accuracy: ${acc}%`
+        }
+    </div>`;
+}
+
+function renderGameOver(){
+    const acc=G.total>0?Math.round(G.correct/G.total*100):0;
+    const isNew=G.score>0&&G.score===G.highScore;
+    const{emoji,rank,color}=getRank(G.score);
+    const n=G.playerName||'Player';
+    const txt=genText();
+    const muteBtn=`<button onclick="toggleMute()" id="mute-btn" title="${G.muted?'Unmute':'Mute'}" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:1rem;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">${G.muted?'🔇':'🔊'}</button>`;
+    const waSVG=`<svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+
+    return`<div class="gameover-card" style="position:relative">
+        ${muteBtn}
+        <div style="color:var(--muted);font-size:0.82rem;margin-bottom:4px">👤 ${n}</div>
+        ${isNew
+            ?`<div class="text-5xl mb-2 pop-in" style="font-size:3rem;margin-bottom:6px">🏆</div><div style="font-family:'Black Han Sans',sans-serif;font-size:1.8rem;color:var(--gold);margin-bottom:2px">NEW HIGH SCORE!</div>`
+            :`<div style="font-size:2.5rem;margin-bottom:4px">⏱️</div><div style="font-family:'Black Han Sans',sans-serif;font-size:1.8rem;color:var(--text);margin-bottom:2px">TIME'S UP!</div>`
+        }
+        <div class="rank-badge">
+            <span class="rank-emoji">${emoji}</span>
+            <span class="rank-text" style="color:${color}">${rank}</span>
+        </div>
+        <div class="go-score-box">
+            <div class="go-score-label">Final Score</div>
+            <div class="go-score">${G.score}</div>
+        </div>
+        <div class="stats-row">
+            <div class="stat-box"><div class="stat-box-val" style="color:#FF8A65">${G.bestStreak}🔥</div><div class="stat-box-label">Streak</div></div>
+            <div class="stat-box"><div class="stat-box-val" style="color:#69F0AE">${acc}%</div><div class="stat-box-label">Accuracy</div></div>
+            <div class="stat-box"><div class="stat-box-val" style="color:#81D4FA">${G.correct}/${G.total}</div><div class="stat-box-label">Correct</div></div>
+        </div>
+        <div class="share-section">
+            <div class="share-label">Share Your Score</div>
+            <div class="score-preview">${txt}</div>
+            <button class="share-btn" onclick="shareWA()">${waSVG}Share on WhatsApp</button>
+            <div class="btn-row" style="margin-top:0.4rem">
+                <button id="cb" class="btn-sm" onclick="copyText()">📋 Copy</button>
+                <button class="btn-sm" onclick="dlImg()">🖼️ Image</button>
+            </div>
+        </div>
+        <div style="background:rgba(245,200,66,0.06);border:1px solid rgba(245,200,66,0.14);border-radius:0.75rem;padding:0.6rem;margin-bottom:0.75rem;text-align:center">
+            <div style="font-size:0.6rem;color:rgba(245,200,66,0.4);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:2px">Personal Best</div>
+            <div style="font-family:'Black Han Sans',sans-serif;font-size:2.2rem;color:var(--gold)">${G.highScore}</div>
+        </div>
+        <div class="btn-pair">
+            <button class="btn-play-again" onclick="startGame()">PLAY AGAIN</button>
+            <button class="btn-home" onclick="backToMenu()">🏠</button>
+        </div>
+    </div>`;
+}
+
+function renderTricky(){
+    const q = G.trickyQ;
+    const muteBtn=`<button onclick="toggleMute()" id="mute-btn" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);color:var(--muted);font-size:1rem;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">${G.muted?'🔇':'🔊'}</button>`;
+    const today = new Date().toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'short'});
+
+    return`<div class="gameover-card" style="position:relative">
+        ${muteBtn}
+        <div style="font-size:0.7rem;color:rgba(255,107,0,0.6);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;margin-bottom:6px">🧠 Tricky Question · ${today}</div>
+
+        <div style="background:rgba(255,107,0,0.08);border:1px solid rgba(255,107,0,0.2);border-radius:1rem;padding:1.2rem;margin-bottom:1rem;text-align:left">
+            <div style="font-family:'Black Han Sans',sans-serif;font-size:1.1rem;color:#FFAB40;line-height:1.4">${q.q}</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem">
+            ${q.opts.map(opt => {
+                let bg='rgba(255,255,255,0.05)';
+                let border='rgba(255,255,255,0.1)';
+                let color='var(--text)';
+                if(G.trickyAnswered){
+                    if(opt===q.ans){bg='rgba(0,200,83,0.15)';border='#00C853';color='#69F0AE';}
+                    else if(opt!==q.ans){bg='rgba(255,255,255,0.03)';color='rgba(255,255,255,0.3)';}
+                }
+                return `<button ${G.trickyAnswered?'disabled':''} onclick="answerTricky('${opt.replace(/'/g,"\\'")}')"
+                    style="background:${bg};border:1.5px solid ${border};color:${color};font-family:'Nunito',sans-serif;font-size:0.88rem;font-weight:700;padding:0.8rem 0.5rem;border-radius:0.75rem;cursor:${G.trickyAnswered?'default':'pointer'};text-align:center;line-height:1.3;transition:all 0.15s;">
+                    ${opt}
+                </button>`;
+            }).join('')}
+        </div>
+
+        ${G.trickyAnswered ? `
+            <div style="background:${G.trickyCorrect?'rgba(0,200,83,0.12)':'rgba(255,23,68,0.12)'};border:1px solid ${G.trickyCorrect?'rgba(0,200,83,0.3)':'rgba(255,23,68,0.3)'};border-radius:0.85rem;padding:1rem;margin-bottom:1rem;text-align:left">
+                <div style="font-size:1.5rem;margin-bottom:4px">${G.trickyCorrect?'✅':'❌'}</div>
+                <div style="font-size:0.85rem;font-weight:700;color:${G.trickyCorrect?'#69F0AE':'#FF8A80'};margin-bottom:4px">${G.trickyCorrect?'Correct!':'Wrong!'} The answer is: ${q.ans}</div>
+                <div style="font-size:0.78rem;color:rgba(255,255,255,0.5);line-height:1.5">${q.fact}</div>
+            </div>
+        ` : ''}
+
+        <button onclick="backToMenu()" style="width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);color:rgba(255,255,255,0.6);font-family:'Black Han Sans',sans-serif;font-size:1rem;padding:0.8rem;border-radius:0.75rem;cursor:pointer;letter-spacing:0.04em;">
+            ← BACK TO MENU
+        </button>
+    </div>`;
+}
+
+function render(){
+    const r=document.getElementById('root');
+    switch(G.screen){
+        case'menu': r.innerHTML=renderMenu(); break;
+        case'playing': r.innerHTML=renderGame(); break;
+        case'gameover': r.innerHTML=renderGameOver(); break;
+        case'tricky': r.innerHTML=renderTricky(); break;
+    }
+}
+render();
+</script>
+</body>
+</html>
