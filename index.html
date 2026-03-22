@@ -4,163 +4,340 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RisMath — Tap. Play. Repeat.</title>
-<meta name="description" content="Simple, addictive games you can play in 60 seconds.">
+<meta name="description" content="Simple, addictive games you can play in 60 seconds. Built for fast minds.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#080B14;--surface:#0E1220;--text:#F0F2FF;--muted:#6B7280;--border:rgba(255,255,255,0.07);
+  --orange:#F5A623;
+  --orange2:#F3722C;
+  --red:#C1440E;
+  --red2:#A33A0C;
+  --cream:#FFF8F0;
+  --dark:#3D1A00;
+  --muted:#A0522D;
+  --text:#3D1A00;
 }
+
 *{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;}
 
-/* Grid background */
-body::before{content:'';position:fixed;inset:0;
-  background-image:linear-gradient(rgba(255,77,109,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(255,77,109,0.025) 1px,transparent 1px);
-  background-size:52px 52px;pointer-events:none;z-index:0;}
+body{
+  background:#F5A623;
+  background-image:
+    radial-gradient(circle at 10% 15%, #F9C74F 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, #F3722C 0%, transparent 40%),
+    radial-gradient(circle at 50% 50%, #F9B93F 0%, transparent 60%);
+  font-family:'Nunito',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
 
-/* Blobs */
-.b{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;}
-.b1{width:480px;height:480px;background:#FF4D6D;top:-160px;right:-120px;opacity:.15;}
-.b2{width:380px;height:380px;background:#4DFFB4;bottom:-120px;left:-100px;opacity:.12;}
+/* Floating math symbols in background */
+.bg-symbols{
+  position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;
+}
+.sym{
+  position:absolute;font-family:'Baloo 2',cursive;font-weight:800;
+  color:rgba(255,255,255,0.12);line-height:1;user-select:none;
+}
 
 .wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:0 1.25rem;}
 
 /* Header */
-header{padding:1.5rem 0;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);margin-bottom:2.5rem;}
-.logo{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;letter-spacing:-.02em;}
-.logo span{color:#FF4D6D;}
-.tagline{font-size:.72rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
+header{
+  padding:1.5rem 0 1rem;
+  display:flex;align-items:center;justify-content:space-between;
+}
+.logo{
+  font-family:'Baloo 2',cursive;font-size:1.8rem;font-weight:800;
+  color:var(--dark);letter-spacing:-.01em;
+}
+.logo span{color:var(--red);}
+.tagline{
+  font-size:.7rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+  color:var(--red);background:rgba(193,68,14,.12);border:1.5px solid rgba(193,68,14,.25);
+  padding:.28rem .7rem;border-radius:2rem;
+}
 
 /* Section label */
-.slabel{font-size:.65rem;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);
-  display:flex;align-items:center;gap:.75rem;margin-bottom:1.5rem;}
-.slabel::after{content:'';flex:1;height:1px;background:var(--border);}
+.slabel{
+  font-size:.68rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--muted);display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;
+}
+.slabel::after{content:'';flex:1;height:2px;background:rgba(193,68,14,.15);border-radius:1px;}
 
-/* Game grid */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem;margin-bottom:3rem;}
-@media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr);}}
+/* Grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:1rem;
+  margin-bottom:2.5rem;
+}
+@media(min-width:500px){.grid{grid-template-columns:repeat(3,1fr);}}
+@media(min-width:780px){.grid{grid-template-columns:repeat(5,1fr);}}
 
 /* Card */
-.card{display:flex;flex-direction:column;text-decoration:none;color:var(--text);
-  background:var(--surface);border:1px solid var(--border);border-radius:1.1rem;
-  overflow:hidden;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
-  animation:fadeUp .5s ease both;}
-.card:hover{transform:translateY(-5px);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 0 1px var(--c);}
-.card:hover{border-color:var(--c);}
+.card{
+  display:flex;flex-direction:column;text-decoration:none;
+  background:rgba(255,248,235,0.6);
+  backdrop-filter:blur(16px);
+  border:2px solid rgba(255,255,255,0.7);
+  border-radius:1.25rem;
+  overflow:hidden;
+  box-shadow:0 4px 0 rgba(193,68,14,.2), 0 8px 24px rgba(61,26,0,.12);
+  transition:transform .18s ease,box-shadow .18s ease;
+  animation:popIn .45s ease both;
+}
+.card:hover{
+  transform:translateY(-5px) scale(1.02);
+  box-shadow:0 8px 0 rgba(193,68,14,.25), 0 16px 40px rgba(61,26,0,.18);
+}
+.card:active{transform:translateY(-2px) scale(1.01);}
 
-.card:nth-child(1){animation-delay:.05s;--c:#FF4D6D;}
-.card:nth-child(2){animation-delay:.12s;--c:#FFB547;}
-.card:nth-child(3){animation-delay:.19s;--c:#4DFFB4;}
-.card:nth-child(4){animation-delay:.26s;--c:#5B8DEF;}
+.card:nth-child(1){animation-delay:.05s;}
+.card:nth-child(2){animation-delay:.12s;}
+.card:nth-child(3){animation-delay:.19s;}
+.card:nth-child(4){animation-delay:.26s;}
+.card:nth-child(5){animation-delay:.33s;}
 
-/* Thumbnail */
+/* ── THUMBNAILS ── */
 .thumb{width:100%;aspect-ratio:16/10;position:relative;overflow:hidden;flex-shrink:0;}
 
-/* RisMath thumbnail */
-.thumb-rismath{background:linear-gradient(135deg,#1a0814 0%,#3d0a1e 100%);}
-.thumb-rismath .nums{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.4rem;flex-wrap:wrap;padding:.5rem;}
-.thumb-rismath .n{font-family:'Syne',sans-serif;font-weight:800;color:#FF4D6D;opacity:.9;line-height:1;text-shadow:0 0 20px rgba(255,77,109,.5);}
-.thumb-rismath .n.big{font-size:clamp(1.4rem,4vw,2.2rem);}
-.thumb-rismath .n.med{font-size:clamp(1rem,3vw,1.5rem);opacity:.6;}
-.thumb-rismath .n.sm{font-size:clamp(.7rem,2vw,1rem);opacity:.35;}
-.thumb-rismath .badge-lvl{position:absolute;bottom:.5rem;right:.5rem;background:rgba(255,77,109,.2);
-  border:1px solid rgba(255,77,109,.4);color:#FF4D6D;font-size:.55rem;font-weight:700;
-  letter-spacing:.1em;text-transform:uppercase;padding:.2rem .45rem;border-radius:2rem;}
+/* RisMath thumbnail — warm orange with floating equations */
+.thumb-rismath{
+  background:linear-gradient(135deg,#C1440E 0%,#F3722C 50%,#F9C74F 100%);
+}
+.thumb-rismath .eq{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:.15rem;
+}
+.thumb-rismath .eq-main{
+  font-family:'Baloo 2',cursive;font-weight:800;font-size:clamp(1.1rem,4vw,1.7rem);
+  color:#FFF8F0;text-shadow:0 2px 8px rgba(0,0,0,.2);letter-spacing:-.01em;
+}
+.thumb-rismath .eq-sub{
+  font-family:'Baloo 2',cursive;font-weight:700;font-size:clamp(.6rem,2vw,.9rem);
+  color:rgba(255,248,240,.65);display:flex;gap:.5rem;
+}
+.thumb-rismath .lvl{
+  position:absolute;top:.5rem;right:.55rem;
+  background:rgba(255,248,240,.2);border:1.5px solid rgba(255,248,240,.4);
+  color:#FFF8F0;font-size:.52rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  padding:.18rem .42rem;border-radius:2rem;font-family:'Nunito',sans-serif;
+}
+.thumb-rismath .streak{
+  position:absolute;bottom:.5rem;left:.55rem;
+  font-size:.62rem;font-weight:800;color:rgba(255,248,240,.8);font-family:'Nunito',sans-serif;
+}
 
-/* Googly thumbnail */
-.thumb-googly{background:linear-gradient(135deg,#0d1a0a 0%,#1a3312 100%);}
-.thumb-googly .field{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
-.thumb-googly .circle{width:55%;aspect-ratio:1;border-radius:50%;border:2px solid rgba(255,181,71,.25);
-  display:flex;align-items:center;justify-content:center;position:relative;}
-.thumb-googly .circle::before{content:'';position:absolute;inset:8px;border-radius:50%;
-  border:1px solid rgba(255,181,71,.12);}
-.thumb-googly .bat-emoji{font-size:clamp(1.5rem,5vw,2.5rem);}
-.thumb-googly .dots{position:absolute;inset:0;}
-.thumb-googly .dot{position:absolute;width:4px;height:4px;border-radius:50%;background:#FFB547;opacity:.4;}
+/* Googly thumbnail — green cricket field */
+.thumb-googly{
+  background:linear-gradient(135deg,#1a3a10 0%,#2d6a1a 60%,#3a8020 100%);
+}
+.thumb-googly .pitch{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+}
+.thumb-googly .oval{
+  width:62%;aspect-ratio:16/10;border-radius:50%;
+  border:2px solid rgba(255,181,71,.3);
+  display:flex;align-items:center;justify-content:center;
+  position:relative;
+}
+.thumb-googly .oval::before{
+  content:'';position:absolute;inset:6px;border-radius:50%;
+  border:1px dashed rgba(255,181,71,.18);
+}
+.thumb-googly .cricket-icon{font-size:clamp(1.3rem,4vw,2rem);}
+.thumb-googly .ipl{
+  position:absolute;top:.5rem;left:.55rem;
+  font-family:'Baloo 2',cursive;font-size:.65rem;font-weight:800;
+  color:#FFB547;letter-spacing:.06em;
+}
+.thumb-googly .score-dots{
+  position:absolute;bottom:.5rem;right:.55rem;
+  display:flex;gap:3px;
+}
+.thumb-googly .dot{
+  width:6px;height:6px;border-radius:50%;background:#FFB547;
+}
+.thumb-googly .dot.off{opacity:.25;}
 
-/* Filmi thumbnail */
-.thumb-filmi{background:linear-gradient(135deg,#0d0a1a 0%,#1a1030 100%);}
-.thumb-filmi .reel{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.5rem;}
-.thumb-filmi .film-strip{display:flex;flex-direction:column;gap:3px;}
-.thumb-filmi .frame{width:clamp(18px,4vw,28px);height:clamp(12px,3vw,20px);background:rgba(77,255,180,.15);
-  border:1px solid rgba(77,255,180,.25);border-radius:2px;}
-.thumb-filmi .frame.lit{background:rgba(77,255,180,.35);border-color:rgba(77,255,180,.6);}
-.thumb-filmi .center-icon{font-size:clamp(1.4rem,4vw,2.2rem);z-index:1;}
-.thumb-filmi .glow{position:absolute;width:60px;height:60px;background:#4DFFB4;
-  border-radius:50%;filter:blur(30px);opacity:.15;}
+/* Filmi thumbnail — deep purple cinema */
+.thumb-filmi{
+  background:linear-gradient(135deg,#1a0a2e 0%,#2d1060 60%,#4a1a80 100%);
+}
+.thumb-filmi .cinema{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.4rem;
+}
+.thumb-filmi .strip{display:flex;flex-direction:column;gap:3px;}
+.thumb-filmi .fr{
+  width:clamp(14px,3.5vw,22px);height:clamp(10px,2.5vw,16px);
+  background:rgba(255,200,80,.12);border:1px solid rgba(255,200,80,.28);border-radius:1px;
+}
+.thumb-filmi .fr.on{background:rgba(255,200,80,.38);border-color:rgba(255,200,80,.7);}
+.thumb-filmi .clap{font-size:clamp(1.3rem,4vw,2rem);}
+.thumb-filmi .glow-fx{
+  position:absolute;width:50px;height:50px;background:#FFB547;
+  border-radius:50%;filter:blur(25px);opacity:.2;
+}
+.thumb-filmi .bollywood{
+  position:absolute;bottom:.5rem;left:50%;transform:translateX(-50%);
+  font-family:'Baloo 2',cursive;font-size:.6rem;font-weight:800;
+  color:rgba(255,200,80,.7);letter-spacing:.1em;white-space:nowrap;
+}
 
-/* Sparkle thumbnail */
-.thumb-sparkle{background:linear-gradient(135deg,#080d1a 0%,#0d1530 100%);}
-.thumb-sparkle .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
-.thumb-sparkle .room{width:70%;height:70%;border:1px solid rgba(91,141,239,.25);border-radius:4px;
-  position:relative;background:rgba(91,141,239,.05);}
-.thumb-sparkle .shelf{position:absolute;left:5%;right:5%;height:2px;background:rgba(91,141,239,.3);}
-.thumb-sparkle .shelf:nth-child(1){top:25%;}
-.thumb-sparkle .shelf:nth-child(2){top:55%;}
-.thumb-sparkle .win{position:absolute;top:8%;right:8%;width:22%;aspect-ratio:1;
-  background:rgba(91,141,239,.15);border:1px solid rgba(91,141,239,.3);border-radius:2px;}
-.thumb-sparkle .sparkles-layer{position:absolute;inset:0;}
-.thumb-sparkle .sp{position:absolute;font-size:.7rem;opacity:.7;}
+/* Sparkle thumbnail — warm amber mystery */
+.thumb-sparkle{
+  background:linear-gradient(135deg,#2a1500 0%,#5a2e00 60%,#8a4800 100%);
+}
+.thumb-sparkle .study{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+}
+.thumb-sparkle .room{
+  width:68%;height:68%;border:1.5px solid rgba(249,199,79,.25);border-radius:3px;
+  position:relative;background:rgba(249,199,79,.05);
+}
+.thumb-sparkle .shelf-line{
+  position:absolute;left:6%;right:6%;height:1.5px;background:rgba(249,199,79,.3);
+}
+.thumb-sparkle .window{
+  position:absolute;top:8%;right:8%;width:22%;aspect-ratio:1;
+  background:rgba(249,199,79,.12);border:1.5px solid rgba(249,199,79,.3);border-radius:2px;
+}
+.thumb-sparkle .window::after{
+  content:'';position:absolute;top:50%;left:0;right:0;height:1px;background:rgba(249,199,79,.3);
+}
+.thumb-sparkle .window::before{
+  content:'';position:absolute;left:50%;top:0;bottom:0;width:1px;background:rgba(249,199,79,.3);
+}
+.thumb-sparkle .sparks{position:absolute;inset:0;pointer-events:none;}
+.thumb-sparkle .sp{position:absolute;color:#F9C74F;font-size:.75rem;opacity:.8;}
+.thumb-sparkle .magnify{
+  position:absolute;bottom:.5rem;right:.55rem;font-size:1rem;opacity:.7;
+}
 
 /* Card body */
-.cbody{padding:.85rem 1rem 1rem;flex:1;display:flex;flex-direction:column;gap:.4rem;}
-.cname{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;letter-spacing:-.01em;}
+.cbody{padding:.8rem 1rem .9rem;flex:1;display:flex;flex-direction:column;gap:.35rem;}
+
+.cname{
+  font-family:'Baloo 2',cursive;font-size:1rem;font-weight:800;
+  color:var(--dark);letter-spacing:-.01em;
+}
 .cdesc{font-size:.72rem;color:var(--muted);line-height:1.5;flex:1;}
-.cfoot{display:flex;align-items:center;justify-content:space-between;margin-top:.6rem;padding-top:.6rem;border-top:1px solid var(--border);}
-.ctag{font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);
-  padding:.18rem .5rem;border-radius:2rem;}
-.cplay{font-size:.72rem;font-weight:600;color:var(--c);display:flex;align-items:center;gap:.3rem;transition:gap .15s ease;}
-.card:hover .cplay{gap:.5rem;}
-.cplay svg{width:13px;height:13px;fill:var(--c);}
+
+.cfoot{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-top:.55rem;padding-top:.55rem;
+  border-top:1.5px solid rgba(193,68,14,.12);
+}
+.ctag{
+  font-size:.57rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--red);background:rgba(193,68,14,.1);
+  padding:.16rem .48rem;border-radius:2rem;
+}
+.cplay{
+  font-size:.72rem;font-weight:800;color:var(--red);
+  display:flex;align-items:center;gap:.28rem;
+  transition:gap .15s ease;
+}
+.card:hover .cplay{gap:.45rem;}
+.cplay svg{width:13px;height:13px;fill:var(--red);}
+
+/* Studio blurb */
+.studio{
+  text-align:center;padding:1.5rem 0 3rem;
+  animation:fadeUp .5s .4s ease both;opacity:0;
+}
+.studio-name{
+  font-family:'Baloo 2',cursive;font-size:1.6rem;font-weight:800;
+  color:var(--dark);margin-bottom:.35rem;
+}
+.studio-name span{color:var(--red);}
+.studio-sub{font-size:.82rem;color:var(--muted);max-width:320px;margin:0 auto;line-height:1.7;}
+
+/* RisMatch thumbnail */
+.thumb-rismatch{
+  background:linear-gradient(135deg,#0d0b1a 0%,#1a1535 60%,#2a2050 100%);
+}
+.thumb-rismatch .board{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.35rem;
+}
+.thumb-rismatch .target-num{
+  font-family:'Baloo 2',cursive;font-weight:800;font-size:clamp(1.8rem,6vw,3rem);
+  color:#F5A623;text-shadow:0 0 20px rgba(245,166,35,.4);line-height:1;
+}
+.thumb-rismatch .target-label{
+  font-size:.52rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:rgba(245,166,35,.5);font-family:'Nunito',sans-serif;
+}
+.thumb-rismatch .tiles-row{
+  display:flex;gap:.25rem;margin-top:.2rem;
+}
+.thumb-rismatch .tile{
+  width:clamp(18px,4vw,26px);height:clamp(18px,4vw,26px);border-radius:5px;
+  background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.25);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Baloo 2',cursive;font-size:clamp(.5rem,1.5vw,.75rem);font-weight:800;color:#F5A623;
+}
+.thumb-rismatch .tile.hi{background:rgba(245,166,35,.3);border-color:rgba(245,166,35,.6);}
 
 /* Footer */
-footer{border-top:1px solid var(--border);padding:1.5rem 0;text-align:center;
-  color:var(--muted);font-size:.75rem;position:relative;z-index:1;margin-top:1rem;}
-footer a{color:#FF4D6D;text-decoration:none;}
+footer{
+  border-top:2px solid rgba(193,68,14,.15);padding:1.25rem 0;
+  text-align:center;color:var(--muted);font-size:.75rem;
+  position:relative;z-index:1;
+}
+footer a{color:var(--red);text-decoration:none;font-weight:700;}
 
-/* Studio info below games */
-.studio{text-align:center;padding:2rem 0 3rem;animation:fadeUp .6s .35s ease both;opacity:0;}
-.studio-name{font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:800;margin-bottom:.5rem;}
-.studio-name span{color:#FF4D6D;}
-.studio-sub{font-size:.85rem;color:var(--muted);max-width:340px;margin:0 auto;line-height:1.7;}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{
+  0%{opacity:0;transform:scale(0.92) translateY(16px);}
+  70%{transform:scale(1.02) translateY(-2px);}
+  100%{opacity:1;transform:scale(1) translateY(0);}
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
+}
 </style>
 </head>
 <body>
 
-<div class="b b1"></div>
-<div class="b b2"></div>
+<!-- Floating background math symbols -->
+<div class="bg-symbols">
+  <span class="sym" style="font-size:6rem;top:5%;left:3%">+</span>
+  <span class="sym" style="font-size:4rem;top:12%;left:22%">7×8</span>
+  <span class="sym" style="font-size:8rem;top:2%;right:8%">÷</span>
+  <span class="sym" style="font-size:3.5rem;top:25%;right:3%">56</span>
+  <span class="sym" style="font-size:5rem;top:55%;left:1%">−</span>
+  <span class="sym" style="font-size:3rem;top:70%;left:18%">42</span>
+  <span class="sym" style="font-size:7rem;bottom:10%;right:5%">×</span>
+  <span class="sym" style="font-size:4rem;bottom:20%;left:40%">=?</span>
+  <span class="sym" style="font-size:3rem;top:40%;right:18%">12÷4</span>
+  <span class="sym" style="font-size:5rem;bottom:5%;left:8%">9</span>
+</div>
 
 <div class="wrap">
 
   <header>
     <div class="logo">Ris<span>Math</span></div>
-    <div class="tagline">Free Games · Play Instantly</div>
+    <div class="tagline">🎮 Free · Play Now</div>
   </header>
 
-  <div class="slabel">Play now</div>
+  <div class="slabel">Games</div>
 
   <div class="grid">
 
     <!-- RisMath -->
     <a href="/rismath" class="card">
       <div class="thumb thumb-rismath">
-        <div class="nums">
-          <span class="n big">7</span>
-          <span class="n big">×</span>
-          <span class="n big">8</span>
-          <span class="n med">= ?</span>
-          <span class="n sm">3+9</span>
-          <span class="n sm">12÷4</span>
-          <span class="n sm">15−6</span>
-          <span class="n med">42</span>
-          <span class="n sm">56</span>
-          <span class="n sm">24</span>
+        <div class="eq">
+          <div class="eq-main">7 × 8 = ?</div>
+          <div class="eq-sub">
+            <span>3+9</span><span>·</span><span>15−6</span><span>·</span><span>24÷8</span>
+          </div>
         </div>
-        <div class="badge-lvl">Level 8</div>
+        <div class="lvl">Level 8</div>
+        <div class="streak">🔥 Streak ×5</div>
       </div>
       <div class="cbody">
         <div class="cname">RisMath</div>
@@ -175,18 +352,15 @@ footer a{color:#FF4D6D;text-decoration:none;}
     <!-- Googly -->
     <a href="/googly" class="card">
       <div class="thumb thumb-googly">
-        <div class="field">
-          <div class="circle">
-            <span class="bat-emoji">🏏</span>
+        <div class="pitch">
+          <div class="oval">
+            <span class="cricket-icon">🏏</span>
           </div>
-          <!-- scattered dots -->
-          <div class="dots">
-            <div class="dot" style="top:20%;left:15%"></div>
-            <div class="dot" style="top:70%;left:20%"></div>
-            <div class="dot" style="top:30%;right:18%"></div>
-            <div class="dot" style="bottom:20%;right:25%"></div>
-            <div class="dot" style="top:55%;left:50%"></div>
-          </div>
+        </div>
+        <div class="ipl">IPL Quiz</div>
+        <div class="score-dots">
+          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+          <div class="dot off"></div><div class="dot off"></div>
         </div>
       </div>
       <div class="cbody">
@@ -202,24 +376,19 @@ footer a{color:#FF4D6D;text-decoration:none;}
     <!-- Filmi -->
     <a href="/filmi" class="card">
       <div class="thumb thumb-filmi">
-        <div class="reel">
-          <div class="film-strip">
-            <div class="frame"></div>
-            <div class="frame lit"></div>
-            <div class="frame"></div>
-            <div class="frame lit"></div>
-            <div class="frame"></div>
+        <div class="cinema">
+          <div class="strip">
+            <div class="fr on"></div><div class="fr"></div>
+            <div class="fr on"></div><div class="fr"></div><div class="fr on"></div>
           </div>
-          <div class="center-icon">🎬</div>
-          <div class="film-strip">
-            <div class="frame lit"></div>
-            <div class="frame"></div>
-            <div class="frame lit"></div>
-            <div class="frame"></div>
-            <div class="frame lit"></div>
+          <span class="clap">🎬</span>
+          <div class="strip">
+            <div class="fr"></div><div class="fr on"></div>
+            <div class="fr"></div><div class="fr on"></div><div class="fr"></div>
           </div>
         </div>
-        <div class="glow"></div>
+        <div class="glow-fx"></div>
+        <div class="bollywood">Bollywood Quiz</div>
       </div>
       <div class="cbody">
         <div class="cname">Filmi</div>
@@ -234,20 +403,22 @@ footer a{color:#FF4D6D;text-decoration:none;}
     <!-- Sparkle -->
     <a href="/sparkle" class="card">
       <div class="thumb thumb-sparkle">
-        <div class="scene">
+        <div class="study">
           <div class="room">
-            <div class="shelf" style="top:25%"></div>
-            <div class="shelf" style="top:55%"></div>
-            <div class="win"></div>
+            <div class="shelf-line" style="top:28%"></div>
+            <div class="shelf-line" style="top:56%"></div>
+            <div class="window"></div>
           </div>
-          <div class="sparkles-layer">
-            <span class="sp" style="top:18%;left:22%">✦</span>
-            <span class="sp" style="top:45%;right:20%">✧</span>
-            <span class="sp" style="bottom:25%;left:35%">·</span>
-            <span class="sp" style="top:30%;left:55%">✦</span>
-            <span class="sp" style="bottom:18%;right:30%">✧</span>
+          <div class="sparks">
+            <span class="sp" style="top:16%;left:20%">✦</span>
+            <span class="sp" style="top:42%;right:18%">✧</span>
+            <span class="sp" style="bottom:22%;left:32%">·</span>
+            <span class="sp" style="top:28%;left:52%">✦</span>
+            <span class="sp" style="bottom:16%;right:28%">✧</span>
+            <span class="sp" style="top:62%;left:14%">·</span>
           </div>
         </div>
+        <span class="magnify">🔍</span>
       </div>
       <div class="cbody">
         <div class="cname">Sparkle</div>
@@ -261,17 +432,16 @@ footer a{color:#FF4D6D;text-decoration:none;}
 
   </div>
 
-  <!-- Studio info -->
   <div class="studio">
     <div class="studio-name">Ris<span>Math</span> Studio</div>
-    <div class="studio-sub">Simple games built for fast minds. No downloads, no sign-ups. Just tap and play.</div>
+    <div class="studio-sub">Simple games for fast minds. No downloads, no sign-ups. Just tap and play.</div>
   </div>
 
 </div>
 
 <footer>
   <div class="wrap">
-    Made with ♥ · <a href="mailto:hello@rismath.com">hello@rismath.com</a>
+    Made with ♥ by RisMath Studio &nbsp;·&nbsp; <a href="mailto:hello@rismath.com">hello@rismath.com</a>
   </div>
 </footer>
 

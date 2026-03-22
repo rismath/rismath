@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RisMatch | Speed Challenge 🧠⚡</title>
+    
+    <meta property="og:title" content="RisMatch | 60s Speed Challenge">
+    <meta property="og:description" content="Match the pairs. Beat the clock. How fast is your brain?">
+    <meta property="og:url" content="https://rismath.com/rismatch">
+    <meta name="theme-color" content="#4834D4">
+
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        :root { 
+            --bg-gradient: linear-gradient(135deg, #0D0B14 0%, #130F1E 100%);
+            --glass: rgba(18, 14, 30, 0.95);
+            --text: #F0EEE8;
+            --tile: rgba(255,255,255,0.06);
+            --primary: #F5A623;
+        }
+
+        .dark {
+            --bg-gradient: linear-gradient(135deg, #0D0B14 0%, #130F1E 100%);
+            --glass: rgba(18, 14, 30, 0.95);
+            --text: #F0EEE8;
+            --tile: rgba(255,255,255,0.06);
+            --primary: #F5A623;
+        }
+
+        .panic { animation: panicPulse 1s infinite alternate; }
+        @keyframes panicPulse {
+            from { background: #0D0B14; }
+            to { background: #e74c3c; }
+        }
+
+        body {
+            background: var(--bg-gradient);
+            font-family: 'Nunito', sans-serif; color: var(--text);
+            height: 100vh; overflow: hidden; touch-action: manipulation;
+            display: flex; align-items: center; justify-content: center; margin: 0;
+            transition: background 0.5s ease;
+        }
+
+        .glass-card {
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border-radius: 2.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(245,166,35,0.08);
+            width: 92%; max-width: 380px; padding: 2rem; position: relative; z-index: 10;
+        }
+
+        .game-title { font-family: 'Baloo 2', cursive; font-weight: 800; }
+
+        .tile {
+            background: var(--tile); border-radius: 1.2rem; font-family: 'Baloo 2', cursive;
+            font-size: 2.2rem; color: var(--primary); aspect-ratio: 1;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer; user-select: none;
+        }
+        .tile.selected { background: var(--primary); color: #0D0B14; transform: translateY(-5px); box-shadow: 0 10px 20px rgba(245, 166, 35, 0.35); }
+        .tile.correct { background: #00B894 !important; color: white; transform: scale(0.9); opacity: 0; }
+        .tile.error { background: #FF7675 !important; color: white; animation: shake 0.4s; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+
+        .btn-modern {
+            background: linear-gradient(135deg, #F5A623 0%, #C1440E 100%);
+            color: white; border-radius: 1.2rem; padding: 1.1rem; font-size: 1.4rem; font-weight: 900; width: 100%;
+            box-shadow: 0 10px 20px rgba(193, 68, 14, 0.35);
+        }
+
+        .whatsapp-btn {
+            background: #25D366; color: white; border-radius: 1.2rem; padding: 0.8rem;
+            font-weight: 800; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+
+        .input-field {
+            background: rgba(255,255,255,0.05); border: 2px solid rgba(245,166,35,0.4); border-radius: 1rem;
+            padding: 0.8rem; width: 100%; text-align: center; font-weight: 800; font-size: 1.2rem;
+            margin-bottom: 1.5rem; outline: none; color: var(--text);
+        }
+
+        .floating-text {
+            position: absolute; font-weight: 900; font-size: 1.2rem;
+            animation: floatUp 0.8s ease-out forwards; pointer-events: none; z-index: 100;
+        }
+        @keyframes floatUp { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(-50px); } }
+    </style>
+</head>
+<body>
+    <div id="game-root" class="w-full flex justify-center p-4"></div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function sfx(f, t, d) {
+            try { if (audioCtx.state === 'suspended') audioCtx.resume();
+            const o = audioCtx.createOscillator(); const g = audioCtx.createGain();
+            o.type = t; o.frequency.setValueAtTime(f, audioCtx.currentTime);
+            g.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            g.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + d);
+            o.connect(g); g.connect(audioCtx.destination);
+            o.start(); o.stop(audioCtx.currentTime + d); } catch(e) {}
+        }
+
+        let state = {
+            view: 'name',
+            playerName: localStorage.getItem('risMatchPlayerName') || '',
+            score: 0, lastScore: 0, timer: 60, level: 1, target: 0, tiles: [], selIdx: null, 
+            isProcessing: false, combo: 0, lastCorrectTime: 0, bestCombo: 0, pairsThisRun: 0,
+            best: localStorage.getItem('risMatchBest') || 0,
+            totalSolved: parseInt(localStorage.getItem('risMatchTotal')) || 0,
+            darkMode: localStorage.getItem('risMatchDark') === 'true'
+        };
+
+        // always dark
+        if(state.playerName && state.view === 'name') state.view = 'menu';
+
+        function saveName() {
+            const val = document.getElementById('name-input').value.trim();
+            if(val) {
+                state.playerName = val;
+                localStorage.setItem('risMatchPlayerName', val);
+                state.view = 'menu'; renderBase();
+            }
+        }
+
+        function toggleTheme() {
+            state.darkMode = !state.darkMode;
+            document.body.classList.toggle('dark');
+            localStorage.setItem('risMatchDark', state.darkMode);
+            renderBase();
+        }
+
+        function initLevelData() {
+            const range = 10 + (state.level * 8);
+            state.target = Math.floor(Math.random() * range) + (10 + state.level * 2);
+            let v1 = Math.floor(Math.random() * (state.target - 2)) + 1;
+            let v2 = state.target - v1;
+            let vals = [v1, v2];
+            while(vals.length < 6) {
+                let d = Math.floor(Math.random() * (state.target - 1)) + 1;
+                if(!vals.includes(d) && !vals.some(v => v + d === state.target)) vals.push(d);
+            }
+            state.tiles = vals.sort(() => Math.random() - 0.5).map(v => ({ v, status: 'idle' }));
+            state.selIdx = null; state.isProcessing = false;
+        }
+
+        function handleTap(i) {
+            if (state.isProcessing) return;
+            const tileEls = document.querySelectorAll('.tile');
+            if (state.selIdx === i) { state.selIdx = null; tileEls[i].classList.remove('selected'); return; }
+
+            sfx(440, 'sine', 0.1);
+            if (state.selIdx === null) {
+                state.selIdx = i; tileEls[i].classList.add('selected');
+            } else {
+                state.isProcessing = true;
+                const firstIdx = state.selIdx;
+                if (state.tiles[firstIdx].v + state.tiles[i].v === state.target) {
+                    if (window.navigator.vibrate) window.navigator.vibrate(15);
+                    sfx(880, 'sine', 0.1);
+
+                    const now = Date.now();
+                    if (now - state.lastCorrectTime < 3000) state.combo++;
+                    else state.combo = 1;
+                    state.lastCorrectTime = now;
+
+                    state.score += (10 * state.level * state.combo);
+                    state.totalSolved++;
+                    state.pairsThisRun++;
+                    state.timer = Math.min(state.timer + 2, 60); 
+                    localStorage.setItem('risMatchTotal', state.totalSolved);
+                    if (state.combo > state.bestCombo) state.bestCombo = state.combo;
+                    
+                    tileEls[i].classList.add('correct');
+                    tileEls[firstIdx].classList.add('correct');
+                    
+                    showFloatingText(tileEls[i], `+2s ${state.combo > 1 ? '🔥 x'+state.combo : ''}`, state.combo > 1 ? '#F39C12' : '#00B894');
+
+                    setTimeout(() => {
+                        if (state.score > 0 && state.score % 150 === 0) state.level++;
+                        initLevelData(); renderPlayArea();
+                    }, 300);
+                } else {
+                    if (window.navigator.vibrate) window.navigator.vibrate([50, 30, 50]);
+                    sfx(150, 'sawtooth', 0.2);
+                    state.combo = 0;
+                    tileEls[i].classList.add('error'); tileEls[firstIdx].classList.add('error');
+                    setTimeout(() => {
+                        tileEls[i].classList.remove('error', 'selected');
+                        tileEls[firstIdx].classList.remove('error', 'selected');
+                        state.selIdx = null; state.isProcessing = false;
+                    }, 500);
+                }
+            }
+        }
+
+        function showFloatingText(el, text, color) {
+            const b = document.createElement('div');
+            b.className = 'floating-text'; b.innerText = text; b.style.color = color;
+            const rect = el.getBoundingClientRect();
+            b.style.left = `${rect.left + 10}px`; b.style.top = `${rect.top}px`;
+            document.body.appendChild(b);
+            setTimeout(() => b.remove(), 800);
+        }
+
+        // --- Sharing Functions ---
+        function generateScoreImage(callback) {
+            const canvas = document.createElement('canvas');
+            const W = 600, H = 680;
+            canvas.width = W; canvas.height = H;
+            const ctx = canvas.getContext('2d');
+
+            // Background
+            const bg = ctx.createLinearGradient(0, 0, W, H);
+            bg.addColorStop(0, '#667eea'); bg.addColorStop(1, '#764ba2');
+            ctx.fillStyle = bg; ctx.fillRect(0, 0, W, H);
+
+            // Decorative circles
+            ctx.globalAlpha = 0.1;
+            ctx.fillStyle = 'white';
+            ctx.beginPath(); ctx.arc(520, 80, 180, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(80, 600, 140, 0, Math.PI*2); ctx.fill();
+            ctx.globalAlpha = 1;
+
+            // Top accent
+            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(0, 0, W, 5);
+
+            // Title
+            ctx.font = 'bold 52px "Arial Black", sans-serif';
+            ctx.fillStyle = 'white'; ctx.textAlign = 'center';
+            ctx.fillText('RisMatch', W/2, 75);
+
+            ctx.font = '17px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.fillText('Speed Challenge  •  ' + state.playerName, W/2, 105);
+
+            // Score
+            ctx.font = 'bold 110px "Arial Black", sans-serif';
+            ctx.fillStyle = 'white';
+            ctx.fillText(state.score, W/2, 240);
+            ctx.font = '18px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.55)';
+            ctx.fillText('SCORE', W/2, 268);
+
+            // Stats row
+            const stats = [
+                { label: 'BEST', value: state.best, color: '#FFD700' },
+                { label: 'LEVEL', value: state.level, color: '#A8EDFF' },
+                { label: 'PAIRS', value: state.pairsThisRun, color: '#A8FFD4' },
+                { label: 'COMBO', value: state.bestCombo > 1 ? 'x'+state.bestCombo : '—', color: '#FFB347' },
+            ];
+            stats.forEach((s, i) => {
+                const x = 75 + i * 150;
+                ctx.fillStyle = 'rgba(255,255,255,0.12)';
+                roundRect(ctx, x-55, 295, 110, 75, 14); ctx.fill();
+                ctx.font = 'bold 26px Arial';
+                ctx.fillStyle = s.color; ctx.textAlign = 'center';
+                ctx.fillText(s.value, x, 333);
+                ctx.font = '11px Arial';
+                ctx.fillStyle = 'rgba(255,255,255,0.45)';
+                ctx.fillText(s.label, x, 352);
+            });
+
+            // Bar — solved total
+            const bY = 405, bW = W - 120;
+            ctx.font = '13px Arial'; ctx.fillStyle = 'rgba(255,255,255,0.4)';
+            ctx.textAlign = 'left'; ctx.fillText('Total Pairs Solved', 60, bY);
+            ctx.textAlign = 'right'; ctx.fillText(state.totalSolved, W-60, bY);
+            ctx.fillStyle = 'rgba(255,255,255,0.15)';
+            roundRect(ctx, 60, bY+8, bW, 10, 5); ctx.fill();
+            const fill = Math.min(state.totalSolved / 200, 1);
+            if (fill > 0) {
+                ctx.fillStyle = '#A8FFD4';
+                roundRect(ctx, 60, bY+8, bW*fill, 10, 5); ctx.fill();
+            }
+
+            // CTA
+            ctx.font = 'bold 16px Arial';
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.textAlign = 'center';
+            ctx.fillText('Can you beat ' + state.playerName + '? 👉 rismath.com/rismatch', W/2, 480);
+
+            // Bottom accent
+            ctx.fillStyle = 'rgba(255,255,255,0.3)'; ctx.fillRect(0, H-4, W, 4);
+
+            callback(canvas.toDataURL('image/png'));
+        }
+
+        function roundRect(ctx, x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x+r, y); ctx.lineTo(x+w-r, y);
+            ctx.quadraticCurveTo(x+w, y, x+w, y+r);
+            ctx.lineTo(x+w, y+h-r);
+            ctx.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
+            ctx.lineTo(x+r, y+h);
+            ctx.quadraticCurveTo(x, y+h, x, y+h-r);
+            ctx.lineTo(x, y+r);
+            ctx.quadraticCurveTo(x, y, x+r, y);
+            ctx.closePath();
+        }
+
+        function shareScore() {
+            const msg = `🧠 *RisMatch Speed Challenge!* ⚡\n\n👤 ${state.playerName}\n🎯 Score: *${state.score}*\n🏆 Best: ${state.best}\n🔥 Best Combo: ${state.bestCombo > 1 ? 'x'+state.bestCombo : '—'}\n🧩 Pairs: ${state.pairsThisRun}\n\nCan you beat me? 👇\nhttps://rismath.com/rismatch`;
+            // Try to download image first, then share text
+            generateScoreImage((dataURL) => {
+                const a = document.createElement('a');
+                a.href = dataURL; a.download = 'rismatch-score.png'; a.click();
+                setTimeout(() => {
+                    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+                }, 500);
+            });
+        }
+
+        function shareInvite() {
+            const msg = `🚀 *Check out RisMatch!* 🧠\n\nI've been playing this new speed-math dash. It's a 60-second challenge to match pairs. Super addictive!\n\nGive it a try: https://rismath.com/rismatch`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        function startGame() {
+            state.view = 'play'; state.score = 0; state.timer = 60; state.level = 1; state.combo = 0;
+            state.bestCombo = 0; state.pairsThisRun = 0;
+            document.body.classList.remove('panic');
+            renderBase(); initLevelData(); renderPlayArea();
+            const clock = setInterval(() => {
+                if (state.view !== 'play') { clearInterval(clock); return; }
+                state.timer--;
+                
+                if(state.timer <= 10) document.body.classList.add('panic');
+                else document.body.classList.remove('panic');
+
+                if(state.timer <= 0) {
+                    state.view = 'end';
+                    state.lastScore = state.score;
+                    if(state.score > state.best) { state.best = state.score; localStorage.setItem('risMatchBest', state.score); }
+                    document.body.classList.remove('panic');
+                    renderBase();
+                } else {
+                    const tVal = document.getElementById('timer-val');
+                    const pBar = document.getElementById('progress-bar');
+                    if(tVal) tVal.innerText = state.timer + 's';
+                    if(pBar) pBar.style.width = (state.timer/60*100) + '%';
+                }
+            }, 1000);
+        }
+
+        function renderPlayArea() {
+            const cont = document.getElementById('tiles-container');
+            if(!cont) return;
+            cont.innerHTML = state.tiles.map((t, i) => `<div onclick="handleTap(${i})" class="tile">${t.v}</div>`).join('');
+            document.getElementById('target-num').innerText = state.target;
+            document.getElementById('score-val').innerText = state.score;
+            document.getElementById('lvl-val').innerText = state.level;
+            const badge = document.getElementById('combo-badge');
+            if(badge) badge.innerText = state.combo > 1 ? `COMBO x${state.combo} 🔥` : '';
+        }
+
+        function renderBase() {
+            const root = document.getElementById('game-root');
+            if (state.view === 'name') {
+                root.innerHTML = `
+                <div class="glass-card text-center">
+                    <h1 class="game-title text-5xl mb-6" style="color:#F5A623;">Welcome</h1>
+                    <p class="text-sm font-bold opacity-60 mb-6">Enter your name for the scorecard!</p>
+                    <input type="text" id="name-input" class="input-field" placeholder="Player Name" maxlength="10">
+                    <button onclick="saveName()" class="btn-modern game-title">CONTINUE</button>
+                </div>`;
+            } else if (state.view === 'menu') {
+                root.innerHTML = `
+                <div class="glass-card text-center">
+                    <div class="absolute top-6 left-6 text-xs font-black opacity-40 uppercase tracking-tighter">Hi, ${state.playerName}</div>
+                    
+                    <h1 class="game-title text-7xl mt-6 mb-2" style="color:#F5A623;">RisMatch</h1>
+                    <div class="grid grid-cols-2 gap-3 mb-8">
+                        <div class="p-3 rounded-2xl" style="background:rgba(255,255,255,0.05);">
+                            <p class="text-[9px] font-black opacity-40 uppercase">Best</p><p class="game-title text-2xl" style="color:#F5A623;">${state.best}</p>
+                        </div>
+                        <div class="p-3 rounded-2xl" style="background:rgba(255,255,255,0.05);">
+                            <p class="text-[9px] font-black opacity-40 uppercase">Total Solved</p><p class="game-title text-2xl" style="color:#F5A623;">${state.totalSolved}</p>
+                        </div>
+                        ${state.lastScore > 0 ? `<div class="bg-indigo-500/10 col-span-2 p-2 rounded-xl text-xs font-bold text-indigo-600">Last Score: ${state.lastScore}</div>` : ''}
+                    </div>
+                    <button onclick="startGame()" class="btn-modern game-title">START DASH</button>
+                    <button onclick="state.view='name';renderBase()" class="mt-4 text-[10px] font-bold opacity-30 uppercase">Change Name</button>
+                </div>`;
+            } else if (state.view === 'play') {
+                root.innerHTML = `
+                <div class="glass-card">
+                    <div class="flex justify-between items-end mb-4">
+                        <div><p class="text-[9px] font-black opacity-30 uppercase">Score</p><p id="score-val" class="game-title text-2xl" style="color:#F5A623;">0</p></div>
+                        <div class="text-center"><p id="timer-val" class="game-title text-4xl">60s</p><p id="combo-badge" class="text-[10px] font-black text-orange-500 h-2"></p></div>
+                        <div class="text-right"><p class="text-[9px] font-black opacity-30 uppercase">Level</p><p id="lvl-val" class="game-title text-2xl" style="color:#F5A623;">1</p></div>
+                    </div>
+                    <div class="rounded-full h-1.5 mb-8 overflow-hidden" style="background:rgba(255,255,255,0.08);"><div id="progress-bar" class="h-full w-full transition-all duration-1000" style="background:#F5A623;"></div></div>
+                    <div class="text-center mb-8"><p class="text-[10px] font-black opacity-30 uppercase tracking-widest">Target</p><h2 id="target-num" class="game-title text-9xl -mt-2">0</h2></div>
+                    <div id="tiles-container" class="grid grid-cols-3 gap-4"></div>
+                </div>`;
+            } else {
+                const isNew = state.score > 0 && state.score == state.best;
+                root.innerHTML = `
+                <div class="glass-card text-center">
+                    ${isNew ? `<div class="game-title text-2xl text-yellow-500 mb-1">🏆 New Best!</div>` : `<h2 class="game-title text-2xl mb-1" style="color:#F0EEE8;">Run Complete</h2>`}
+                    <div class="game-title text-8xl mb-4" style="color:#F5A623;">${state.score}</div>
+
+                    <div class="grid grid-cols-3 gap-2 mb-5">
+                        <div class="p-2.5 rounded-2xl" style="background:rgba(255,255,255,0.05);">
+                            <p class="text-[9px] font-black opacity-40 uppercase">Best</p>
+                            <p class="game-title text-xl" style="color:${isNew ? '#FFD700' : '#F5A623'};">${state.best}</p>
+                        </div>
+                        <div class="p-2.5 rounded-2xl" style="background:rgba(255,255,255,0.05);">
+                            <p class="text-[9px] font-black opacity-40 uppercase">Level</p>
+                            <p class="game-title text-xl" style="color:#F5A623;">${state.level}</p>
+                        </div>
+                        <div class="p-2.5 rounded-2xl" style="background:rgba(255,255,255,0.05);">
+                            <p class="text-[9px] font-black opacity-40 uppercase">Solved</p>
+                            <p class="game-title text-xl" style="color:#F5A623;">${state.totalSolved}</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-2 mb-6">
+                        <div class="bg-orange-500/10 p-2.5 rounded-2xl">
+                            <p class="text-[9px] font-black opacity-50 uppercase">Best Combo</p>
+                            <p class="game-title text-xl text-orange-500">${state.bestCombo > 1 ? 'x' + state.bestCombo + ' 🔥' : '—'}</p>
+                        </div>
+                        <div class="bg-green-500/10 p-2.5 rounded-2xl">
+                            <p class="text-[9px] font-black opacity-50 uppercase">This Run</p>
+                            <p class="game-title text-xl text-green-600">${state.pairsThisRun} pairs</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <button onclick="shareScore()" class="whatsapp-btn font-bold"><span>🔥</span> Share My Score</button>
+                        <button onclick="shareInvite()" class="p-3 rounded-2xl w-full font-bold text-sm" style="background:rgba(245,166,35,0.08);color:#F5A623;border:1px solid rgba(245,166,35,0.25);">📢 Invite Friends to Play</button>
+                        <button onclick="startGame()" class="btn-modern game-title">RETRY</button>
+                    </div>
+                    <button onclick="state.view='menu';renderBase()" class="mt-6 block w-full text-xs font-bold opacity-30 uppercase">Main Menu</button>
+                </div>`;
+            }
+        }
+        renderBase();
+    </script>
+</body>
+</html>
