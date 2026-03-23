@@ -96,17 +96,9 @@ body{
 }
 .next-label{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(154,0,32,0.45);}
 .next-potions{display:flex;gap:.4rem;align-items:center;}
-.next-pot{width:28px;height:36px;border-radius:40% 40% 50% 50%;
-  display:flex;align-items:center;justify-content:center;font-size:.85rem;
-  border:1px solid rgba(255,255,255,0.12);position:relative;overflow:hidden;}
-.next-pot::after{content:'';position:absolute;top:4px;left:5px;width:5px;height:7px;
-  background:rgba(255,255,255,0.25);border-radius:50%;transform:rotate(-20deg);}
+.next-pot{width:28px;height:36px;display:flex;align-items:center;justify-content:center;}
 .highest-label{font-size:.58rem;font-weight:700;color:rgba(154,0,32,0.45);margin-left:auto;}
-.highest-pot{width:36px;height:46px;border-radius:40% 40% 50% 50%;
-  display:flex;align-items:center;justify-content:center;font-size:1.1rem;
-  border:1px solid rgba(255,255,255,0.15);position:relative;overflow:hidden;}
-.highest-pot::after{content:'';position:absolute;top:5px;left:7px;width:6px;height:9px;
-  background:rgba(255,255,255,0.25);border-radius:50%;transform:rotate(-20deg);}
+.highest-pot{width:36px;height:46px;display:flex;align-items:center;justify-content:center;}
 
 /* Grid */
 .grid-wrap{flex:1;padding:.6rem .5rem;display:flex;flex-direction:column;min-height:0;background:var(--bg);}
@@ -133,23 +125,18 @@ body{
 
 /* Potion in cell */
 .potion{
-  width:82%;height:82%;border-radius:40% 40% 50% 50%;
-  display:flex;align-items:center;justify-content:center;
-  position:relative;overflow:hidden;
-  transition:transform .15s;
-  border:1.5px solid rgba(255,255,255,0.5);
-  cursor:grab;user-select:none;
+  width:88%;height:90%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  position:relative;cursor:pointer;user-select:none;
   animation:appear .3s cubic-bezier(0.34,1.56,0.64,1) both;
+  filter:drop-shadow(0 2px 6px var(--glow,rgba(232,84,122,0.3)));
+  transition:filter .2s,transform .15s;
+  gap:1px;
 }
+.potion:active{transform:scale(0.9);}
+.pot-svg{width:72%;flex-shrink:0;}
+
 @keyframes appear{from{transform:scale(0) rotate(-10deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
-.potion:active{cursor:grabbing;transform:scale(0.92);}
-.potion-emoji{font-size:clamp(.9rem,3.5vw,1.3rem);z-index:1;position:relative;}
-/* Bottle shine */
-.potion::after{content:'';position:absolute;top:10%;left:15%;width:25%;height:40%;
-  background:rgba(255,255,255,0.22);border-radius:50%;transform:rotate(-20deg);}
-/* Bubble accent */
-.potion::before{content:'';position:absolute;bottom:18%;right:18%;width:20%;height:20%;
-  background:rgba(255,255,255,0.1);border-radius:50%;}
 
 /* Merge animation */
 @keyframes mergepop{0%{transform:scale(1);}40%{transform:scale(1.5);}70%{transform:scale(0.9);}100%{transform:scale(1);}}
@@ -224,11 +211,9 @@ body{
 .tut-body em{color:#a0ffb0;font-style:normal;}
 .tut-demo{display:flex;align-items:center;justify-content:center;gap:.5rem;
   margin:.6rem 0;flex-wrap:wrap;}
-.tut-pot{width:40px;height:52px;border-radius:40% 40% 50% 50%;
-  display:flex;align-items:center;justify-content:center;font-size:1.2rem;
-  border:2px solid rgba(255,255,255,0.2);position:relative;overflow:hidden;}
-.tut-pot::after{content:'';position:absolute;top:8px;left:8px;width:8px;height:11px;
-  background:rgba(255,255,255,0.25);border-radius:50%;transform:rotate(-20deg);}
+.tut-pot{width:40px;height:40px;border-radius:.6rem;
+  display:flex;align-items:center;justify-content:center;font-size:1.4rem;
+  border:2px solid rgba(220,80,140,0.3);background:rgba(255,240,245,0.8);}
 .tut-pot.sel{box-shadow:0 0 0 2px #ffd700,0 0 12px rgba(255,215,0,0.4);}
 .tut-arr{font-size:1.2rem;color:#E8547A;}
 .tut-plus{font-size:1rem;color:var(--muted);}
@@ -252,6 +237,31 @@ body{
 }
 @keyframes hlpulse{from{box-shadow:0 0 0 3px rgba(232,84,122,0.2);}to{box-shadow:0 0 0 8px rgba(232,84,122,0);}}
 
+
+/* ── GAME OVER ── */
+.gameover{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:2rem 1.75rem;text-align:center;
+  background:radial-gradient(ellipse at 50% 30%,rgba(255,180,210,0.3) 0%,transparent 60%),
+    linear-gradient(180deg,#fff0f5,#ffe4ef);
+}
+.go-icon{font-size:3rem;margin-bottom:.6rem;}
+.go-title{font-family:'Playfair Display',serif;font-size:2rem;color:#9A0020;margin-bottom:.25rem;}
+.go-sub{font-size:.65rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
+  color:rgba(154,0,32,0.45);margin-bottom:1.5rem;}
+.go-score{font-family:'Playfair Display',serif;font-size:4rem;color:#9A0020;line-height:1;}
+.go-slbl{font-size:.6rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;
+  color:rgba(154,0,32,.4);margin-bottom:1.5rem;}
+.go-best{font-size:.8rem;font-weight:700;color:rgba(154,0,32,0.5);margin-bottom:1.5rem;}
+.go-top{display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:1.5rem;
+  background:rgba(255,255,255,0.8);border:1px solid rgba(220,80,140,0.15);
+  border-radius:1rem;padding:.85rem 1.2rem;}
+.go-top-pot{width:50px;height:65px;}
+.go-top-info{text-align:left;}
+.go-top-label{font-size:.58rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(154,0,32,0.4);margin-bottom:.2rem;}
+.go-top-name{font-family:'Playfair Display',serif;font-size:1.1rem;color:#9A0020;}
+
 .back-home{font-size:.72rem;font-weight:700;color:rgba(154,0,32,0.45);text-decoration:none;display:block;}
 </style>
 </head>
@@ -259,18 +269,19 @@ body{
 <div id="root"></div>
 <div class="toast" id="toast"></div>
 <script>
+let _potUID=0; // unique gradient ID counter
 // ── POTIONS (10 levels) ────────────────────────────────────────────────────
 const POTIONS=[
-  {lv:1,emoji:'💧',name:'Dewdrop',     bg:'#1a3a5c',border:'#4a8abf',pts:2},
-  {lv:2,emoji:'🫧',name:'Bubble',      bg:'#1a3550',border:'#5aacdf',pts:4},
-  {lv:3,emoji:'🌿',name:'Herb Brew',   bg:'#1a3a1a',border:'#5abf5a',pts:8},
-  {lv:4,emoji:'🌸',name:'Blossom',     bg:'#3a1a3a',border:'#bf5abf',pts:16},
-  {lv:5,emoji:'🌙',name:'Moonmist',    bg:'#251535',border:'#9060df',pts:32},
-  {lv:6,emoji:'⭐',name:'Stardust',    bg:'#3a2a10',border:'#dfaf30',pts:64},
-  {lv:7,emoji:'🔮',name:'Crystal Vial',bg:'#1a1a40',border:'#6060ef',pts:128},
-  {lv:8,emoji:'🦋',name:'Fairy Essence',bg:'#3a1a30',border:'#ef60af',pts:256},
-  {lv:9,emoji:'👑',name:'Royal Elixir', bg:'#3a2800',border:'#ffa030',pts:512},
-  {lv:10,emoji:'✨',name:'Moonstone',   bg:'#2a1a40',border:'#d080ff',pts:1024},
+  {lv:1, name:'Rose Dew',     pts:2,    fill:'#FFB3CB', fill2:'#FF8FAF', border:'#F06090', glow:'rgba(255,140,175,0.4)',  icon:'✿'},
+  {lv:2, name:'Blush Mist',   pts:4,    fill:'#FFD1DC', fill2:'#FFB3C6', border:'#E8547A', glow:'rgba(232,84,122,0.4)',   icon:'❀'},
+  {lv:3, name:'Petal Brew',   pts:8,    fill:'#FFC8E8', fill2:'#FF9ED4', border:'#D4589A', glow:'rgba(212,88,154,0.4)',   icon:'✾'},
+  {lv:4, name:'Lavender Kiss',pts:16,   fill:'#E8C8FF', fill2:'#D4A0F8', border:'#A060D0', glow:'rgba(160,96,208,0.4)',   icon:'✦'},
+  {lv:5, name:'Moonpetal',    pts:32,   fill:'#C8DCFF', fill2:'#A0BEFF', border:'#6090D8', glow:'rgba(96,144,216,0.4)',   icon:'☽'},
+  {lv:6, name:'Pearl Drop',   pts:64,   fill:'#FFEDC8', fill2:'#FFD898', border:'#D4A030', glow:'rgba(212,160,48,0.45)',  icon:'◈'},
+  {lv:7, name:'Crystal Heart',pts:128,  fill:'#C8F8F0', fill2:'#90EAD8', border:'#40B8A0', glow:'rgba(64,184,160,0.4)',   icon:'♡'},
+  {lv:8, name:'Starlight',    pts:256,  fill:'#FFDCF8', fill2:'#FFBAF0', border:'#D060C8', glow:'rgba(208,96,200,0.4)',   icon:'★'},
+  {lv:9, name:'Golden Rose',  pts:512,  fill:'#FFE8B0', fill2:'#FFD080', border:'#C88020', glow:'rgba(200,128,32,0.5)',   icon:'✤'},
+  {lv:10,name:'Moonstone',    pts:1024, fill:'#FFFFFF', fill2:'#F8EEFF', border:'#E8547A', glow:'rgba(232,84,122,0.6)',   icon:'✨'},
 ];
 const COLS=5,ROWS=8,TOTAL=COLS*ROWS;
 
@@ -346,13 +357,55 @@ function updateNextBar(){
     const el=document.getElementById('next'+i);
     if(!el)return;
     const p=POTIONS[lv-1];
-    el.style.background=p.bg;
-    el.style.borderColor=p.border;
-    el.textContent='';
-    const span=document.createElement('span');
-    span.textContent=p.emoji;
-    el.appendChild(span);
+    el.style.cssText=`filter:drop-shadow(0 2px 4px ${p.glow});`;
+    el.innerHTML=miniPotSVG(p);
   });
+  // also update highest
+  const hp=document.getElementById('highestPot');
+  if(hp){
+    const p=POTIONS[S.highest-1];
+    hp.style.cssText=`filter:drop-shadow(0 2px 6px ${p.glow});`;
+    hp.innerHTML=miniPotSVG(p);
+  }
+}
+
+function miniPotSVG(p){
+  const uid='m'+(++_potUID);
+  return potionSVG(p,uid,p.lv===10,false);
+}
+
+// Single SVG renderer — no duplicate gradient IDs
+function potionSVG(p,uid,isMax,showName){
+  return`<svg viewBox="0 0 40 ${showName?58:52}" style="width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <linearGradient id="${uid}" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="${p.fill}"/>
+        <stop offset="100%" stop-color="${p.fill2}"/>
+      </linearGradient>
+    </defs>
+    <!-- Cork -->
+    <rect x="13" y="0" width="14" height="5" rx="2" fill="${p.border}" opacity="0.75"/>
+    <!-- Neck -->
+    <rect x="14" y="4" width="12" height="9" rx="2" fill="${p.fill}" stroke="${p.border}" stroke-width="1.2"/>
+    <rect x="16" y="5" width="4" height="6" rx="2" fill="rgba(255,255,255,0.45)"/>
+    <!-- Body -->
+    <path d="M8 13 Q4 15 4 23 L4 41 Q4 47 10 47 L30 47 Q36 47 36 41 L36 23 Q36 15 32 13 Z"
+      fill="url(#${uid})" stroke="${p.border}" stroke-width="1.2"/>
+    <!-- Inner liquid sheen -->
+    <path d="M10 25 Q6 27 6 33 L6 41 Q6 46 10 46 L30 46 Q34 46 34 41 L34 33 Q34 27 30 25 Z"
+      fill="${p.fill}" opacity="0.4"/>
+    <!-- Shine -->
+    <ellipse cx="13" cy="22" rx="3.5" ry="6" fill="rgba(255,255,255,0.38)" transform="rotate(-12,13,22)"/>
+    <!-- Bubbles -->
+    <circle cx="26" cy="35" r="2.2" fill="rgba(255,255,255,0.38)"/>
+    <circle cx="21" cy="41" r="1.4" fill="rgba(255,255,255,0.28)"/>
+    <!-- Icon -->
+    <text x="20" y="33" text-anchor="middle" dominant-baseline="middle"
+      font-size="${isMax?13:10}" fill="${p.border}" font-family="Georgia,serif" font-weight="bold"
+      opacity="0.95">${p.icon}</text>
+    ${isMax?('<circle cx="20" cy="33" r="8" fill="none" stroke="'+p.border+'" stroke-width="0.8" opacity="0.3" stroke-dasharray="2 2"/>'):''}
+    ${showName?('<text x="20" y="53" text-anchor="middle" dominant-baseline="middle" font-size="5" fill="'+p.border+'" font-family="Nunito,sans-serif" font-weight="800" opacity="0.85">'+p.name+'</text>'):''}
+  </svg>`;
 }
 
 // ── RENDER ────────────────────────────────────────────────────────────────
@@ -360,6 +413,7 @@ function render(){
   const root=document.getElementById('root');
   if(S.screen==='welcome')root.innerHTML=renderWelcome();
   else if(S.screen==='game'){root.innerHTML=renderGame();initGame();}
+  else if(S.screen==='gameover')root.innerHTML=renderGameOver();
   else root.innerHTML=renderComplete();
 }
 
@@ -370,8 +424,8 @@ function renderWelcome(){
     ${preview.map((lv,i)=>{
       const p=POTIONS[lv-1];
       const delays=['0s','.3s','.6s','.9s','1.2s'];
-      return`<div class="w-potion" style="background:${p.bg};border-color:${p.border};--d:${2+i*.3}s;--dl:${delays[i]}">
-        ${p.emoji}
+      return`<div class="w-potion" style="filter:drop-shadow(0 3px 8px ${p.glow});--d:${2+i*.3}s;--dl:${delays[i]}">
+        ${miniPotSVG(p)}
       </div>`;
     }).join('')}
   </div>
@@ -379,7 +433,7 @@ function renderWelcome(){
   <div class="w-sub">The Sparkle Studio</div>
   <div class="w-chain">
     ${POTIONS.map((p,i)=>`
-      <span class="w-chain-item" title="${p.name}">${p.emoji}</span>
+      <span class="w-chain-item" title="${p.name}" style="color:${p.border};font-size:.9rem;">${p.icon}</span>
       ${i<POTIONS.length-1?'<span class="w-chain-arrow">→</span>':''}
     `).join('')}
   </div>
@@ -404,15 +458,11 @@ function renderGame(){
     <div class="next-potions">
       ${S.nextQueue.map((lv,i)=>{
         const p=POTIONS[lv-1];
-        return`<div class="next-pot" id="next${i}" style="background:${p.bg};border-color:${p.border};">
-          <span>${p.emoji}</span>
-        </div>`;
+        return`<div class="next-pot" id="next${i}" style="filter:drop-shadow(0 2px 4px ${p.glow});">${miniPotSVG(p)}</div>`;
       }).join('')}
     </div>
     <div class="highest-label">Best potion</div>
-    <div class="highest-pot" id="highestPot" style="background:${highest.bg};border-color:${highest.border};">
-      ${highest.emoji}
-    </div>
+    <div class="highest-pot" id="highestPot" style="filter:drop-shadow(0 2px 6px ${highest.glow});">${miniPotSVG(highest)}</div>
   </div>
   <div class="grid-wrap">
     <div class="grid" id="grid">
@@ -432,14 +482,15 @@ function cellHTML(i,lv){
 
 function potionHTML(lv){
   const p=POTIONS[lv-1];
-  return`<div class="potion" style="background:${p.bg};border-color:${p.border};" title="${p.name}">
-    <span class="potion-emoji">${p.emoji}</span>
-  </div>`;}
+  const uid='g'+(++_potUID);
+  const isMax=lv===10;
+  return potionSVG(p,uid,isMax,true);
+}
 
 function renderComplete(){
   const highest=POTIONS[S.highest-1];
   return`<div class="complete">
-  <div class="cc-icon">${highest.emoji}</div>
+  <div class="cc-icon">${highest.icon}</div>
   <div class="cc-title">Sparkle Complete</div>
   <div class="cc-sub">Best: ${highest.name} · ${S.name}</div>
   <div class="cc-score">${S.score}</div>
@@ -447,7 +498,7 @@ function renderComplete(){
   <div class="cc-stats">
     <div class="cc-stat"><div class="cc-sv">${S.merges}</div><div class="cc-sl">Merges</div></div>
     <div class="cc-stat"><div class="cc-sv">${S.best}</div><div class="cc-sl">Best Score</div></div>
-    <div class="cc-stat"><div class="cc-sv">${highest.emoji}</div><div class="cc-sl">Top Potion</div></div>
+    <div class="cc-stat"><div class="cc-sv">${highest.icon}</div><div class="cc-sl">Top Potion</div></div>
   </div>
   <button class="btn-again" onclick="go()">🔮 Sparkle Again</button>
   <a href="https://rismath.com" class="back-home">← Back to RisMath</a>
@@ -504,6 +555,7 @@ function cellTap(i){
       S.cells[i]=nextLv;
       rerenderCells([i]);
       updateNextBar();
+      setTimeout(checkGameOver,200);
       setTimeout(()=>{
         document.getElementById('C'+i)?.querySelector('.potion')?.classList.add('merging');
       },30);
@@ -539,8 +591,8 @@ function cellTap(i){
       const hp=document.getElementById('highestPot');
       if(hp){
         const p=POTIONS[newLv-1];
-        hp.style.background=p.bg;hp.style.borderColor=p.border;
-        hp.textContent=p.emoji;
+        hp.style.cssText=`filter:drop-shadow(0 2px 6px ${p.glow});`;
+        hp.innerHTML=miniPotSVG(p);
       }
     }
     if(S.score>S.best){S.best=S.score;localStorage.setItem('sp_merge_best',S.best);}
@@ -560,7 +612,7 @@ function cellTap(i){
     playMerge(newLv);
     burstAt(i,POTIONS[newLv-1]);
     floatScore(i,'+'+pts);
-    showToast(POTIONS[newLv-1].emoji+' '+POTIONS[newLv-1].name+'!');
+    showToast(POTIONS[newLv-1].icon+' '+POTIONS[newLv-1].name+'!');
     document.getElementById('scoreVal').textContent=S.score;
 
     // Check win (made moonstone)
@@ -571,7 +623,7 @@ function cellTap(i){
     }
 
     // Spawn new potion after a beat
-    setTimeout(spawnNext,400);
+    setTimeout(()=>{spawnNext();setTimeout(checkGameOver,200);},400);
 
   } else {
     // Swap positions (move potion to new cell)
@@ -603,15 +655,15 @@ function burstAt(i,potion){
   if(!el)return;
   const r=el.getBoundingClientRect();
   const cx=r.left+r.width/2,cy=r.top+r.height/2;
-  const emojis=[potion.emoji,'✦','✧','·','⭐','🌟'];
+  const sparks=['✦','✧','·','✶','✸','✹'];
   for(let j=0;j<12;j++){
     const p=document.createElement('div');
     p.className='px';
     const ang=(j/12)*Math.PI*2;
     const d=20+Math.random()*45;
-    const isEmoji=j<3;
-    p.style.cssText=`left:${cx}px;top:${cy}px;width:${isEmoji?'auto':'6px'};height:${isEmoji?'auto':'6px'};background:${isEmoji?'none':potion.border};--tx:${Math.cos(ang)*d}px;--ty:${Math.sin(ang)*d}px;`;
-    if(isEmoji)p.textContent=emojis[j];
+    const isSpark=j<4;
+    p.style.cssText=`left:${cx}px;top:${cy}px;width:${isSpark?'auto':'5px'};height:${isSpark?'auto':'5px'};background:${isSpark?'none':potion.border};--tx:${Math.cos(ang)*d}px;--ty:${Math.sin(ang)*d}px;font-size:.8rem;color:${potion.border};`;
+    if(isSpark)p.textContent=sparks[j%sparks.length];
     document.body.appendChild(p);
     setTimeout(()=>p.remove(),700);
   }
@@ -684,16 +736,16 @@ function renderTutStep(){
   let demoHTML='';
   if(step.demo==='select'){
     demoHTML=`<div class="tut-demo">
-      <div class="tut-pot sel" style="background:#1a3a5c;border-color:#4a8abf;">💧</div>
+      <div class="tut-pot sel" style="border-color:#F06090;box-shadow:0 0 0 2px #E8547A;">✿</div>
       <span style="font-size:.75rem;color:var(--muted);">← selected</span>
     </div>`;
   } else if(step.demo==='merge'){
     demoHTML=`<div class="tut-demo">
-      <div class="tut-pot sel" style="background:#1a3a5c;border-color:#4a8abf;">💧</div>
+      <div class="tut-pot sel" style="border-color:#F06090;box-shadow:0 0 0 2px #E8547A;">✿</div>
       <span class="tut-plus">+</span>
-      <div class="tut-pot" style="background:#1a3a5c;border-color:#4a8abf;">💧</div>
+      <div class="tut-pot" style="border-color:#F06090;">✿</div>
       <span class="tut-arr">→</span>
-      <div class="tut-pot" style="background:#1a3550;border-color:#5aacdf;">🫧</div>
+      <div class="tut-pot" style="border-color:#E8547A;">❀</div>
     </div>`;
   } else if(step.demo==='spawn'){
     demoHTML=`<div class="tut-demo">
@@ -749,6 +801,63 @@ function removeTut(){
   if(el)el.remove();
   if(tutHighlight){tutHighlight.remove();tutHighlight=null;}
 }
+
+
+// ── GAME OVER DETECTION ──────────────────────────────────────────────────
+function hasMoves(){
+  // Check if any two adjacent or any two same-level cells exist anywhere
+  for(let i=0;i<TOTAL;i++){
+    if(S.cells[i]===null)return true; // empty cell = can still place
+    for(let j=i+1;j<TOTAL;j++){
+      if(S.cells[j]!==null && S.cells[i]===S.cells[j] && S.cells[i]<10)return true;
+    }
+  }
+  return false;
+}
+
+function checkGameOver(){
+  if(!hasMoves()){
+    if(S.score>S.best){S.best=S.score;localStorage.setItem('sp_merge_best',S.best);}
+    playGameOver();
+    setTimeout(()=>{S.screen='gameover';render();},300);
+  }
+}
+
+function playGameOver(){
+  try{
+    const a=ac(),t=a.currentTime;
+    [392,349,311,277].forEach((f,i)=>{
+      const o=a.createOscillator(),g=a.createGain();
+      o.type='sine';o.frequency.value=f;
+      g.gain.setValueAtTime(0,t+i*.18);
+      g.gain.linearRampToValueAtTime(.06,t+i*.18+.05);
+      g.gain.exponentialRampToValueAtTime(.001,t+i*.18+.6);
+      o.connect(g);g.connect(a.destination);
+      o.start(t+i*.18);o.stop(t+i*.18+.7);
+    });
+  }catch(e){}
+}
+
+function renderGameOver(){
+  const highest=POTIONS[S.highest-1];
+  const isNew=S.score>0&&S.score===S.best;
+  return`<div class="gameover">
+  <div class="go-icon">${isNew?'🌟':'🌸'}</div>
+  <div class="go-title">${isNew?'New Best!':'No more moves'}</div>
+  <div class="go-sub">${S.name} · ${S.merges} merges</div>
+  <div class="go-score">${S.score}</div>
+  <div class="go-slbl">✦ Sparkle Points</div>
+  ${isNew?'':`<div class="go-best">Personal best: ${S.best}</div>`}
+  <div class="go-top">
+    <div class="go-top-pot">${miniPotSVG(highest)}</div>
+    <div class="go-top-info">
+      <div class="go-top-label">Highest brew</div>
+      <div class="go-top-name">${highest.name}</div>
+    </div>
+  </div>
+  <button class="btn-again" onclick="go()" style="width:100%;margin-bottom:.75rem;">✨ Try Again</button>
+  <a href="https://rismath.com" class="back-home">← Back to RisMath</a>
+</div>`;}
 
 // ── BOOT ─────────────────────────────────────────────────────────────────
 if(S.name)S.screen='game';
