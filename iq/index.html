@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RisMath - IQ Challenge</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-container">
+        <h1>RisMath IQ Test</h1>
+        
+        <div id="quiz-area">
+            <p id="question-text">Loading questions...</p>
+            <div id="options-container"></div>
+            <p>Question <span id="current-index">1</span>/20</p>
+        </div>
+
+        <div id="result-area" style="display:none;">
+            <h2>Your Results</h2>
+            <p id="score-text"></p>
+            <h1 id="iq-rank">--</h1>
+            <button onclick="shareResult()">Share on WhatsApp</button>
+            <button onclick="location.reload()">Try Again</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

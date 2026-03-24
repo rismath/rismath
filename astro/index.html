@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zodiac Seeker | 60s Blitz</title>
+    <style>
+        :root { --bg: #0b0e14; --accent: #ffcc00; --text: #ffffff; --card: #1c1f26; }
+        body {
+            font-family: 'Segoe UI', 'Noto Sans Devanagari', sans-serif;
+            background: radial-gradient(circle at center, #1a1a2e 0%, #0b0e14 100%);
+            color: var(--text); display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; margin: 0;
+        }
+        #game-container {
+            width: 90%; max-width: 400px; text-align: center;
+            background: rgba(28, 31, 38, 0.95); padding: 25px;
+            border-radius: 24px; box-shadow: 0 20px 50px rgba(0,0,0,0.8);
+            border: 1px solid rgba(255,204,0,0.2);
+        }
+        .hidden { display: none !important; }
+        
+        /* Input & UI */
+        input, select { 
+            width: 80%; padding: 12px; margin: 10px 0; border-radius: 10px; 
+            border: 1px solid var(--accent); background: #0b0e14; color: white; text-align: center;
+        }
+        .timer-bar { width: 100%; height: 8px; background: #333; border-radius: 4px; margin: 15px 0; overflow: hidden; }
+        #timer-progress { width: 100%; height: 100%; background: var(--accent); transition: width 1s linear; }
+        
+        /* Game Elements */
+        .stats { display: flex; justify-content: space-between; font-weight: bold; color: var(--accent); }
+        .trait-box { background: #23272f; padding: 25px 15px; border-radius: 18px; margin: 15px 0; min-height: 50px; font-size: 1.2rem; border: 1px solid rgba(255,255,255,0.1); }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        button { padding: 15px; border-radius: 12px; cursor: pointer; border: none; font-weight: 600; transition: 0.2s; width: 100%; }
+        .btn-main { background: var(--accent); color: black; font-size: 1.1rem; }
+        .opt { background: #2c313c; color: white; }
+        .correct { background: #27ae60 !important; }
+        .wrong { background: #c0392b !important; }
+        
+        /* Final Scorecard */
+        .scorecard { background: #1a1a2e; padding: 20px; border-radius: 15px; border: 2px solid var(--accent); margin-top: 15px; }
+        .whatsapp-btn { background: #25D366; color: white; margin-top: 15px; font-size: 1.1rem; }
+    </style>
+</head>
+<body>
+
+<div id="game-container">
+    <div id="setup-screen">
+        <h2 style="color: var(--accent)">Zodiac Seeker 🌟</h2>
+        <p>60 Second Challenge</p>
+        <input type="text" id="player-name" placeholder="Enter Name" maxlength="12">
+        <select id="lang-pref">
+            <option value="en">English</option>
+            <option value="hi">Hindi (हिंदी)</option>
+            <option value="hg">Hinglish</option>
+        </select>
+        <button class="btn-main" onclick="startGame()">Start Blitz! ⚡</button>
+    </div>
+
+    <div id="game-screen" class="hidden">
+        <div class="stats">
+            <span id="display-name">Player</span>
+            <span>Score: <span id="score">0</span></span>
+        </div>
+        <div class="timer-bar"><div id="timer-progress"></div></div>
+        <div id="timer-text" style="font-size: 0.9rem; margin-bottom: 10px;">Time: 60s</div>
+        
+        <div class="trait-box" id="traits">Loading...</div>
+        <div id="options" class="options-grid"></div>
+    </div>
+
+    <div id="result-screen" class="hidden">
+        <h2 style="color: var(--accent)">Time's Up! ⌛</h2>
+        <div class="scorecard">
+            <p style="margin: 5px 0;">Name: <b id="final-name"></b></p>
+            <h1 style="margin: 10px 0; font-size: 3rem;" id="final-score">0</h1>
+            <p>Zodiac Signs Identified</p>
+        </div>
+        <button class="whatsapp-btn" onclick="shareToWhatsApp()">Share on WhatsApp 📱</button>
+        <button style="margin-top: 10px; background: transparent; color: white; border: 1px solid #555;" onclick="location.reload()">Try Again 🔄</button>
+    </div>
+</div>
+
+<script>
+    const signs = ["Aries", "Taurus", "Gemini", "Cancer", "Leo", "Virgo", "Libra", "Scorpio", "Sagittarius", "Capricorn", "Aquarius", "Pisces"];
+    let playerName = "Player";
+    let score = 0;
+    let timeLeft = 60;
+    let timerId = null;
+    let currentCorrect = "";
+    let lang = 'en';
+
+    // Same bank as before, condensed for space
+    const bank = {
+        en: { Aries: ["Bold Leader"], Taurus: ["Patient & Steady"], Gemini: ["Quick Witted"], Cancer: ["Highly Protective"], Leo: ["Confident & Proud"], Virgo: ["The Perfectionist"], Libra: ["Seeks Balance"], Scorpio: ["Deeply Intense"], Sagittarius: ["Freedom Lover"], Capricorn: ["Very Disciplined"], Aquarius: ["Unique Thinker"], Pisces: ["Creative Dreamer"] },
+        hi: { Aries: ["निडर और साहसी"], Taurus: ["भरोसेमंद"], Gemini: ["चंचल स्वभाव"], Cancer: ["भावुक दिल"], Leo: ["आत्मविश्वासी"], Virgo: ["मेहनती"], Libra: ["शांति प्रिय"], Scorpio: ["जुनूनी"], Sagittarius: ["आज़ाद"], Capricorn: ["गंभीर"], Aquarius: ["अलग सोच"], Pisces: ["दयालु"] },
+        hg: { Aries: ["Full of Josh"], Taurus: ["Ziddi but Loyal"], Gemini: ["Bohot Talkative"], Cancer: ["Emotional Banda"], Leo: ["Attention Seeker"], Virgo: ["Perfect kaam"], Libra: ["Sweet Talker"], Scorpio: ["Mysterious"], Sagittarius: ["Ghumne wala"], Capricorn: ["Career Focused"], Aquarius: ["Hatke Ideas"], Pisces: ["Dil ka Saaf"] }
+    };
+
+    function startGame() {
+        playerName = document.getElementById('player-name').value || "Player";
+        lang = document.getElementById('lang-pref').value;
+        document.getElementById('setup-screen').classList.add('hidden');
+        document.getElementById('game-screen').classList.remove('hidden');
+        document.getElementById('display-name').innerText = playerName;
+        
+        startTimer();
+        nextQuestion();
+    }
+
+    function startTimer() {
+        timerId = setInterval(() => {
+            timeLeft--;
+            document.getElementById('timer-text').innerText = `Time: ${timeLeft}s`;
+            document.getElementById('timer-progress').style.width = (timeLeft/60)*100 + "%";
+            
+            if(timeLeft <= 0) endGame();
+        }, 1000);
+    }
+
+    function nextQuestion() {
+        currentCorrect = signs[Math.floor(Math.random() * signs.length)];
+        const traits = bank[lang][currentCorrect];
+        document.getElementById('traits').innerText = traits[Math.floor(Math.random() * traits.length)];
+
+        let options = [currentCorrect];
+        while(options.length < 4) {
+            let r = signs[Math.floor(Math.random() * signs.length)];
+            if(!options.includes(r)) options.push(r);
+        }
+        options.sort(() => Math.random() - 0.5);
+
+        const optDiv = document.getElementById('options');
+        optDiv.innerHTML = '';
+        options.forEach(o => {
+            const b = document.createElement('button');
+            b.className = 'opt'; b.innerText = o;
+            b.onclick = () => {
+                if(o === currentCorrect) {
+                    score++;
+                    document.getElementById('score').innerText = score;
+                    nextQuestion();
+                } else {
+                    b.classList.add('wrong');
+                    setTimeout(nextQuestion, 300);
+                }
+            };
+            optDiv.appendChild(b);
+        });
+    }
+
+    function endGame() {
+        clearInterval(timerId);
+        document.getElementById('game-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('final-name').innerText = playerName;
+        document.getElementById('final-score').innerText = score;
+    }
+
+    function shareToWhatsApp() {
+        const msg = `Can you beat my score? I identified ${score} Zodiac signs in 60 seconds! 🌟 - ${playerName}\n\nPlay here: https://rismath.com`;
+        window.open(`https://api.whatsapp.com/send?text=${encodeURIComponent(msg)}`, '_blank');
+    }
+</script>
+</body>
+</html>

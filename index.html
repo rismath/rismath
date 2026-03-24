@@ -94,15 +94,14 @@ header{padding:1.5rem 0 1rem;display:flex;align-items:center;justify-content:spa
 .thumb-filmi .glow{position:absolute;width:44px;height:44px;background:#4DFFB4;border-radius:50%;filter:blur(22px);opacity:.15;}
 .thumb-filmi .label{position:absolute;bottom:.5rem;left:50%;transform:translateX(-50%);font-size:.52rem;font-weight:800;color:rgba(77,255,180,.6);letter-spacing:.1em;white-space:nowrap;}
 
-/* Sparkle */
-.thumb-sparkle{background:linear-gradient(135deg,#080d1a 0%,#0d1530 60%,#121e44 100%);}
-.thumb-sparkle .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
-.thumb-sparkle .room{width:65%;height:65%;border:1.5px solid rgba(91,141,239,.2);border-radius:3px;position:relative;background:rgba(91,141,239,.04);}
-.thumb-sparkle .shelf{position:absolute;left:6%;right:6%;height:1.5px;background:rgba(91,141,239,.25);}
-.thumb-sparkle .win{position:absolute;top:8%;right:8%;width:22%;aspect-ratio:1;background:rgba(91,141,239,.1);border:1px solid rgba(91,141,239,.25);border-radius:2px;}
-.thumb-sparkle .sparks{position:absolute;inset:0;}
-.thumb-sparkle .sp{position:absolute;color:#5B8DEF;font-size:.7rem;opacity:.75;}
-.thumb-sparkle .mag{position:absolute;bottom:.5rem;right:.55rem;font-size:.95rem;opacity:.65;}
+/* Contra */
+.thumb-contra{background:linear-gradient(135deg,#000011 0%,#001122 60%,#002244 100%);}
+.thumb-contra .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.thumb-contra .space{width:80%;height:80%;position:relative;background:#000;}
+.thumb-contra .stars{position:absolute;inset:0;}
+.thumb-contra .star{position:absolute;color:#fff;font-size:.8rem;opacity:.8;}
+.thumb-contra .ship{position:absolute;bottom:10%;left:20%;color:#0f0;font-size:1.2rem;}
+.thumb-contra .alien{position:absolute;top:30%;right:20%;color:#f00;font-size:1rem;}
 
 /* RisMatch */
 .thumb-rismatch{background:linear-gradient(135deg,#0d0a20 0%,#170f35 60%,#211550 100%);}
@@ -271,6 +270,31 @@ footer a{color:var(--amber);text-decoration:none;font-weight:700;}
         <div class="cdesc">Find pairs that add up to the target. Beat the clock. How fast is your brain?</div>
         <div class="cfoot">
           <span class="ctag">Pairs</span>
+          <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
+        </div>
+      </div>
+    </a>
+
+    <!-- Contra -->
+    <a href="/contra" class="card">
+      <div class="thumb thumb-contra">
+        <div class="scene">
+          <div class="space">
+            <div class="stars">
+              <span class="star" style="top:10%;left:20%">⭐</span>
+              <span class="star" style="top:30%;right:15%">✨</span>
+              <span class="star" style="bottom:20%;left:30%">🌟</span>
+            </div>
+            <div class="ship">🚀</div>
+            <div class="alien">👾</div>
+          </div>
+        </div>
+      </div>
+      <div class="cbody">
+        <div class="cname">Space Contra</div>
+        <div class="cdesc">Side-scrolling shooter in space. Fight aliens, collect power-ups, survive levels.</div>
+        <div class="cfoot">
+          <span class="ctag">Shooter</span>
           <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
         </div>
       </div>
