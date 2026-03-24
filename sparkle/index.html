@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Sparkle Studio | Premium Reveal</title>
+<title>Sparkle Studio | Portrait Reveal</title>
 <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -29,27 +29,15 @@ body {
 
 .grid { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(8, 1fr); gap: 2px; width: 100%; height: 100%; position: relative; z-index: 1; }
 
-/* --- DYNAMIC GLASS STATES --- */
 .cell {
-  background: rgba(10, 10, 15, 0.95);
-  backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px);
-  border: 0.5px solid rgba(255,255,255,0.03);
-  transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(10, 10, 15, 0.98);
+  backdrop-filter: blur(60px); -webkit-backdrop-filter: blur(60px);
+  border: 0.5px solid rgba(255,255,255,0.02);
+  transition: all 0.5s ease;
 }
 
-/* "The Curiosity Hook": Cells in the center are naturally clearer */
-.cell.vignette {
-  background: rgba(10, 10, 15, 0.4);
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-}
-
-.cell.shattered {
-  background: transparent !important;
-  backdrop-filter: blur(0px) !important;
-  -webkit-backdrop-filter: blur(0px) !important;
-  border: none !important;
-}
-
+/* Clear state - Locked once revealed */
+.cell.shattered { background: transparent !important; backdrop-filter: blur(0px) !important; -webkit-backdrop-filter: blur(0px) !important; border: none !important; }
 .cell.selected { border: 1.5px solid var(--gold-static) !important; background: rgba(255,255,255,0.1); }
 
 .potion { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; animation: pop 0.25s ease-out; pointer-events: none; }
@@ -58,7 +46,7 @@ body {
 .footer { padding: 20px 24px env(safe-area-inset-bottom, 20px); }
 .input-wrapper { display: flex; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 4px; }
 #guessInput { flex: 1; background: transparent; border: none; padding: 14px; color: #fff; font-family: 'Montserrat'; outline: none; }
-.btn-reveal { background: var(--gold); color: #000; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; }
+.btn-reveal { background: var(--gold); color: #000; border: none; padding: 12px 24px; border-radius: 12px; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; }
 
 #overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
 </style>
@@ -66,16 +54,16 @@ body {
 <body onclick="initAudio()">
 
 <div id="overlay">
-    <h1 class="studio-logo" style="font-size: 2rem;">GHAZAB!</h1>
-    <p id="winMsg" style="margin: 20px; text-align:center;"></p>
-    <button class="btn-reveal" onclick="location.reload()">Next Celeb</button>
+    <h1 class="studio-logo" style="font-size: 2.5rem;">SHABASH!</h1>
+    <p id="winMsg" style="margin: 20px; text-align:center; font-weight:300;"></p>
+    <button class="btn-reveal" onclick="location.reload()">Level Up</button>
 </div>
 
 <div class="header">
   <div class="studio-logo">Sparkle Studio</div>
   <div style="text-align: right">
-    <div id="goalText" style="font-size: 0.7rem; color: var(--gold-static); font-weight: 900;">GOAL: LEVEL 2</div>
-    <div id="progressText" style="font-size: 0.6rem; color: #666;">REVEALED: 0%</div>
+    <div id="levelTag" style="font-size: 0.7rem; color: var(--gold-static); font-weight: 900;">LEVEL: 1</div>
+    <div id="progressText" style="font-size: 0.6rem; color: #666;">50% REVEALED</div>
   </div>
 </div>
 
@@ -86,28 +74,25 @@ body {
 
 <div class="footer">
   <div class="input-wrapper">
-    <input type="text" id="guessInput" placeholder="Name the celebrity..." autocomplete="off">
-    <button class="btn-reveal" onclick="checkGuess()">Guess</button>
+    <input type="text" id="guessInput" placeholder="Guess the star..." autocomplete="off">
+    <button class="btn-reveal" onclick="checkGuess()">Check</button>
   </div>
 </div>
 
 <script>
+// Expandable Database
 const DB = [
     { name: "Shah Rukh Khan", img: "https://www.themoviedb.org/t/p/original/m99asfLpSrkXo33U3v89j682Yf0.jpg" },
     { name: "Virat Kohli", img: "https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316500/316523.png" },
-    { name: "Deepika Padukone", img: "https://www.themoviedb.org/t/p/original/69Yp9fM6I20f8Mst0E89v54M4D.jpg" }
+    { name: "Deepika Padukone", img: "https://www.themoviedb.org/t/p/original/69Yp9fM6I20f8Mst0E89v54M4D.jpg" },
+    { name: "Lionel Messi", img: "https://www.themoviedb.org/t/p/original/hUatL0UfA8FzB6uXzN4hE6Yc1f4.jpg" },
+    { name: "Zendaya", img: "https://www.themoviedb.org/t/p/original/xr96V4v2vX7Zz9D7v6M5uXzF6pB.jpg" }
+    // Add 95 more here
 ];
+
 const ICONS = ['🌸', '✨', '💧', '🔥', '🔮', '💎', '🌙', '☀️', '🌈', '👑'];
+let S = { cells: Array(40).fill(null), shattered: Array(40).fill(false), selected: null, current: null, level: 1 };
 
-let S = {
-    cells: Array(40).fill(null),
-    shattered: Array(40).fill(false),
-    selected: null,
-    revealedCount: 0,
-    current: null
-};
-
-// --- AUDIO ENGINE ---
 let audioCtx = null;
 function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 function playSfx(f) {
@@ -124,21 +109,25 @@ function init() {
     document.getElementById('celebBg').style.backgroundImage = `url(${S.current.img})`;
     
     const grid = document.getElementById('grid');
+    // Portrait Zone: Indices covering the center (rows 2-6, cols 2-4 roughly)
+    const portraitZone = [6,7,8,11,12,13,16,17,18,21,22,23,26,27,28,31,32,33];
+
     for(let i=0; i<40; i++) {
         const div = document.createElement('div');
         div.className = 'cell';
-        
-        // --- THE NECK/CENTER REVEAL LOGIC ---
-        // Cells 16-23 are usually where the neck/chin area of a celebrity photo sits
-        if ([16,17,18,21,22,23].includes(i)) {
-            div.classList.add('vignette');
-        }
-        
         div.id = `c-${i}`;
+        
+        // LEVEL 1 SPECIAL: Auto-shatter the center 50%
+        if (S.level === 1 && portraitZone.includes(i)) {
+            S.shattered[i] = true;
+            div.classList.add('shattered');
+        }
+
         div.onclick = (e) => { e.stopPropagation(); tap(i); };
         grid.appendChild(div);
     }
-    for(let i=0; i<8; i++) spawn();
+    for(let i=0; i<6; i++) spawn();
+    updateUI();
 }
 
 function tap(i) {
@@ -146,11 +135,9 @@ function tap(i) {
         if (S.cells[i]) {
             S.selected = i;
             document.getElementById(`c-${i}`).classList.add('selected');
-            playSfx(440);
+            playSfx(400);
         } else if (!S.shattered[i]) {
-            S.cells[i] = 1;
-            render(i);
-            playSfx(300);
+            S.cells[i] = 1; render(i); playSfx(300);
         }
     } else {
         const from = S.selected;
@@ -160,16 +147,15 @@ function tap(i) {
 
         if (S.cells[i] === S.cells[from]) {
             const newLv = S.cells[i] + 1;
-            S.cells[i] = newLv;
-            S.cells[from] = null;
+            S.cells[i] = newLv; S.cells[from] = null;
             
-            // Speed reveal for first 10 merges
-            if (S.revealedCount < 10 || newLv >= getReq()) {
+            // Logic: Shatter only if level is sufficient
+            // Level 1: Anything shatters. Level 2: Requires Level 3 merge.
+            if (newLv >= S.level + 1) {
                 shatter(i);
             }
             
             render(from); render(i);
-            updateUI();
             setTimeout(spawn, 100);
         } else {
             [S.cells[i], S.cells[from]] = [S.cells[from], S.cells[i]];
@@ -178,38 +164,38 @@ function tap(i) {
     }
 }
 
-function getReq() { return S.revealedCount < 15 ? 2 : 3; }
-
 function shatter(idx) {
-    if (!S.shattered[idx]) { S.shattered[idx] = true; S.revealedCount++; }
+    if (!S.shattered[idx]) { S.shattered[idx] = true; }
     
-    // Impact Reveal: Small chance to clear neighbors
+    // Splash Reveal based on level (Higher level = smaller splash)
+    const splashChance = Math.max(0.2, 0.8 - (S.level * 0.15));
     [idx-1, idx+1, idx-5, idx+5].forEach(n => {
-        if(n >= 0 && n < 40 && Math.random() > 0.7 && !S.shattered[n]) {
+        if(n >= 0 && n < 40 && Math.random() < splashChance && !S.shattered[n]) {
             S.shattered[n] = true;
-            S.revealedCount++;
         }
     });
     
-    playSfx(880);
+    playSfx(800);
     for(let j=0; j<40; j++) if(S.shattered[j]) render(j);
+    updateUI();
 }
 
 function render(i) {
     const cell = document.getElementById(`c-${i}`);
-    const val = S.cells[i];
-    cell.innerHTML = val ? `<div class="potion">${ICONS[val-1]}</div>` : '';
+    cell.innerHTML = S.cells[i] ? `<div class="potion">${ICONS[S.cells[i]-1]}</div>` : '';
     if (S.shattered[i]) cell.classList.add('shattered');
 }
 
 function checkGuess() {
     const input = document.getElementById('guessInput');
     if (input.value.trim().toLowerCase() === S.current.name.toLowerCase()) {
-        document.getElementById('winMsg').innerText = `Perfect! It's ${S.current.name}`;
+        document.getElementById('winMsg').innerText = `You recognized ${S.current.name}!`;
         document.getElementById('overlay').style.display = 'flex';
+        // Increment global level for next round
+        localStorage.setItem('sparkle_level', parseInt(S.level) + 1);
     } else {
         input.value = "";
-        input.placeholder = "Incorrect, try again!";
+        input.placeholder = "Incorrect Star...";
     }
 }
 
@@ -222,9 +208,13 @@ function spawn() {
 }
 
 function updateUI() {
-    document.getElementById('goalText').innerText = `GOAL: LEVEL ${getReq()}`;
-    document.getElementById('progressText').innerText = `REVEALED: ${Math.floor((S.revealedCount/40)*100)}%`;
+    const count = S.shattered.filter(v => v).length;
+    document.getElementById('progressText').innerText = `${Math.floor((count/40)*100)}% REVEALED`;
 }
+
+// Load level from storage
+S.level = parseInt(localStorage.getItem('sparkle_level')) || 1;
+document.getElementById('levelTag').innerText = `LEVEL: ${S.level}`;
 
 init();
 </script>
