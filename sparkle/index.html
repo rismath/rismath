@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Sparkle Studio | Premium Reveal</title>
+<title>Sparkle Studio | Pro Reveal</title>
 <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -21,53 +21,51 @@ body {
     background-image: radial-gradient(circle at 50% -20%, #2a0a2f 0%, #050206 70%);
 }
 
-/* --- HEADER --- */
 .header { padding: env(safe-area-inset-top, 20px) 24px 10px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
 .studio-logo { font-family: 'Marcellus', serif; font-size: 1.2rem; letter-spacing: 4px; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
 .stat-pill { background: var(--glass); border: 1px solid var(--glass-border); padding: 6px 16px; border-radius: 100px; backdrop-filter: blur(10px); text-align: center; }
 
-/* --- THE STAGE --- */
 .stage { flex: 1; position: relative; margin: 10px 20px; border-radius: 24px; overflow: hidden; border: 1px solid var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
 #celebBg { position: absolute; inset: 0; background-size: cover; background-position: center 15%; transform: scale(1.1); transition: transform 2s ease-out; }
 
 .grid { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(8, 1fr); gap: 2px; width: 100%; height: 100%; position: relative; z-index: 1; }
 
 .cell {
-  background: rgba(10, 10, 15, 0.9);
+  background: rgba(10, 10, 15, 0.92);
   backdrop-filter: blur(45px); -webkit-backdrop-filter: blur(45px);
   border: 0.5px solid rgba(255,255,255,0.03);
-  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Lower blur for partially revealed areas */
-.cell.hinted { background: rgba(10, 10, 15, 0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
-.cell.shattered { background: transparent; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); border: none; }
-.cell.selected { box-shadow: inset 0 0 15px var(--gold-static); border: 1px solid var(--gold-static); }
+/* Permanent States */
+.cell.hinted { background: rgba(10, 10, 15, 0.45); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.cell.shattered { background: transparent !important; backdrop-filter: blur(0px) !important; -webkit-backdrop-filter: blur(0px) !important; border: none !important; }
 
-.potion { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; animation: pop 0.3s ease-out; }
-@keyframes pop { from { transform: scale(0); opacity:0; } to { transform: scale(1); opacity:1; } }
+.cell.selected { border: 1.5px solid var(--gold-static) !important; background: rgba(255,255,255,0.1); }
 
-/* --- CONTROLS --- */
+.potion { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; animation: pop 0.25s ease-out; pointer-events: none; }
+@keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+
 .footer { padding: 20px 24px env(safe-area-inset-bottom, 20px); }
 .input-wrapper { display: flex; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 4px; }
 #guessInput { flex: 1; background: transparent; border: none; padding: 14px; color: #fff; font-family: 'Montserrat'; outline: none; }
 .btn-reveal { background: var(--gold); color: #000; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; cursor: pointer; }
 
-#overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(20px); display: none; }
+#overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
 </style>
 </head>
 <body onclick="initAudio()">
 
 <div id="overlay">
-    <h1 class="studio-logo" style="font-size: 2rem;" id="winTitle">GHAZAB!</h1>
+    <h1 class="studio-logo" style="font-size: 2rem;">GHAZAB!</h1>
     <p id="winMsg" style="margin: 20px; text-align:center;"></p>
-    <button class="btn-reveal" onclick="location.reload()">Next Celeb</button>
+    <button class="btn-reveal" onclick="location.reload()">Play Next</button>
 </div>
 
 <div class="header">
   <div class="studio-logo">Sparkle Studio</div>
   <div class="stat-pill">
-    <div style="font-size: 0.5rem; color: var(--gold-static); font-weight: 900;">LEVEL GOAL</div>
+    <div id="goalLabel" style="font-size: 0.5rem; color: var(--gold-static); font-weight: 900;">NEXT GOAL</div>
     <div id="goalText" style="font-size: 0.9rem; font-weight: 600;">Merge Level 2</div>
   </div>
 </div>
@@ -80,95 +78,93 @@ body {
 <div class="footer">
   <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.6rem; font-weight:900; color:var(--gold-static);">
     <span id="progressText">REVEALED: 0%</span>
-    <span>SOUND: ACTIVE 🔊</span>
+    <span>STREAK: <span id="streak">0</span></span>
   </div>
   <div class="input-wrapper">
-    <input type="text" id="guessInput" placeholder="Who is this? Spelling count..." autocomplete="off">
+    <input type="text" id="guessInput" placeholder="Guess the name..." autocomplete="off">
     <button class="btn-reveal" onclick="checkGuess()">Guess</button>
   </div>
 </div>
 
 <script>
 const DB = [
-    { name: "Shah Rukh Khan", cat: "IN", img: "https://www.themoviedb.org/t/p/original/m99asfLpSrkXo33U3v89j682Yf0.jpg" },
-    { name: "Virat Kohli", cat: "IN", img: "https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316500/316523.png" },
-    { name: "Lionel Messi", cat: "INT", img: "https://www.themoviedb.org/t/p/original/hUatL0UfA8FzB6uXzN4hE6Yc1f4.jpg" }
+    { name: "Shah Rukh Khan", img: "https://www.themoviedb.org/t/p/original/m99asfLpSrkXo33U3v89j682Yf0.jpg" },
+    { name: "Virat Kohli", img: "https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316500/316523.png" },
+    { name: "Zendaya", img: "https://www.themoviedb.org/t/p/original/xr96V4v2vX7Zz9D7v6M5uXzF6pB.jpg" }
 ];
 const ICONS = ['🌸', '✨', '💧', '🔥', '🔮', '💎', '🌙', '☀️', '🌈', '👑'];
 
 let S = {
     cells: Array(40).fill(null),
     shattered: Array(40).fill(false),
-    score: 0,
-    current: null,
     selected: null,
-    revealedCount: 0
+    revealedCount: 0,
+    current: null
 };
 
 let audioCtx = null;
-
 function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
 
-function playShatterSound() {
+function playSfx(freq) {
     if(!audioCtx) return;
     const t = audioCtx.currentTime;
     const osc = audioCtx.createOscillator();
-    const noise = audioCtx.createBufferSource();
-    const gain = audioCtx.createGain();
-    
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(800, t);
-    osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
-    
-    gain.gain.setValueAtTime(0.1, t);
-    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
-    
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start(); osc.stop(t + 0.2);
+    const g = audioCtx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(0.1, t);
+    g.gain.exponentialRampToValueAtTime(0.01, t + 0.1);
+    osc.connect(g); g.connect(audioCtx.destination);
+    osc.start(); osc.stop(t + 0.1);
 }
 
 function init() {
     S.current = DB[Math.floor(Math.random() * DB.length)];
     document.getElementById('celebBg').style.backgroundImage = `url(${S.current.img})`;
-    
     const grid = document.getElementById('grid');
     for(let i=0; i<40; i++) {
         const div = document.createElement('div');
         div.className = 'cell';
         div.id = `c-${i}`;
-        div.onclick = () => tap(i);
+        div.onclick = (e) => { e.stopPropagation(); tap(i); };
         grid.appendChild(div);
     }
     for(let i=0; i<6; i++) spawn();
 }
 
 function tap(i) {
+    // 1. PROTECTION: If cell is already shattered, ignore taps for gameplay logic
+    // but allow selecting an item on top of it if it exists.
+    
     if (S.selected === null) {
         if (S.cells[i]) {
             S.selected = i;
             document.getElementById(`c-${i}`).classList.add('selected');
-        } else { S.cells[i] = 1; render(i); }
+            playSfx(400);
+        } else if (!S.shattered[i]) { 
+            // Only allow placement if the cell isn't shattered (or modify to allow placement anywhere)
+            S.cells[i] = 1;
+            render(i);
+            playSfx(300);
+        }
     } else {
         const from = S.selected;
         document.getElementById(`c-${from}`).classList.remove('selected');
         S.selected = null;
+
+        // 2. MULTI-TAP PROTECTION: If user taps the same cell twice, just deselect
         if (from === i) return;
 
         if (S.cells[i] === S.cells[from]) {
+            // MERGE SUCCESS
             const newLv = S.cells[i] + 1;
             S.cells[i] = newLv;
             S.cells[from] = null;
             
-            // DYNAMIC DIFFICULTY LOGIC
-            // Level 1-5 merges: Always shatter
-            // Level 5-10: Shatter + Partial Reveal neighbors
-            if (S.revealedCount < 5) { // Early game: super easy
-                shatter(i);
-            } else if (newLv >= getRequiredLevel()) {
+            // Logic for reveal
+            if (S.revealedCount < 6 || newLv >= getReq()) {
                 shatter(i);
             } else {
-                // Hinting: Partially reveal if level isn't high enough
                 hint(i);
             }
 
@@ -176,45 +172,66 @@ function tap(i) {
             updateUI();
             setTimeout(spawn, 100);
         } else {
+            // SWAP
             [S.cells[i], S.cells[from]] = [S.cells[from], S.cells[i]];
             render(from); render(i);
+            playSfx(200);
         }
     }
 }
 
-function getRequiredLevel() {
-    if (S.revealedCount < 8) return 2;
-    if (S.revealedCount < 15) return 3;
-    if (S.revealedCount < 25) return 4;
-    return 5;
+function getReq() {
+    if (S.revealedCount < 10) return 2;
+    if (S.revealedCount < 20) return 3;
+    return 4;
 }
 
 function shatter(idx) {
-    playShatterSound();
-    S.shattered[idx] = true;
-    S.revealedCount++;
-    // Splash shatter
+    // Permanent Shatter Logic
+    if (!S.shattered[idx]) {
+        S.shattered[idx] = true;
+        S.revealedCount++;
+    }
+    
+    // Splash neighbors
     [idx-1, idx+1, idx-5, idx+5].forEach(n => {
-        if(n>=0 && n<40 && Math.random() > 0.7) {
+        if(n >= 0 && n < 40 && Math.random() > 0.7 && !S.shattered[n]) {
             S.shattered[n] = true;
             S.revealedCount++;
         }
     });
+    
+    playSfx(800);
+    // Apply visual state to all shattered tiles
     for(let j=0; j<40; j++) if(S.shattered[j]) render(j);
 }
 
 function hint(idx) {
-    const el = document.getElementById(`c-${idx}`);
-    el.classList.add('hinted');
+    if (!S.shattered[idx]) {
+        document.getElementById(`c-${idx}`).classList.add('hinted');
+    }
+}
+
+function render(i) {
+    const cell = document.getElementById(`c-${i}`);
+    const val = S.cells[i];
+    cell.innerHTML = val ? `<div class="potion">${ICONS[val-1]}</div>` : '';
+    
+    // Ensure the shattered class is NEVER removed once added
+    if (S.shattered[i]) {
+        cell.classList.add('shattered');
+        cell.classList.remove('hinted');
+    }
 }
 
 function checkGuess() {
-    const val = document.getElementById('guessInput').value.trim().toLowerCase();
-    if (val === S.current.name.toLowerCase()) {
-        document.getElementById('winMsg').innerText = `Perfect! It's ${S.current.name}`;
+    const input = document.getElementById('guessInput');
+    if (input.value.trim().toLowerCase() === S.current.name.toLowerCase()) {
+        document.getElementById('winMsg').innerText = `Correct! It's ${S.current.name}`;
         document.getElementById('overlay').style.display = 'flex';
     } else {
-        document.getElementById('guessInput').value = "";
+        input.value = "";
+        input.placeholder = "Try again!";
     }
 }
 
@@ -226,19 +243,8 @@ function spawn() {
     }
 }
 
-function render(i) {
-    const cell = document.getElementById(`c-${i}`);
-    const val = S.cells[i];
-    cell.innerHTML = val ? `<div class="potion">${ICONS[val-1]}</div>` : '';
-    if (S.shattered[i]) {
-        cell.classList.remove('hinted');
-        cell.classList.add('shattered');
-    }
-}
-
 function updateUI() {
-    const req = getRequiredLevel();
-    document.getElementById('goalText').innerText = `Merge Level ${req}`;
+    document.getElementById('goalText').innerText = `Merge Level ${getReq()}`;
     document.getElementById('progressText').innerText = `REVEALED: ${Math.floor((S.revealedCount/40)*100)}%`;
 }
 
