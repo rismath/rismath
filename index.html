@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>RisMath — Tap. Play. Repeat.</title>
-<meta name="description" content="Simple, addictive games you can play in 60 seconds.">
+<meta name="description" content="Simple, addictive games you can play in 60 seconds. Built for fast minds.">
+<meta property="og:title" content="RisMath — Tap. Play. Repeat.">
+<meta property="og:description" content="5 free games. No downloads. Just play.">
+<meta property="og:url" content="https://rismath.com">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
@@ -16,120 +19,170 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
 body{background:var(--bg);color:var(--text);font-family:'Nunito',sans-serif;min-height:100vh;overflow-x:hidden;}
-
-/* Grid bg */
 body::before{content:'';position:fixed;inset:0;
   background-image:linear-gradient(rgba(245,166,35,0.025) 1px,transparent 1px),
   linear-gradient(90deg,rgba(245,166,35,0.025) 1px,transparent 1px);
   background-size:52px 52px;pointer-events:none;z-index:0;}
-
-/* Blobs */
 .b{position:fixed;border-radius:50%;filter:blur(130px);pointer-events:none;z-index:0;}
-.b1{width:500px;height:500px;background:#F5A623;top:-180px;right:-140px;opacity:.1;}
-.b2{width:400px;height:400px;background:#C1440E;bottom:-140px;left:-120px;opacity:.08;}
+.b1{width:600px;height:600px;background:#F5A623;top:-200px;right:-160px;opacity:.09;}
+.b2{width:400px;height:400px;background:#C1440E;bottom:-140px;left:-120px;opacity:.07;}
 
 .wrap{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:0 1.25rem;}
 
 /* Header */
-header{padding:1.5rem 0 1rem;display:flex;align-items:center;justify-content:space-between;
-  border-bottom:1px solid var(--border);margin-bottom:2rem;}
-.logo{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;letter-spacing:-.01em;color:var(--text);}
+header{padding:1.25rem 0 1rem;display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);margin-bottom:2.5rem;}
+.logo{font-family:'Baloo 2',cursive;font-size:1.4rem;font-weight:800;
+  letter-spacing:-.01em;color:var(--text);display:flex;align-items:center;gap:.6rem;}
 .logo span{color:var(--amber);}
-.tagline{font-size:.68rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
+.tagline{font-size:.65rem;font-weight:700;letter-spacing:.16em;text-transform:uppercase;
   color:var(--amber);background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.2);
-  padding:.26rem .65rem;border-radius:2rem;}
+  padding:.24rem .6rem;border-radius:2rem;}
 
-/* Section label */
-.slabel{font-size:.65rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+/* ── HERO ── */
+.hero{
+  display:grid;grid-template-columns:1fr 1fr;gap:2rem;
+  align-items:center;margin-bottom:3rem;
+}
+@media(max-width:640px){.hero{grid-template-columns:1fr;}}
+
+.hero-left{display:flex;flex-direction:column;gap:1.25rem;}
+
+.hero-eyebrow{font-size:.62rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
+  color:var(--amber);display:flex;align-items:center;gap:.5rem;}
+.hero-eyebrow::before{content:'';width:1.5rem;height:1.5px;background:var(--amber);}
+
+.hero-title{font-family:'Baloo 2',cursive;font-size:clamp(2.2rem,6vw,3.5rem);
+  font-weight:800;line-height:1.05;letter-spacing:-.02em;}
+.hero-title span{color:var(--amber);}
+
+.hero-desc{font-size:.9rem;color:var(--muted);line-height:1.7;max-width:380px;}
+
+/* Social proof pills */
+.hero-stats{display:flex;gap:.6rem;flex-wrap:wrap;}
+.stat-pill{background:rgba(245,166,35,.08);border:1px solid rgba(245,166,35,.18);
+  border-radius:2rem;padding:.28rem .7rem;font-size:.68rem;font-weight:800;
+  color:var(--amber);display:flex;align-items:center;gap:.3rem;}
+
+.hero-cta{
+  display:inline-flex;align-items:center;gap:.6rem;
+  background:linear-gradient(135deg,#F5A623,#C1440E);
+  color:white;text-decoration:none;border-radius:.85rem;
+  padding:.85rem 1.75rem;font-size:1rem;font-weight:800;
+  font-family:'Baloo 2',cursive;letter-spacing:.02em;
+  box-shadow:0 8px 32px rgba(245,166,35,.25);
+  transition:transform .15s,box-shadow .15s;
+  align-self:flex-start;
+}
+.hero-cta:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(245,166,35,.35);}
+.hero-cta svg{width:16px;height:16px;fill:white;}
+
+/* Hero game preview */
+.hero-preview{
+  background:linear-gradient(135deg,#1a0800,#3d1500,#5a2000);
+  border-radius:1.25rem;border:1px solid rgba(245,166,35,.15);
+  padding:2rem 1.75rem;position:relative;overflow:hidden;
+  min-height:260px;display:flex;flex-direction:column;justify-content:center;
+  animation:fadeUp .5s .1s ease both;
+}
+.hero-preview::before{content:'';position:absolute;top:-40px;right:-40px;
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,rgba(245,166,35,.15),transparent 70%);}
+
+.preview-badge{display:inline-flex;align-items:center;gap:.35rem;
+  background:rgba(245,166,35,.12);border:1px solid rgba(245,166,35,.25);
+  border-radius:2rem;padding:.22rem .6rem;font-size:.6rem;font-weight:800;
+  color:var(--amber);letter-spacing:.1em;text-transform:uppercase;margin-bottom:1.2rem;
+  width:fit-content;}
+
+.preview-question{font-family:'Baloo 2',cursive;font-size:clamp(2rem,7vw,3.2rem);
+  font-weight:800;color:#F5A623;text-shadow:0 0 40px rgba(245,166,35,.4);
+  margin-bottom:.5rem;line-height:1;}
+
+.preview-options{display:grid;grid-template-columns:repeat(2,1fr);gap:.5rem;margin-bottom:1.2rem;}
+.preview-opt{background:rgba(193,68,14,.25);border:1.5px solid rgba(193,68,14,.4);
+  border-radius:.65rem;padding:.55rem;text-align:center;
+  font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:#F0EEE8;}
+.preview-opt.correct{background:rgba(45,106,79,.5);border-color:rgba(45,106,79,.7);color:#a8ffd4;}
+.preview-opt.wrong{background:rgba(155,34,38,.5);border-color:rgba(155,34,38,.7);}
+
+.preview-hud{display:flex;justify-content:space-between;align-items:center;}
+.preview-stat{text-align:center;}
+.preview-stat-val{font-family:'Baloo 2',cursive;font-size:1.1rem;font-weight:800;color:var(--amber);}
+.preview-stat-lbl{font-size:.52rem;font-weight:700;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:.1rem;}
+.preview-streak{font-size:.72rem;font-weight:800;color:rgba(245,166,35,.7);}
+
+/* Level progress bar */
+.level-bar{margin-bottom:1.2rem;}
+.level-bar-track{height:4px;background:rgba(245,166,35,.1);border-radius:2px;overflow:hidden;margin-bottom:.3rem;}
+.level-bar-fill{height:100%;background:linear-gradient(90deg,#F5A623,#C1440E);border-radius:2px;width:66%;}
+.level-bar-labels{display:flex;justify-content:space-between;font-size:.55rem;font-weight:800;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;}
+
+/* ── OTHER GAMES ── */
+.slabel{font-size:.62rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
   color:var(--muted);display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;}
 .slabel::after{content:'';flex:1;height:1px;background:var(--border);}
 
-/* Grid — 2 col mobile, 3 col tablet, 5 col desktop */
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;margin-bottom:3rem;}
-@media(min-width:540px){.grid{grid-template-columns:repeat(3,1fr);}}
-@media(min-width:860px){.grid{grid-template-columns:repeat(5,1fr);}}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.85rem;margin-bottom:3rem;}
+@media(min-width:480px){.grid{grid-template-columns:repeat(4,1fr);}}
 
-/* Card */
 .card{display:flex;flex-direction:column;text-decoration:none;color:var(--text);
-  background:var(--surface);border:1px solid var(--border);border-radius:1.1rem;
-  overflow:hidden;transition:transform .2s ease,box-shadow .2s ease,border-color .2s ease;
+  background:var(--surface);border:1px solid var(--border);border-radius:1rem;
+  overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s;
   animation:fadeUp .45s ease both;}
-.card:hover{transform:translateY(-5px);border-color:var(--c);
-  box-shadow:0 20px 50px rgba(0,0,0,.5),0 0 0 1px var(--c);}
-.card:nth-child(1){animation-delay:.05s;--c:#F5A623;}
-.card:nth-child(2){animation-delay:.11s;--c:#FFB547;}
-.card:nth-child(3){animation-delay:.17s;--c:#4DFFB4;}
-.card:nth-child(4){animation-delay:.23s;--c:#5B8DEF;}
-.card:nth-child(5){animation-delay:.29s;--c:#B47EFF;}
+.card:hover{transform:translateY(-4px);border-color:var(--c);
+  box-shadow:0 16px 40px rgba(0,0,0,.5),0 0 0 1px var(--c);}
+.card:nth-child(1){animation-delay:.15s;--c:#FFB547;}
+.card:nth-child(2){animation-delay:.22s;--c:#4DFFB4;}
+.card:nth-child(3){animation-delay:.29s;--c:#5B8DEF;}
+.card:nth-child(4){animation-delay:.36s;--c:#B47EFF;}
 
 /* Thumbnails */
 .thumb{width:100%;aspect-ratio:16/10;position:relative;overflow:hidden;flex-shrink:0;}
-
-/* RisMath */
-.thumb-rismath{background:linear-gradient(135deg,#1a0800 0%,#3d1500 50%,#6a2800 100%);}
-.thumb-rismath .eq{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.1rem;}
-.thumb-rismath .eq-main{font-family:'Baloo 2',cursive;font-weight:800;font-size:clamp(1rem,4vw,1.6rem);color:#F5A623;text-shadow:0 0 20px rgba(245,166,35,.4);}
-.thumb-rismath .eq-sub{font-family:'Baloo 2',cursive;font-size:clamp(.55rem,1.8vw,.8rem);color:rgba(245,166,35,.45);display:flex;gap:.4rem;}
-.thumb-rismath .lvl{position:absolute;top:.5rem;right:.5rem;background:rgba(245,166,35,.15);border:1px solid rgba(245,166,35,.3);color:#F5A623;font-size:.5rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;padding:.16rem .4rem;border-radius:2rem;}
-.thumb-rismath .streak{position:absolute;bottom:.5rem;left:.5rem;font-size:.58rem;font-weight:800;color:rgba(245,166,35,.7);}
-
-/* Googly */
-.thumb-googly{background:linear-gradient(135deg,#0a1a06 0%,#163310 60%,#1e4416 100%);}
+.thumb-googly{background:linear-gradient(135deg,#0a1a06,#163310,#1e4416);}
 .thumb-googly .pitch{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
-.thumb-googly .oval{width:58%;aspect-ratio:16/10;border-radius:50%;border:1.5px solid rgba(255,181,71,.25);display:flex;align-items:center;justify-content:center;position:relative;}
+.thumb-googly .oval{width:56%;aspect-ratio:16/10;border-radius:50%;border:1.5px solid rgba(255,181,71,.25);display:flex;align-items:center;justify-content:center;position:relative;}
 .thumb-googly .oval::before{content:'';position:absolute;inset:5px;border-radius:50%;border:1px dashed rgba(255,181,71,.15);}
-.thumb-googly .icon{font-size:clamp(1.2rem,4vw,2rem);}
-.thumb-googly .ipl{position:absolute;top:.5rem;left:.5rem;font-family:'Baloo 2',cursive;font-size:.6rem;font-weight:800;color:#FFB547;letter-spacing:.05em;}
-.thumb-googly .dots{position:absolute;bottom:.5rem;right:.5rem;display:flex;gap:3px;}
-.thumb-googly .dot{width:5px;height:5px;border-radius:50%;background:#FFB547;}
-.thumb-googly .dot.off{opacity:.2;}
-
-/* Filmi */
-.thumb-filmi{background:linear-gradient(135deg,#08061a 0%,#120e2e 60%,#1e1848 100%);}
-.thumb-filmi .cinema{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.35rem;}
+.thumb-googly .icon{font-size:clamp(1.1rem,4vw,1.8rem);}
+.thumb-googly .ipl{position:absolute;top:.5rem;left:.5rem;font-family:'Baloo 2',cursive;font-size:.58rem;font-weight:800;color:#FFB547;}
+.thumb-filmi{background:linear-gradient(135deg,#08061a,#120e2e,#1e1848);}
+.thumb-filmi .cinema{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;gap:.3rem;}
 .thumb-filmi .strip{display:flex;flex-direction:column;gap:3px;}
-.thumb-filmi .fr{width:clamp(12px,3vw,20px);height:clamp(9px,2.2vw,15px);background:rgba(77,255,180,.08);border:1px solid rgba(77,255,180,.2);border-radius:1px;}
+.thumb-filmi .fr{width:clamp(10px,2.5vw,18px);height:clamp(8px,2vw,13px);background:rgba(77,255,180,.08);border:1px solid rgba(77,255,180,.2);border-radius:1px;}
 .thumb-filmi .fr.on{background:rgba(77,255,180,.3);border-color:rgba(77,255,180,.6);}
-.thumb-filmi .clap{font-size:clamp(1.2rem,4vw,1.9rem);}
-.thumb-filmi .glow{position:absolute;width:44px;height:44px;background:#4DFFB4;border-radius:50%;filter:blur(22px);opacity:.15;}
-.thumb-filmi .label{position:absolute;bottom:.5rem;left:50%;transform:translateX(-50%);font-size:.52rem;font-weight:800;color:rgba(77,255,180,.6);letter-spacing:.1em;white-space:nowrap;}
-
-/* Contra */
-.thumb-contra{background:linear-gradient(135deg,#000011 0%,#001122 60%,#002244 100%);}
-.thumb-contra .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
-.thumb-contra .space{width:80%;height:80%;position:relative;background:#000;}
-.thumb-contra .stars{position:absolute;inset:0;}
-.thumb-contra .star{position:absolute;color:#fff;font-size:.8rem;opacity:.8;}
-.thumb-contra .ship{position:absolute;bottom:10%;left:20%;color:#0f0;font-size:1.2rem;}
-.thumb-contra .alien{position:absolute;top:30%;right:20%;color:#f00;font-size:1rem;}
-
-/* RisMatch */
-.thumb-rismatch{background:linear-gradient(135deg,#0d0a20 0%,#170f35 60%,#211550 100%);}
-.thumb-rismatch .board{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.25rem;}
-.thumb-rismatch .target-label{font-size:.5rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(180,126,255,.55);}
-.thumb-rismatch .target-num{font-family:'Baloo 2',cursive;font-weight:800;font-size:clamp(1.4rem,5vw,2.4rem);color:#B47EFF;text-shadow:0 0 18px rgba(180,126,255,.4);line-height:1;}
-.thumb-rismatch .tiles-row{display:flex;gap:.22rem;}
-.thumb-rismatch .tile{width:clamp(16px,3.5vw,24px);height:clamp(16px,3.5vw,24px);border-radius:4px;background:rgba(180,126,255,.08);border:1px solid rgba(180,126,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',cursive;font-size:clamp(.45rem,1.4vw,.68rem);font-weight:800;color:#B47EFF;}
+.thumb-filmi .clap{font-size:clamp(1.1rem,3.5vw,1.7rem);}
+.thumb-filmi .glow{position:absolute;width:40px;height:40px;background:#4DFFB4;border-radius:50%;filter:blur(20px);opacity:.14;}
+.thumb-sparkle{background:linear-gradient(135deg,#080d1a,#0d1530,#121e44);}
+.thumb-sparkle .scene{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+.thumb-sparkle .room{width:60%;height:62%;border:1.5px solid rgba(91,141,239,.2);border-radius:3px;position:relative;background:rgba(91,141,239,.04);}
+.thumb-sparkle .shelf{position:absolute;left:6%;right:6%;height:1.5px;background:rgba(91,141,239,.25);}
+.thumb-sparkle .win{position:absolute;top:8%;right:8%;width:22%;aspect-ratio:1;background:rgba(91,141,239,.1);border:1px solid rgba(91,141,239,.25);border-radius:2px;}
+.thumb-sparkle .sparks{position:absolute;inset:0;}
+.thumb-sparkle .sp{position:absolute;color:#5B8DEF;font-size:.65rem;opacity:.75;}
+.thumb-rismatch{background:linear-gradient(135deg,#0d0a20,#170f35,#211550);}
+.thumb-rismatch .board{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:.22rem;}
+.thumb-rismatch .target-label{font-size:.48rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(180,126,255,.5);}
+.thumb-rismatch .target-num{font-family:'Baloo 2',cursive;font-weight:800;font-size:clamp(1.2rem,4.5vw,2rem);color:#B47EFF;text-shadow:0 0 16px rgba(180,126,255,.4);line-height:1;}
+.thumb-rismatch .tiles-row{display:flex;gap:.2rem;}
+.thumb-rismatch .tile{width:clamp(14px,3vw,20px);height:clamp(14px,3vw,20px);border-radius:3px;background:rgba(180,126,255,.08);border:1px solid rgba(180,126,255,.2);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',cursive;font-size:clamp(.42rem,1.2vw,.6rem);font-weight:800;color:#B47EFF;}
 .thumb-rismatch .tile.hi{background:rgba(180,126,255,.28);border-color:rgba(180,126,255,.6);}
 
-/* Card body */
-.cbody{padding:.8rem 1rem .9rem;flex:1;display:flex;flex-direction:column;gap:.3rem;}
-.cname{font-family:'Baloo 2',cursive;font-size:.95rem;font-weight:800;letter-spacing:-.01em;}
-.cdesc{font-size:.7rem;color:var(--muted);line-height:1.5;flex:1;}
-.cfoot{display:flex;align-items:center;justify-content:space-between;margin-top:.55rem;padding-top:.55rem;border-top:1px solid var(--border);}
-.ctag{font-size:.56rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);padding:.15rem .45rem;border-radius:2rem;}
-.cplay{font-size:.7rem;font-weight:800;color:var(--c);display:flex;align-items:center;gap:.28rem;transition:gap .15s ease;}
-.card:hover .cplay{gap:.45rem;}
-.cplay svg{width:12px;height:12px;fill:var(--c);}
-
-/* Studio */
-.studio{text-align:center;padding:1rem 0 3rem;animation:fadeUp .5s .35s ease both;opacity:0;}
-.studio-name{font-family:'Baloo 2',cursive;font-size:1.5rem;font-weight:800;margin-bottom:.3rem;}
-.studio-name span{color:var(--amber);}
-.studio-sub{font-size:.8rem;color:var(--muted);max-width:320px;margin:0 auto;line-height:1.7;}
+/* Small card body */
+.cbody{padding:.7rem .85rem .8rem;flex:1;display:flex;flex-direction:column;gap:.25rem;}
+.cname{font-family:'Baloo 2',cursive;font-size:.88rem;font-weight:800;letter-spacing:-.01em;}
+.cdesc{font-size:.65rem;color:var(--muted);line-height:1.5;flex:1;}
+.cfoot{display:flex;align-items:center;justify-content:space-between;
+  margin-top:.45rem;padding-top:.45rem;border-top:1px solid var(--border);}
+.ctag{font-size:.54rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);
+  padding:.13rem .42rem;border-radius:2rem;}
+.cplay{font-size:.66rem;font-weight:800;color:var(--c);display:flex;align-items:center;gap:.25rem;transition:gap .15s;}
+.card:hover .cplay{gap:.4rem;}
+.cplay svg{width:11px;height:11px;fill:var(--c);}
 
 /* Footer */
-footer{border-top:1px solid var(--border);padding:1.25rem 0;text-align:center;color:var(--muted);font-size:.75rem;position:relative;z-index:1;}
+footer{border-top:1px solid var(--border);padding:1.25rem 0;text-align:center;
+  color:var(--muted);font-size:.72rem;position:relative;z-index:1;}
 footer a{color:var(--amber);text-decoration:none;font-weight:700;}
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
@@ -143,49 +196,87 @@ footer a{color:var(--amber);text-decoration:none;font-weight:700;}
 <div class="wrap">
 
   <header>
-    <div class="logo">Ris<span>Math</span></div>
+    <div class="logo">
+      <svg width="36" height="36" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0;">
+        <defs><linearGradient id="lg1" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#FFD166"/><stop offset="100%" stop-color="#C1440E"/>
+        </linearGradient></defs>
+        <rect width="48" height="48" rx="11" fill="#0D0B14"/>
+        <rect width="48" height="48" rx="11" fill="none" stroke="#F5A623" stroke-width="1" opacity="0.2"/>
+        <rect x="11" y="10" width="5" height="28" rx="2" fill="url(#lg1)"/>
+        <rect x="11" y="10" width="18" height="5" rx="2" fill="url(#lg1)"/>
+        <rect x="11" y="22" width="15" height="4.5" rx="2" fill="url(#lg1)"/>
+        <rect x="24" y="10" width="5" height="16" rx="2" fill="url(#lg1)"/>
+        <line x1="24" y1="26" x2="37" y2="38" stroke="url(#lg1)" stroke-width="5" stroke-linecap="round"/>
+        <path d="M33 9 L29 18 L33 18 L28 29 L38 16 L33 16 Z" fill="#FFD166" opacity="0.9"/>
+      </svg>
+      Ris<span>Math</span>
+    </div>
     <div class="tagline">🎮 Free · Play Now</div>
   </header>
 
-  <div class="slabel">Games</div>
+  <!-- ── HERO ── -->
+  <section class="hero">
 
-  <div class="grid">
-
-    <!-- RisMath -->
-    <a href="/rismath" class="card">
-      <div class="thumb thumb-rismath">
-        <div class="eq">
-          <div class="eq-main">7 × 8 = ?</div>
-          <div class="eq-sub"><span>3+9</span><span>·</span><span>15−6</span><span>·</span><span>24÷8</span></div>
-        </div>
-        <div class="lvl">Level 8</div>
-        <div class="streak">🔥 Streak ×5</div>
+    <div class="hero-left" style="animation:fadeUp .5s ease both;">
+      <div class="hero-eyebrow">Featured Game</div>
+      <h1 class="hero-title">Can you reach<br><span>Level 8?</span></h1>
+      <p class="hero-desc">A streak-based math speed game. Get 3 right in a row to level up. One wrong answer levels you down. How far can you go?</p>
+      <div class="hero-stats">
+        <div class="stat-pill">⚡ 4 min avg session</div>
+        <div class="stat-pill">🔥 75% completion rate</div>
+        <div class="stat-pill">🌍 Players in 10+ countries</div>
       </div>
-      <div class="cbody">
-        <div class="cname">RisMath</div>
-        <div class="cdesc">Streak-based math speed game. 3 correct = level up. 1 wrong = level down.</div>
-        <div class="cfoot">
-          <span class="ctag">Math</span>
-          <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
+      <a href="/rismath" class="hero-cta">
+        Play RisMath
+        <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg>
+      </a>
+    </div>
+
+    <a href="/rismath" class="hero-preview" style="text-decoration:none;color:inherit;">
+      <div class="preview-badge">🔥 Most Played</div>
+
+      <div class="level-bar">
+        <div class="level-bar-track"><div class="level-bar-fill"></div></div>
+        <div class="level-bar-labels"><span>Level 6</span><span>2 correct to Level 7</span></div>
+      </div>
+
+      <div class="preview-question">7 × 8 = ?</div>
+      <div class="preview-options">
+        <div class="preview-opt">48</div>
+        <div class="preview-opt correct">56</div>
+        <div class="preview-opt">54</div>
+        <div class="preview-opt wrong">64</div>
+      </div>
+
+      <div class="preview-hud">
+        <div class="preview-stat">
+          <div class="preview-stat-val">247</div>
+          <div class="preview-stat-lbl">Score</div>
+        </div>
+        <div class="preview-streak">🔥 Streak ×4</div>
+        <div class="preview-stat">
+          <div class="preview-stat-val">38s</div>
+          <div class="preview-stat-lbl">Time left</div>
         </div>
       </div>
     </a>
 
-    <!-- Googly -->
+  </section>
+
+  <!-- ── OTHER GAMES ── -->
+  <div class="slabel">More games</div>
+
+  <div class="grid">
+
     <a href="/googly" class="card">
       <div class="thumb thumb-googly">
-        <div class="pitch">
-          <div class="oval"><span class="icon">🏏</span></div>
-        </div>
+        <div class="pitch"><div class="oval"><span class="icon">🏏</span></div></div>
         <div class="ipl">IPL Quiz</div>
-        <div class="dots">
-          <div class="dot"></div><div class="dot"></div><div class="dot"></div>
-          <div class="dot off"></div><div class="dot off"></div>
-        </div>
       </div>
       <div class="cbody">
         <div class="cname">Googly</div>
-        <div class="cdesc">How well do you know IPL? Test your cricket knowledge now.</div>
+        <div class="cdesc">How well do you know IPL? Test your cricket knowledge.</div>
         <div class="cfoot">
           <span class="ctag">Cricket</span>
           <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
@@ -193,24 +284,18 @@ footer a{color:var(--amber);text-decoration:none;font-weight:700;}
       </div>
     </a>
 
-    <!-- Filmi -->
     <a href="/filmi" class="card">
       <div class="thumb thumb-filmi">
         <div class="cinema">
-          <div class="strip">
-            <div class="fr on"></div><div class="fr"></div><div class="fr on"></div><div class="fr"></div><div class="fr on"></div>
-          </div>
+          <div class="strip"><div class="fr on"></div><div class="fr"></div><div class="fr on"></div><div class="fr"></div><div class="fr on"></div></div>
           <span class="clap">🎬</span>
-          <div class="strip">
-            <div class="fr"></div><div class="fr on"></div><div class="fr"></div><div class="fr on"></div><div class="fr"></div>
-          </div>
+          <div class="strip"><div class="fr"></div><div class="fr on"></div><div class="fr"></div><div class="fr on"></div><div class="fr"></div></div>
         </div>
         <div class="glow"></div>
-        <div class="label">Bollywood Quiz</div>
       </div>
       <div class="cbody">
         <div class="cname">Filmi</div>
-        <div class="cdesc">Are you a true Bollywood fan? Guess movies, actors and iconic dialogues.</div>
+        <div class="cdesc">Are you a true Bollywood fan? Guess movies and dialogues.</div>
         <div class="cfoot">
           <span class="ctag">Bollywood</span>
           <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
@@ -218,7 +303,6 @@ footer a{color:var(--amber);text-decoration:none;font-weight:700;}
       </div>
     </a>
 
-    <!-- Sparkle -->
     <a href="/sparkle" class="card">
       <div class="thumb thumb-sparkle">
         <div class="scene">
@@ -232,42 +316,35 @@ footer a{color:var(--amber);text-decoration:none;font-weight:700;}
             <span class="sp" style="top:44%;right:18%">✧</span>
             <span class="sp" style="bottom:24%;left:32%">·</span>
             <span class="sp" style="top:28%;left:54%">✦</span>
-            <span class="sp" style="bottom:16%;right:26%">✧</span>
           </div>
         </div>
-        <span class="mag">🔍</span>
       </div>
       <div class="cbody">
         <div class="cname">Sparkle</div>
-        <div class="cdesc">Hidden object mystery in a grand study. Zoom in. Explore. Find what's hidden.</div>
+        <div class="cdesc">Merge Potions to create a new one.</div>
         <div class="cfoot">
-          <span class="ctag">Hidden Object</span>
+          <span class="ctag">Merge and Match</span>
           <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
         </div>
       </div>
     </a>
 
-    <!-- RisMatch -->
     <a href="/rismatch" class="card">
       <div class="thumb thumb-rismatch">
         <div class="board">
           <div class="target-label">Target</div>
           <div class="target-num">36</div>
           <div class="tiles-row">
-            <div class="tile hi">29</div>
-            <div class="tile">14</div>
-            <div class="tile hi">7</div>
+            <div class="tile hi">29</div><div class="tile">14</div><div class="tile hi">7</div>
           </div>
           <div class="tiles-row">
-            <div class="tile">22</div>
-            <div class="tile">18</div>
-            <div class="tile">11</div>
+            <div class="tile">22</div><div class="tile">18</div><div class="tile">11</div>
           </div>
         </div>
       </div>
       <div class="cbody">
         <div class="cname">RisMatch</div>
-        <div class="cdesc">Find pairs that add up to the target. Beat the clock. How fast is your brain?</div>
+        <div class="cdesc">Find pairs that add up to the target. Beat the clock.</div>
         <div class="cfoot">
           <span class="ctag">Pairs</span>
           <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
@@ -275,43 +352,13 @@ footer a{color:var(--amber);text-decoration:none;font-weight:700;}
       </div>
     </a>
 
-    <!-- Contra -->
-    <a href="/contra" class="card">
-      <div class="thumb thumb-contra">
-        <div class="scene">
-          <div class="space">
-            <div class="stars">
-              <span class="star" style="top:10%;left:20%">⭐</span>
-              <span class="star" style="top:30%;right:15%">✨</span>
-              <span class="star" style="bottom:20%;left:30%">🌟</span>
-            </div>
-            <div class="ship">🚀</div>
-            <div class="alien">👾</div>
-          </div>
-        </div>
-      </div>
-      <div class="cbody">
-        <div class="cname">Space Contra</div>
-        <div class="cdesc">Side-scrolling shooter in space. Fight aliens, collect power-ups, survive levels.</div>
-        <div class="cfoot">
-          <span class="ctag">Shooter</span>
-          <span class="cplay">Play <svg viewBox="0 0 16 16"><path d="M3 2l10 6-10 6V2z"/></svg></span>
-        </div>
-      </div>
-    </a>
-
-  </div>
-
-  <div class="studio">
-    <div class="studio-name">Ris<span>Math</span> Studio</div>
-    <div class="studio-sub">Simple games for fast minds. No downloads, no sign-ups. Just tap and play.</div>
   </div>
 
 </div>
 
 <footer>
   <div class="wrap">
-    Made with ♥ by RisMath Studio &nbsp;·&nbsp; <a href="mailto:hello@rismath.com">hello@rismath.com</a>
+    Made with ♥ by RisMath Studio &nbsp;·&nbsp; <a href="mailto:rismath@gmail.com">rismath@gmail.com</a>
   </div>
 </footer>
 
