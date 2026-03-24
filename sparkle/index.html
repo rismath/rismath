@@ -2,874 +2,271 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Sparkle Merge ✨</title>
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-5K57FR3XVW"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-5K57FR3XVW');
-</script>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>Sparkle Studio | Celeb Reveal</title>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
 <style>
-:root{
-  --bg:#FFF0F5;--surface:#FFFFFF;--border:rgba(220,80,140,0.15);
-  --text:#2a0818;--muted:rgba(120,40,80,0.5);
-  --pink:#E8547A;--deep:#9A0020;--soft:#FFD6E7;--gold:#C1440E;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;touch-action:manipulation;}
-body{
-  background:var(--bg);
-  background-image:
-    radial-gradient(ellipse at 20% 0%,rgba(255,180,210,0.35) 0%,transparent 55%),
-    radial-gradient(ellipse at 80% 100%,rgba(255,100,140,0.15) 0%,transparent 50%);
-  font-family:'Nunito',sans-serif;color:var(--text);
-  max-width:480px;margin:0 auto;
-  height:100%;display:flex;flex-direction:column;
-}
-#root{flex:1;display:flex;flex-direction:column;min-height:0;}
-
-/* ── WELCOME ── */
-.welcome{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:2rem 1.75rem;text-align:center;
-  overflow-y:auto;
-}
-.w-potions{display:flex;gap:.5rem;justify-content:center;margin-bottom:1.2rem;flex-wrap:wrap;}
-.w-potion{
-  width:48px;height:64px;border-radius:40% 40% 50% 50%;
-  display:flex;align-items:center;justify-content:center;font-size:1.4rem;
-  border:2px solid rgba(255,255,255,0.15);
-  animation:bobble var(--d,2.5s) var(--dl,0s) ease-in-out infinite;
-  position:relative;overflow:hidden;
-}
-.w-potion::after{content:'';position:absolute;top:8px;left:10px;width:8px;height:12px;
-  background:rgba(255,255,255,0.25);border-radius:50%;transform:rotate(-20deg);}
-@keyframes bobble{0%,100%{transform:translateY(0) rotate(-3deg);}50%{transform:translateY(-8px) rotate(3deg);}}
-.w-title{font-family:'Playfair Display',serif;font-size:2.6rem;font-weight:700;
-  background:linear-gradient(135deg,#E8547A,#9A0020,#E8547A);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:.2rem;line-height:1.1;}
-.w-sub{font-size:.65rem;font-weight:800;letter-spacing:.2em;text-transform:uppercase;
-  color:rgba(154,0,32,0.5);margin-bottom:1.5rem;}
-.w-chain{
-  display:flex;align-items:center;gap:.2rem;justify-content:center;
-  margin-bottom:1.5rem;flex-wrap:wrap;padding:.75rem;
-  background:rgba(255,255,255,0.7);border:1px solid rgba(220,80,140,0.2);border-radius:1rem;
-}
-.w-chain-item{font-size:1.1rem;}
-.w-chain-arrow{font-size:.6rem;color:var(--muted);}
-.w-desc{font-size:.82rem;color:var(--muted);line-height:1.7;margin-bottom:1.5rem;max-width:320px;}
-.w-desc b{color:#9A0020;}
-.name-input{
-  width:100%;background:rgba(255,255,255,0.05);
-  border:1.5px solid rgba(200,150,255,0.25);border-radius:.9rem;
-  padding:.75rem 1rem;font-size:.95rem;font-weight:700;
-  color:#e0a0ff;outline:none;text-align:center;font-family:'Nunito',sans-serif;
-  margin-bottom:1rem;transition:border-color .2s;
-}
-.name-input::placeholder{color:rgba(220,80,140,0.3);}
-.name-input:focus{border-color:#E8547A;}
-.btn-start{
-  width:100%;background:linear-gradient(135deg,#E8547A,#9A0020);
-  color:white;border:none;border-radius:.9rem;padding:.95rem;
-  font-size:1rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;
-  box-shadow:0 6px 20px rgba(154,0,32,0.25);
+:root {
+  --bg: #050206; 
+  --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+  --gold-static: #aa771c;
+  --accent: #ff007a;
+  --glass: rgba(255, 255, 255, 0.03);
+  --glass-border: rgba(255, 255, 255, 0.1);
+  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
 }
 
-/* ── GAME ── */
-.game{flex:1;display:flex;flex-direction:column;min-height:0;}
-
-/* Header */
-.header{
-  padding:.5rem .85rem;display:flex;align-items:center;gap:.6rem;
-  background:rgba(255,255,255,0.9);border-bottom:1.5px solid rgba(220,80,140,0.15);backdrop-filter:blur(8px);
-  flex-shrink:0;
-}
-.home-btn{font-size:.65rem;font-weight:800;color:rgba(154,0,32,0.6);
-  text-decoration:none;background:rgba(232,84,122,0.08);
-  border:1px solid rgba(232,84,122,0.2);padding:.2rem .5rem;border-radius:2rem;}
-.hdr-score{font-family:'Playfair Display',serif;font-size:1.15rem;color:#9A0020;margin-left:auto;}
-.hdr-best{font-size:.62rem;font-weight:700;color:rgba(154,0,32,0.5);}
-.hdr-name{font-size:.6rem;font-weight:700;color:rgba(154,0,32,0.4);}
-
-/* Next potion preview */
-.next-bar{
-  padding:.4rem .85rem;display:flex;align-items:center;gap:.75rem;
-  border-bottom:1.5px solid rgba(220,80,140,0.12);flex-shrink:0;
-  background:rgba(255,255,255,0.7);
-}
-.next-label{font-size:.6rem;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:rgba(154,0,32,0.45);}
-.next-potions{display:flex;gap:.4rem;align-items:center;}
-.next-pot{width:28px;height:36px;display:flex;align-items:center;justify-content:center;}
-.highest-label{font-size:.58rem;font-weight:700;color:rgba(154,0,32,0.45);margin-left:auto;}
-.highest-pot{width:36px;height:46px;display:flex;align-items:center;justify-content:center;}
-
-/* Grid */
-.grid-wrap{flex:1;padding:.6rem .5rem;display:flex;flex-direction:column;min-height:0;background:var(--bg);}
-.grid{
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  grid-template-rows:repeat(8,1fr);
-  gap:5px;flex:1;
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { 
+    background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; 
+    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+    background-image: radial-gradient(circle at 50% -20%, #2a0a2f 0%, #050206 70%);
 }
 
-/* Cell */
-.cell{
-  border-radius:.7rem;
-  background:rgba(255,255,255,0.65);
-  border:1px solid rgba(220,80,140,0.12);
-  position:relative;cursor:pointer;
-  transition:background .15s,border-color .15s;
-  display:flex;align-items:center;justify-content:center;
+/* --- PREMIUM HEADER --- */
+.header {
+  padding: env(safe-area-inset-top, 20px) 24px 10px;
+  display: flex; justify-content: space-between; align-items: center;
+  z-index: 10;
 }
-.cell:active{background:rgba(255,220,230,0.8);}
-.cell.drag-over{background:rgba(255,180,210,0.3);border-color:rgba(232,84,122,0.5);}
-.cell.selected{border-color:#E8547A;background:rgba(255,180,210,0.25);
-  box-shadow:0 0 0 2px #E8547A,0 0 12px rgba(232,84,122,0.2);}
 
-/* Potion in cell */
-.potion{
-  width:88%;height:90%;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  position:relative;cursor:pointer;user-select:none;
-  animation:appear .3s cubic-bezier(0.34,1.56,0.64,1) both;
-  filter:drop-shadow(0 2px 6px var(--glow,rgba(232,84,122,0.3)));
-  transition:filter .2s,transform .15s;
-  gap:1px;
+.studio-logo {
+  font-family: 'Marcellus', serif; font-size: 1.4rem; letter-spacing: 4px;
+  background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  text-transform: uppercase;
 }
-.potion:active{transform:scale(0.9);}
-.pot-svg{width:72%;flex-shrink:0;}
 
-@keyframes appear{from{transform:scale(0) rotate(-10deg);opacity:0;}to{transform:scale(1) rotate(0);opacity:1;}}
-
-/* Merge animation */
-@keyframes mergepop{0%{transform:scale(1);}40%{transform:scale(1.5);}70%{transform:scale(0.9);}100%{transform:scale(1);}}
-.potion.merging{animation:mergepop .4s cubic-bezier(0.34,1.56,0.64,1);}
-
-/* Particle */
-.px{position:fixed;pointer-events:none;z-index:999;border-radius:50%;font-size:.7rem;
-  animation:pfx .7s ease-out forwards;}
-@keyframes pfx{0%{opacity:1;transform:translate(0,0) scale(1);}100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);}}
-
-/* Float text */
-.flt{position:fixed;pointer-events:none;z-index:998;font-family:'Playfair Display',serif;
-  font-size:1.1rem;color:#9A0020;font-weight:700;text-shadow:0 0 8px rgba(154,0,32,.2);
-  animation:fltup .85s ease-out forwards;}
-@keyframes fltup{0%{opacity:1;transform:translateY(0);}100%{opacity:0;transform:translateY(-50px);}}
-
-/* Toast */
-.toast{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%) scale(.85);
-  background:rgba(255,240,245,.98);border:1.5px solid rgba(232,84,122,.35);
-  border-radius:1.2rem;padding:.7rem 1.4rem;font-size:.88rem;font-weight:800;
-  color:#9A0020;pointer-events:none;z-index:1000;opacity:0;
-  transition:opacity .2s,transform .2s;text-align:center;white-space:nowrap;}
-.toast.show{opacity:1;transform:translate(-50%,-50%) scale(1);}
-
-/* ── COMPLETE ── */
-.complete{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:2rem 1.75rem;text-align:center;
+.stat-pill {
+  background: var(--glass); border: 1px solid var(--glass-border);
+  padding: 6px 16px; border-radius: 100px; backdrop-filter: blur(10px);
+  display: flex; flex-direction: column; align-items: center;
 }
-.cc-icon{font-size:3.5rem;animation:bobble 3s ease-in-out infinite;margin-bottom:.6rem;}
-.cc-title{font-family:'Playfair Display',serif;font-size:2rem;
-  background:linear-gradient(135deg,#E8547A,#9A0020);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  margin-bottom:.25rem;}
-.cc-sub{font-size:.65rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
-  color:var(--muted);margin-bottom:1.5rem;}
-.cc-score{font-family:'Playfair Display',serif;font-size:4rem;color:#9A0020;line-height:1;}
-.cc-slbl{font-size:.6rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;
-  color:rgba(154,0,32,.4);margin-bottom:1.5rem;}
-.cc-stats{display:flex;gap:.75rem;justify-content:center;margin-bottom:2rem;}
-.cc-stat{background:rgba(255,255,255,0.8);border:1px solid rgba(220,80,140,0.15);
-  border-radius:.85rem;padding:.65rem 1rem;text-align:center;}
-.cc-sv{font-family:'Playfair Display',serif;font-size:1.4rem;color:#E8547A;}
-.cc-sl{font-size:.58rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-  color:rgba(154,0,32,.4);margin-top:.15rem;}
-.btn-again{background:linear-gradient(135deg,#E8547A,#9A0020);color:white;border:none;
-  border-radius:.9rem;padding:.9rem 2.5rem;font-size:1rem;font-weight:800;
-  cursor:pointer;font-family:'Nunito',sans-serif;
-  box-shadow:0 6px 20px rgba(154,0,32,.25);margin-bottom:.75rem;}
 
-/* ── TUTORIAL ── */
-.tut-overlay{
-  position:fixed;inset:0;z-index:2000;pointer-events:none;
-}
-.tut-backdrop{
-  position:absolute;inset:0;background:rgba(0,0,0,0.7);
-}
-.tut-box{
-  position:absolute;left:50%;transform:translateX(-50%);
-  background:#fff0f5;border:1.5px solid rgba(232,84,122,0.3);
-  border-radius:1.2rem;padding:1rem 1.2rem;
-  width:min(320px,90vw);pointer-events:all;
-  box-shadow:0 8px 40px rgba(0,0,0,0.6);
-}
-.tut-step{display:none;}
-.tut-step.active{display:block;}
-.tut-icon{font-size:2rem;text-align:center;margin-bottom:.5rem;}
-.tut-title{font-family:'Playfair Display',serif;font-size:1.1rem;color:#9A0020;
-  text-align:center;margin-bottom:.4rem;}
-.tut-body{font-size:.8rem;color:rgba(60,10,30,0.65);line-height:1.6;text-align:center;margin-bottom:.9rem;}
-.tut-body b{color:#9A0020;}
-.tut-body em{color:#a0ffb0;font-style:normal;}
-.tut-demo{display:flex;align-items:center;justify-content:center;gap:.5rem;
-  margin:.6rem 0;flex-wrap:wrap;}
-.tut-pot{width:40px;height:40px;border-radius:.6rem;
-  display:flex;align-items:center;justify-content:center;font-size:1.4rem;
-  border:2px solid rgba(220,80,140,0.3);background:rgba(255,240,245,0.8);}
-.tut-pot.sel{box-shadow:0 0 0 2px #ffd700,0 0 12px rgba(255,215,0,0.4);}
-.tut-arr{font-size:1.2rem;color:#E8547A;}
-.tut-plus{font-size:1rem;color:var(--muted);}
-.tut-btn{
-  width:100%;background:linear-gradient(135deg,#E8547A,#9A0020);
-  color:white;border:none;border-radius:.8rem;padding:.7rem;
-  font-size:.9rem;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;
-}
-.tut-skip{display:block;text-align:center;margin-top:.5rem;font-size:.65rem;
-  font-weight:700;color:rgba(154,0,32,0.35);cursor:pointer;
-  background:none;border:none;width:100%;}
-.tut-dots{display:flex;justify-content:center;gap:.35rem;margin-bottom:.7rem;}
-.tut-dot{width:6px;height:6px;border-radius:50%;background:rgba(220,80,140,0.15);}
-.tut-dot.on{background:#E8547A;}
-/* Highlight ring on a cell */
-.tut-highlight{
-  position:absolute;border-radius:.7rem;pointer-events:none;
-  border:2.5px solid #E8547A;box-shadow:0 0 0 3px rgba(232,84,122,0.2);
-  animation:hlpulse 1s ease-in-out infinite alternate;
-  z-index:1999;
-}
-@keyframes hlpulse{from{box-shadow:0 0 0 3px rgba(232,84,122,0.2);}to{box-shadow:0 0 0 8px rgba(232,84,122,0);}}
+.stat-label { font-size: 0.6rem; color: var(--gold-static); font-weight: 900; letter-spacing: 1px; }
+.stat-value { font-size: 1.2rem; font-weight: 300; }
 
-
-/* ── GAME OVER ── */
-.gameover{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  justify-content:center;padding:2rem 1.75rem;text-align:center;
-  background:radial-gradient(ellipse at 50% 30%,rgba(255,180,210,0.3) 0%,transparent 60%),
-    linear-gradient(180deg,#fff0f5,#ffe4ef);
+/* --- GAME BOARD (The Reveal Stage) --- */
+.stage {
+  flex: 1; position: relative; margin: 10px 20px;
+  border-radius: 24px; overflow: hidden;
+  box-shadow: var(--shadow); border: 1px solid var(--glass-border);
 }
-.go-icon{font-size:3rem;margin-bottom:.6rem;}
-.go-title{font-family:'Playfair Display',serif;font-size:2rem;color:#9A0020;margin-bottom:.25rem;}
-.go-sub{font-size:.65rem;font-weight:800;letter-spacing:.18em;text-transform:uppercase;
-  color:rgba(154,0,32,0.45);margin-bottom:1.5rem;}
-.go-score{font-family:'Playfair Display',serif;font-size:4rem;color:#9A0020;line-height:1;}
-.go-slbl{font-size:.6rem;font-weight:800;letter-spacing:.15em;text-transform:uppercase;
-  color:rgba(154,0,32,.4);margin-bottom:1.5rem;}
-.go-best{font-size:.8rem;font-weight:700;color:rgba(154,0,32,0.5);margin-bottom:1.5rem;}
-.go-top{display:flex;align-items:center;justify-content:center;gap:.75rem;margin-bottom:1.5rem;
-  background:rgba(255,255,255,0.8);border:1px solid rgba(220,80,140,0.15);
-  border-radius:1rem;padding:.85rem 1.2rem;}
-.go-top-pot{width:50px;height:65px;}
-.go-top-info{text-align:left;}
-.go-top-label{font-size:.58rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
-  color:rgba(154,0,32,0.4);margin-bottom:.2rem;}
-.go-top-name{font-family:'Playfair Display',serif;font-size:1.1rem;color:#9A0020;}
 
-.back-home{font-size:.72rem;font-weight:700;color:rgba(154,0,32,0.45);text-decoration:none;display:block;}
+#celebBg {
+  position: absolute; inset: 0;
+  background-size: cover; background-position: center 15%;
+  transform: scale(1.1); transition: transform 2s ease-out;
+}
+
+.grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(8, 1fr);
+  gap: 2px; width: 100%; height: 100%; position: relative; z-index: 1;
+}
+
+.cell {
+  background: rgba(10, 10, 15, 0.85);
+  backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
+  border: 0.5px solid rgba(255,255,255,0.05);
+  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cell.shattered {
+  background: transparent; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
+  border: none;
+}
+
+.cell.selected {
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: inset 0 0 15px var(--gold-static);
+}
+
+/* --- POTION DESIGN --- */
+.potion {
+  width: 80%; height: 80%; display: flex; align-items: center; justify-content: center;
+  font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
+  animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+
+/* --- INPUT & GUESS --- */
+.footer-controls {
+  padding: 20px 24px env(safe-area-inset-bottom, 20px);
+  background: linear-gradient(to top, #000, transparent);
+}
+
+.input-wrapper {
+  position: relative; display: flex; align-items: center;
+  background: var(--glass); border: 1px solid var(--glass-border);
+  border-radius: 16px; padding: 4px;
+}
+
+#guessInput {
+  flex: 1; background: transparent; border: none; outline: none;
+  padding: 14px 16px; color: #fff; font-size: 1rem; font-family: 'Montserrat';
+}
+
+.btn-reveal {
+  background: var(--gold); color: #000; border: none;
+  padding: 12px 24px; border-radius: 12px; font-weight: 900;
+  text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;
+}
+
+/* --- WIN OVERLAY --- */
+#winOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.95);
+  z-index: 100; display: none; flex-direction: column;
+  align-items: center; justify-content: center; backdrop-filter: blur(20px);
+}
+
+.win-card {
+  text-align: center; border: 1px solid var(--gold-static);
+  padding: 40px; border-radius: 30px; background: #000;
+}
 </style>
 </head>
 <body>
-<div id="root"></div>
-<div class="toast" id="toast"></div>
+
+<div id="winOverlay">
+    <div class="win-card">
+        <h1 class="studio-logo" style="font-size: 2.5rem;">Bravo</h1>
+        <p id="winMsg" style="margin: 20px 0; font-weight: 300;"></p>
+        <button class="btn-reveal" onclick="location.reload()">Next Set</button>
+    </div>
+</div>
+
+<div class="header">
+  <div class="studio-logo">Sparkle Studio</div>
+  <div class="stat-pill">
+    <div class="stat-label">Points</div>
+    <div id="score" class="stat-value">0</div>
+  </div>
+</div>
+
+<div class="stage">
+  <div id="celebBg"></div>
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="footer-controls">
+  <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding: 0 4px;">
+    <span id="regionTag" style="font-size: 0.6rem; color: var(--gold-static); font-weight: 900;">STUDIO SESSION</span>
+    <span id="progress" style="font-size: 0.6rem; color: #666;">REVEAL: 0%</span>
+  </div>
+  <div class="input-wrapper">
+    <input type="text" id="guessInput" placeholder="Spelling check..." autocomplete="off">
+    <button class="btn-reveal" onclick="checkGuess()">Guess</button>
+  </div>
+</div>
+
 <script>
-let _potUID=0; // unique gradient ID counter
-// ── POTIONS (10 levels) ────────────────────────────────────────────────────
-const POTIONS=[
-  {lv:1, name:'Rose Dew',     pts:2,    fill:'#FFB3CB', fill2:'#FF8FAF', border:'#F06090', glow:'rgba(255,140,175,0.4)',  icon:'✿'},
-  {lv:2, name:'Blush Mist',   pts:4,    fill:'#FFD1DC', fill2:'#FFB3C6', border:'#E8547A', glow:'rgba(232,84,122,0.4)',   icon:'❀'},
-  {lv:3, name:'Petal Brew',   pts:8,    fill:'#FFC8E8', fill2:'#FF9ED4', border:'#D4589A', glow:'rgba(212,88,154,0.4)',   icon:'✾'},
-  {lv:4, name:'Lavender Kiss',pts:16,   fill:'#E8C8FF', fill2:'#D4A0F8', border:'#A060D0', glow:'rgba(160,96,208,0.4)',   icon:'✦'},
-  {lv:5, name:'Moonpetal',    pts:32,   fill:'#C8DCFF', fill2:'#A0BEFF', border:'#6090D8', glow:'rgba(96,144,216,0.4)',   icon:'☽'},
-  {lv:6, name:'Pearl Drop',   pts:64,   fill:'#FFEDC8', fill2:'#FFD898', border:'#D4A030', glow:'rgba(212,160,48,0.45)',  icon:'◈'},
-  {lv:7, name:'Crystal Heart',pts:128,  fill:'#C8F8F0', fill2:'#90EAD8', border:'#40B8A0', glow:'rgba(64,184,160,0.4)',   icon:'♡'},
-  {lv:8, name:'Starlight',    pts:256,  fill:'#FFDCF8', fill2:'#FFBAF0', border:'#D060C8', glow:'rgba(208,96,200,0.4)',   icon:'★'},
-  {lv:9, name:'Golden Rose',  pts:512,  fill:'#FFE8B0', fill2:'#FFD080', border:'#C88020', glow:'rgba(200,128,32,0.5)',   icon:'✤'},
-  {lv:10,name:'Moonstone',    pts:1024, fill:'#FFFFFF', fill2:'#F8EEFF', border:'#E8547A', glow:'rgba(232,84,122,0.6)',   icon:'✨'},
+const DB = [
+    { name: "Shah Rukh Khan", cat: "IN", img: "https://www.themoviedb.org/t/p/original/m99asfLpSrkXo33U3v89j682Yf0.jpg" },
+    { name: "Virat Kohli", cat: "IN", img: "https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316500/316523.png" },
+    { name: "Zendaya", cat: "INT", img: "https://www.themoviedb.org/t/p/original/xr96V4v2vX7Zz9D7v6M5uXzF6pB.jpg" },
+    { name: "Lionel Messi", cat: "INT", img: "https://www.themoviedb.org/t/p/original/hUatL0UfA8FzB6uXzN4hE6Yc1f4.jpg" }
 ];
-const COLS=5,ROWS=8,TOTAL=COLS*ROWS;
 
-// ── STATE ─────────────────────────────────────────────────────────────────
-let S={
-  screen:'welcome',
-  name:localStorage.getItem('sp_merge_name')||'',
-  cells:[], // null or potion level (1-10)
-  score:0,best:+localStorage.getItem('sp_merge_best')||0,
-  highest:1, // highest potion unlocked this run
-  selected:null, // index of selected cell
-  nextQueue:[1,1], // upcoming spawns
-  merges:0,
-};
+const ICONS = ['🌸', '✨', '💧', '🔥', '🔮', '💎', '🌙', '☀️', '🌈', '👑'];
+let state = { cells: Array(40).fill(null), shattered: Array(40).fill(false), selected: null, score: 0, current: null, country: "INT" };
 
-// ── AUDIO ─────────────────────────────────────────────────────────────────
-let AC=null;
-function ac(){if(!AC)AC=new(window.AudioContext||window.webkitAudioContext)();return AC;}
-function tone(f,d=0,dur=.4,vol=.06){
-  try{
-    const c=ac(),t=c.currentTime+d;
-    const o=c.createOscillator(),g=c.createGain();
-    o.type='sine';o.frequency.value=f;
-    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(vol,t+.03);
-    g.gain.exponentialRampToValueAtTime(.001,t+dur);
-    o.connect(g);g.connect(c.destination);o.start(t);o.stop(t+dur);
-  }catch(e){}
-}
-function playMerge(lv){
-  const base=300+lv*80;
-  [base,base*1.25,base*1.5].forEach((f,i)=>tone(f,i*.07,.5,.07));
-}
-function playSelect(){tone(440,0,.15,.04);}
-function playNoSpace(){tone(180,0,.2,.04,'sawtooth');}
-function playWin(){[392,494,587,659,784,880,1047].forEach((f,i)=>tone(f,i*.08,.6,.06));}
-
-// ── BOARD ─────────────────────────────────────────────────────────────────
-function newGame(){
-  S.cells=Array(TOTAL).fill(null);
-  S.score=0;S.highest=1;S.selected=null;S.merges=0;
-  S.nextQueue=[rndLv(),rndLv()];
-  // Seed 8 potions
-  const pos=[...Array(TOTAL).keys()];shuffle(pos);
-  pos.slice(0,8).forEach(i=>{S.cells[i]=rndLv();});
-}
-function rndLv(){
-  // Weighted: mostly lv1-2, occasionally lv3
-  const r=Math.random();
-  if(r<.55)return 1;
-  if(r<.82)return 2;
-  return 3;
-}
-function shuffle(a){for(let i=a.length-1;i>0;i--){const j=0|Math.random()*(i+1);[a[i],a[j]]=[a[j],a[i]];}return a;}
-
-function spawnNext(){
-  const empty=[];
-  S.cells.forEach((c,i)=>{if(c===null)empty.push(i);});
-  if(!empty.length){showToast('✦ No space left! Merge potions to continue');playNoSpace();return;}
-  const lv=S.nextQueue.shift();
-  S.nextQueue.push(rndLv());
-  const idx=empty[0|Math.random()*empty.length];
-  S.cells[idx]=lv;
-  // Animate the new cell
-  setTimeout(()=>{
-    const el=document.getElementById('C'+idx);
-    if(el)el.querySelector('.potion')?.classList.add('merging');
-  },50);
-  updateNextBar();
+async function init() {
+    try {
+        const res = await fetch('https://ipapi.co/json/');
+        const data = await res.json();
+        state.country = data.country_code === "IN" ? "IN" : "INT";
+    } catch(e) { state.country = "INT"; }
+    
+    document.getElementById('regionTag').innerText = `REGION: ${state.country === 'IN' ? 'INDIA' : 'GLOBAL'}`;
+    newRound();
 }
 
-function updateNextBar(){
-  S.nextQueue.forEach((lv,i)=>{
-    const el=document.getElementById('next'+i);
-    if(!el)return;
-    const p=POTIONS[lv-1];
-    el.style.cssText=`filter:drop-shadow(0 2px 4px ${p.glow});`;
-    el.innerHTML=miniPotSVG(p);
-  });
-  // also update highest
-  const hp=document.getElementById('highestPot');
-  if(hp){
-    const p=POTIONS[S.highest-1];
-    hp.style.cssText=`filter:drop-shadow(0 2px 6px ${p.glow});`;
-    hp.innerHTML=miniPotSVG(p);
-  }
+function newRound() {
+    const pool = DB.filter(c => c.cat === state.country || c.cat === "INT");
+    state.current = pool[Math.floor(Math.random() * pool.length)];
+    document.getElementById('celebBg').style.backgroundImage = `url(${state.current.img})`;
+    document.getElementById('celebBg').style.transform = "scale(1.1)";
+    
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    for(let i=0; i<40; i++) {
+        const div = document.createElement('div');
+        div.className = 'cell';
+        div.id = `c-${i}`;
+        div.onclick = () => tap(i);
+        grid.appendChild(div);
+    }
+    for(let i=0; i<8; i++) spawn();
 }
 
-function miniPotSVG(p){
-  const uid='m'+(++_potUID);
-  return potionSVG(p,uid,p.lv===10,false);
-}
-
-// Single SVG renderer — no duplicate gradient IDs
-function potionSVG(p,uid,isMax,showName){
-  return`<svg viewBox="0 0 40 ${showName?58:52}" style="width:100%;height:100%;" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <linearGradient id="${uid}" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="${p.fill}"/>
-        <stop offset="100%" stop-color="${p.fill2}"/>
-      </linearGradient>
-    </defs>
-    <!-- Cork -->
-    <rect x="13" y="0" width="14" height="5" rx="2" fill="${p.border}" opacity="0.75"/>
-    <!-- Neck -->
-    <rect x="14" y="4" width="12" height="9" rx="2" fill="${p.fill}" stroke="${p.border}" stroke-width="1.2"/>
-    <rect x="16" y="5" width="4" height="6" rx="2" fill="rgba(255,255,255,0.45)"/>
-    <!-- Body -->
-    <path d="M8 13 Q4 15 4 23 L4 41 Q4 47 10 47 L30 47 Q36 47 36 41 L36 23 Q36 15 32 13 Z"
-      fill="url(#${uid})" stroke="${p.border}" stroke-width="1.2"/>
-    <!-- Inner liquid sheen -->
-    <path d="M10 25 Q6 27 6 33 L6 41 Q6 46 10 46 L30 46 Q34 46 34 41 L34 33 Q34 27 30 25 Z"
-      fill="${p.fill}" opacity="0.4"/>
-    <!-- Shine -->
-    <ellipse cx="13" cy="22" rx="3.5" ry="6" fill="rgba(255,255,255,0.38)" transform="rotate(-12,13,22)"/>
-    <!-- Bubbles -->
-    <circle cx="26" cy="35" r="2.2" fill="rgba(255,255,255,0.38)"/>
-    <circle cx="21" cy="41" r="1.4" fill="rgba(255,255,255,0.28)"/>
-    <!-- Icon -->
-    <text x="20" y="33" text-anchor="middle" dominant-baseline="middle"
-      font-size="${isMax?13:10}" fill="${p.border}" font-family="Georgia,serif" font-weight="bold"
-      opacity="0.95">${p.icon}</text>
-    ${isMax?('<circle cx="20" cy="33" r="8" fill="none" stroke="'+p.border+'" stroke-width="0.8" opacity="0.3" stroke-dasharray="2 2"/>'):''}
-    ${showName?('<text x="20" y="53" text-anchor="middle" dominant-baseline="middle" font-size="5" fill="'+p.border+'" font-family="Nunito,sans-serif" font-weight="800" opacity="0.85">'+p.name+'</text>'):''}
-  </svg>`;
-}
-
-// ── RENDER ────────────────────────────────────────────────────────────────
-function render(){
-  const root=document.getElementById('root');
-  if(S.screen==='welcome')root.innerHTML=renderWelcome();
-  else if(S.screen==='game'){root.innerHTML=renderGame();initGame();}
-  else if(S.screen==='gameover')root.innerHTML=renderGameOver();
-  else root.innerHTML=renderComplete();
-}
-
-function renderWelcome(){
-  const preview=[1,3,5,7,9];
-  return`<div class="welcome">
-  <div class="w-potions">
-    ${preview.map((lv,i)=>{
-      const p=POTIONS[lv-1];
-      const delays=['0s','.3s','.6s','.9s','1.2s'];
-      return`<div class="w-potion" style="filter:drop-shadow(0 3px 8px ${p.glow});--d:${2+i*.3}s;--dl:${delays[i]}">
-        ${miniPotSVG(p)}
-      </div>`;
-    }).join('')}
-  </div>
-  <div class="w-title">Sparkle Merge</div>
-  <div class="w-sub">The Sparkle Studio</div>
-  <div class="w-chain">
-    ${POTIONS.map((p,i)=>`
-      <span class="w-chain-item" title="${p.name}" style="color:${p.border};font-size:.9rem;">${p.icon}</span>
-      ${i<POTIONS.length-1?'<span class="w-chain-arrow">→</span>':''}
-    `).join('')}
-  </div>
-  <div class="w-desc">Merge matching sparkles to create rarer ones. Keep going to unlock all 10 — all the way up to the legendary ✨ Moonstone.</div>
-  <input class="name-input" id="ni" type="text" maxlength="16"
-    placeholder="Your sparkle name…" value="${S.name}"
-    onkeydown="if(event.key==='Enter')go()">
-  <button class="btn-start" onclick="go()">✨ Start Sparkling</button>
-</div>`;}
-
-function renderGame(){
-  const highest=POTIONS[S.highest-1];
-  return`<div class="game">
-  <div class="header">
-    <a href="https://rismath.com" class="home-btn">🏠</a>
-    <div class="hdr-score">✦ <span id="scoreVal">${S.score}</span></div>
-    <div class="hdr-best">Best: ${S.best}</div>
-    <div class="hdr-name">${S.name}</div>
-  </div>
-  <div class="next-bar">
-    <div class="next-label">Next</div>
-    <div class="next-potions">
-      ${S.nextQueue.map((lv,i)=>{
-        const p=POTIONS[lv-1];
-        return`<div class="next-pot" id="next${i}" style="filter:drop-shadow(0 2px 4px ${p.glow});">${miniPotSVG(p)}</div>`;
-      }).join('')}
-    </div>
-    <div class="highest-label">Best potion</div>
-    <div class="highest-pot" id="highestPot" style="filter:drop-shadow(0 2px 6px ${highest.glow});">${miniPotSVG(highest)}</div>
-  </div>
-  <div class="grid-wrap">
-    <div class="grid" id="grid">
-      ${S.cells.map((lv,i)=>cellHTML(i,lv)).join('')}
-    </div>
-  </div>
-  <div style="text-align:center;padding:.3rem;font-size:.6rem;color:var(--muted);flex-shrink:0;">
-    Tap a sparkle · tap a matching one to merge
-  </div>
-</div>`;}
-
-function cellHTML(i,lv){
-  const sel=S.selected===i?'selected':'';
-  return`<div class="cell ${sel}" id="C${i}" onclick="cellTap(${i})">
-    ${lv?potionHTML(lv):''}
-  </div>`;}
-
-function potionHTML(lv){
-  const p=POTIONS[lv-1];
-  const uid='g'+(++_potUID);
-  const isMax=lv===10;
-  return potionSVG(p,uid,isMax,true);
-}
-
-function renderComplete(){
-  const highest=POTIONS[S.highest-1];
-  return`<div class="complete">
-  <div class="cc-icon">${highest.icon}</div>
-  <div class="cc-title">Sparkle Complete</div>
-  <div class="cc-sub">Best: ${highest.name} · ${S.name}</div>
-  <div class="cc-score">${S.score}</div>
-  <div class="cc-slbl">✦ Total Points</div>
-  <div class="cc-stats">
-    <div class="cc-stat"><div class="cc-sv">${S.merges}</div><div class="cc-sl">Merges</div></div>
-    <div class="cc-stat"><div class="cc-sv">${S.best}</div><div class="cc-sl">Best Score</div></div>
-    <div class="cc-stat"><div class="cc-sv">${highest.icon}</div><div class="cc-sl">Top Potion</div></div>
-  </div>
-  <button class="btn-again" onclick="go()">🔮 Sparkle Again</button>
-  <a href="https://rismath.com" class="back-home">← Back to RisMath</a>
-</div>`;}
-
-// ── GAME INIT ─────────────────────────────────────────────────────────────
-function go(){
-  const inp=document.getElementById('ni');
-  const n=inp?inp.value.trim():S.name;
-  if(!n)return;
-  S.name=n;localStorage.setItem('sp_merge_name',n);
-  newGame();S.screen='game';render();
-}
-
-function initGame(){
-  try{ac();}catch(e){}
-  // Show tutorial for new players
-  if(!localStorage.getItem('sp_merge_tut')){
-    setTimeout(showTutorial,400);
-  }
-}
-
-// ── CELL TAP ──────────────────────────────────────────────────────────────
-// Always use setSelected() to change selection — never touch classList directly
-function setSelected(idx){
-  // Clear all selected highlights first
-  document.querySelectorAll('.cell.selected').forEach(el=>el.classList.remove('selected'));
-  S.selected=idx;
-  if(idx!==null){
-    const el=document.getElementById('C'+idx);
-    if(el)el.classList.add('selected');
-  }
-}
-
-function cellTap(i){
-  try{ac();}catch(e){}
-  const lv=S.cells[i];
-
-  // ── Empty cell ──
-  if(lv===null){
-    if(S.selected!==null){
-      // Move selected potion here
-      const prev=S.selected;
-      S.cells[i]=S.cells[prev];
-      S.cells[prev]=null;
-      setSelected(null);
-      rerenderCells([prev,i]);
-      playSelect();
+function tap(i) {
+    if (state.selected === null) {
+        if (state.cells[i]) {
+            state.selected = i;
+            document.getElementById(`c-${i}`).classList.add('selected');
+        } else { state.cells[i] = 1; render(i); }
     } else {
-      // Place next from queue
-      const nextLv=S.nextQueue[0];
-      S.nextQueue.shift();
-      S.nextQueue.push(rndLv());
-      S.cells[i]=nextLv;
-      rerenderCells([i]);
-      updateNextBar();
-      setTimeout(checkGameOver,200);
-      setTimeout(()=>{
-        document.getElementById('C'+i)?.querySelector('.potion')?.classList.add('merging');
-      },30);
+        const from = state.selected;
+        document.getElementById(`c-${from}`).classList.remove('selected');
+        state.selected = null;
+        if (from === i) return;
+
+        if (state.cells[i] === state.cells[from] && state.cells[i] < 10) {
+            state.cells[i]++; state.cells[from] = null;
+            state.score += state.cells[i] * 50;
+            if (state.cells[i] >= 5) shatter(i);
+            render(from); render(i);
+            update();
+            setTimeout(spawn, 150);
+        } else {
+            [state.cells[i], state.cells[from]] = [state.cells[from], state.cells[i]];
+            render(from); render(i);
+        }
     }
-    return;
-  }
-
-  // ── Has potion — nothing selected yet: select it ──
-  if(S.selected===null){
-    setSelected(i);
-    playSelect();
-    return;
-  }
-
-  // ── Tap same cell: deselect ──
-  if(S.selected===i){
-    setSelected(null);
-    return;
-  }
-
-  const fromLv=S.cells[S.selected];
-  const toLv=S.cells[i];
-
-  if(fromLv===toLv && fromLv<10){
-    // MERGE!
-    const newLv=fromLv+1;
-    const pts=POTIONS[newLv-1].pts;
-    S.score+=pts;
-    S.merges++;
-    if(newLv>S.highest){
-      S.highest=newLv;
-      if(newLv>S.best||S.score>S.best){}
-      const hp=document.getElementById('highestPot');
-      if(hp){
-        const p=POTIONS[newLv-1];
-        hp.style.cssText=`filter:drop-shadow(0 2px 6px ${p.glow});`;
-        hp.innerHTML=miniPotSVG(p);
-      }
-    }
-    if(S.score>S.best){S.best=S.score;localStorage.setItem('sp_merge_best',S.best);}
-
-    const mergeFrom=S.selected;
-    S.cells[mergeFrom]=null;
-    S.cells[i]=newLv;
-    setSelected(null);
-
-    rerenderCells([mergeFrom,i]);
-    // Animate merge target
-    setTimeout(()=>{
-      const el=document.getElementById('C'+i);
-      el?.querySelector('.potion')?.classList.add('merging');
-    },30);
-
-    playMerge(newLv);
-    burstAt(i,POTIONS[newLv-1]);
-    floatScore(i,'+'+pts);
-    showToast(POTIONS[newLv-1].icon+' '+POTIONS[newLv-1].name+'!');
-    document.getElementById('scoreVal').textContent=S.score;
-
-    // Check win (made moonstone)
-    if(newLv===10){
-      playWin();
-      setTimeout(()=>{S.screen='complete';render();},1200);
-      return;
-    }
-
-    // Spawn new potion after a beat
-    setTimeout(()=>{spawnNext();setTimeout(checkGameOver,200);},400);
-
-  } else {
-    // Swap positions (move potion to new cell)
-    const swapFrom=S.selected;
-    const tmp=S.cells[swapFrom];
-    S.cells[swapFrom]=S.cells[i];
-    S.cells[i]=tmp;
-    setSelected(null);
-    rerenderCells([swapFrom,i]);
-    playSelect();
-  }
 }
 
-function rerenderCells(indices){
-  indices.forEach(i=>{
-    if(i===null||i===undefined)return;
-    const el=document.getElementById('C'+i);
-    if(!el)return;
-    const lv=S.cells[i];
-    const sel=S.selected===i?'selected':'';
-    el.className='cell '+sel;
-    el.innerHTML=lv?potionHTML(lv):'';
-  });
-}
-
-// ── EFFECTS ──────────────────────────────────────────────────────────────
-function burstAt(i,potion){
-  const el=document.getElementById('C'+i);
-  if(!el)return;
-  const r=el.getBoundingClientRect();
-  const cx=r.left+r.width/2,cy=r.top+r.height/2;
-  const sparks=['✦','✧','·','✶','✸','✹'];
-  for(let j=0;j<12;j++){
-    const p=document.createElement('div');
-    p.className='px';
-    const ang=(j/12)*Math.PI*2;
-    const d=20+Math.random()*45;
-    const isSpark=j<4;
-    p.style.cssText=`left:${cx}px;top:${cy}px;width:${isSpark?'auto':'5px'};height:${isSpark?'auto':'5px'};background:${isSpark?'none':potion.border};--tx:${Math.cos(ang)*d}px;--ty:${Math.sin(ang)*d}px;font-size:.8rem;color:${potion.border};`;
-    if(isSpark)p.textContent=sparks[j%sparks.length];
-    document.body.appendChild(p);
-    setTimeout(()=>p.remove(),700);
-  }
-}
-
-function floatScore(i,txt){
-  const el=document.getElementById('C'+i);
-  if(!el)return;
-  const r=el.getBoundingClientRect();
-  const fp=document.createElement('div');
-  fp.className='flt';fp.textContent=txt;
-  fp.style.left=(r.left+r.width/2-15)+'px';
-  fp.style.top=(r.top)+'px';
-  document.body.appendChild(fp);
-  setTimeout(()=>fp.remove(),850);
-}
-
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);
-}
-
-
-// ── TUTORIAL ──────────────────────────────────────────────────────────────
-const TUT_STEPS=[
-  {
-    title:'Welcome to Sparkle Merge!',
-    icon:'🔮',
-    body:'Merge matching potions to brew rarer and rarer magical elixirs. Here’s how it works in 3 quick steps.',
-    demo:'',
-    btn:'Let’s go →'
-  },
-  {
-    title:'Step 1 — Select a Potion',
-    icon:'👆',
-    body:'<b>Tap any potion</b> on the board to select it. It glows gold when selected.',
-    demo:'select',
-    btn:'Got it →'
-  },
-  {
-    title:'Step 2 — Tap a Match',
-    icon:'🫧',
-    body:'Now tap <b>another potion of the same kind</b>. They merge into something rarer!',
-    demo:'merge',
-    btn:'Amazing →'
-  },
-  {
-    title:'Step 3 — Fill the Board',
-    icon:'✨',
-    body:'Tap an <em>empty cell</em> to place the next potion shown at the top. Keep merging to unlock all 10 sparkles up to the legendary <b>✨ Moonstone</b>!',
-    demo:'spawn',
-    btn:'Start Sparkling!'
-  },
-];
-
-let tutStep=0;
-let tutHighlight=null;
-
-function showTutorial(){
-  tutStep=0;
-  renderTutStep();
-}
-
-function renderTutStep(){
-  removeTut();
-  const step=TUT_STEPS[tutStep];
-
-  // Build demo content
-  let demoHTML='';
-  if(step.demo==='select'){
-    demoHTML=`<div class="tut-demo">
-      <div class="tut-pot sel" style="border-color:#F06090;box-shadow:0 0 0 2px #E8547A;">✿</div>
-      <span style="font-size:.75rem;color:var(--muted);">← selected</span>
-    </div>`;
-  } else if(step.demo==='merge'){
-    demoHTML=`<div class="tut-demo">
-      <div class="tut-pot sel" style="border-color:#F06090;box-shadow:0 0 0 2px #E8547A;">✿</div>
-      <span class="tut-plus">+</span>
-      <div class="tut-pot" style="border-color:#F06090;">✿</div>
-      <span class="tut-arr">→</span>
-      <div class="tut-pot" style="border-color:#E8547A;">❀</div>
-    </div>`;
-  } else if(step.demo==='spawn'){
-    demoHTML=`<div class="tut-demo">
-      <div style="text-align:center">
-        <div style="font-size:.6rem;color:var(--muted);margin-bottom:.3rem;">NEXT SPARKLES</div>
-        <div style="display:flex;gap:.4rem;justify-content:center;">
-          <div class="tut-pot" style="background:#1a3a5c;border-color:#4a8abf;width:32px;height:40px;font-size:1rem;">💧</div>
-          <div class="tut-pot" style="background:#1a3550;border-color:#5aacdf;width:32px;height:40px;font-size:1rem;">🫧</div>
-        </div>
-      </div>
-      <span class="tut-arr" style="font-size:1.5rem;">→</span>
-      <div style="width:44px;height:44px;border-radius:.7rem;border:2px dashed rgba(232,84,122,0.35);
-        display:flex;align-items:center;justify-content:center;font-size:.7rem;color:var(--muted);">
-        empty
-      </div>
-    </div>`;
-  }
-
-  // Dots
-  const dots=TUT_STEPS.map((_,i)=>`<div class="tut-dot ${i===tutStep?'on':''}"></div>`).join('');
-
-  const overlay=document.createElement('div');
-  overlay.className='tut-overlay';
-  overlay.id='tut-overlay';
-  overlay.innerHTML=`
-    <div class="tut-backdrop" onclick=""></div>
-    <div class="tut-box" id="tut-box" style="top:50%;transform:translate(-50%,-50%);">
-      <div class="tut-dots">${dots}</div>
-      <div class="tut-icon">${step.icon}</div>
-      <div class="tut-title">${step.title}</div>
-      <div class="tut-body">${step.body}</div>
-      ${demoHTML}
-      <button class="tut-btn" onclick="nextTutStep()">${step.btn}</button>
-      ${tutStep<TUT_STEPS.length-1?'<button class="tut-skip" onclick="closeTut()">Skip tutorial</button>':''}
-    </div>`;
-  document.body.appendChild(overlay);
-  overlay.style.pointerEvents='all';
-}
-
-function nextTutStep(){
-  tutStep++;
-  if(tutStep>=TUT_STEPS.length){closeTut();return;}
-  renderTutStep();
-}
-
-function closeTut(){
-  removeTut();
-  localStorage.setItem('sp_merge_tut','1');
-}
-
-function removeTut(){
-  const el=document.getElementById('tut-overlay');
-  if(el)el.remove();
-  if(tutHighlight){tutHighlight.remove();tutHighlight=null;}
-}
-
-
-// ── GAME OVER DETECTION ──────────────────────────────────────────────────
-function hasMoves(){
-  // Check if any two adjacent or any two same-level cells exist anywhere
-  for(let i=0;i<TOTAL;i++){
-    if(S.cells[i]===null)return true; // empty cell = can still place
-    for(let j=i+1;j<TOTAL;j++){
-      if(S.cells[j]!==null && S.cells[i]===S.cells[j] && S.cells[i]<10)return true;
-    }
-  }
-  return false;
-}
-
-function checkGameOver(){
-  if(!hasMoves()){
-    if(S.score>S.best){S.best=S.score;localStorage.setItem('sp_merge_best',S.best);}
-    playGameOver();
-    setTimeout(()=>{S.screen='gameover';render();},300);
-  }
-}
-
-function playGameOver(){
-  try{
-    const a=ac(),t=a.currentTime;
-    [392,349,311,277].forEach((f,i)=>{
-      const o=a.createOscillator(),g=a.createGain();
-      o.type='sine';o.frequency.value=f;
-      g.gain.setValueAtTime(0,t+i*.18);
-      g.gain.linearRampToValueAtTime(.06,t+i*.18+.05);
-      g.gain.exponentialRampToValueAtTime(.001,t+i*.18+.6);
-      o.connect(g);g.connect(a.destination);
-      o.start(t+i*.18);o.stop(t+i*.18+.7);
+function shatter(idx) {
+    state.shattered[idx] = true;
+    [idx-1, idx+1, idx-5, idx+5].forEach(n => {
+        if(n >= 0 && n < 40 && Math.random() > 0.6) state.shattered[n] = true;
     });
-  }catch(e){}
+    // Zoom background slightly on shatter for "impact"
+    document.getElementById('celebBg').style.transform = `scale(${1.1 + (state.score/5000)})`;
+    for(let j=0; j<40; j++) if(state.shattered[j]) render(j);
 }
 
-function renderGameOver(){
-  const highest=POTIONS[S.highest-1];
-  const isNew=S.score>0&&S.score===S.best;
-  return`<div class="gameover">
-  <div class="go-icon">${isNew?'🌟':'🌸'}</div>
-  <div class="go-title">${isNew?'New Best!':'No more moves'}</div>
-  <div class="go-sub">${S.name} · ${S.merges} merges</div>
-  <div class="go-score">${S.score}</div>
-  <div class="go-slbl">✦ Sparkle Points</div>
-  ${isNew?'':`<div class="go-best">Personal best: ${S.best}</div>`}
-  <div class="go-top">
-    <div class="go-top-pot">${miniPotSVG(highest)}</div>
-    <div class="go-top-info">
-      <div class="go-top-label">Highest brew</div>
-      <div class="go-top-name">${highest.name}</div>
-    </div>
-  </div>
-  <button class="btn-again" onclick="go()" style="width:100%;margin-bottom:.75rem;">✨ Try Again</button>
-  <a href="https://rismath.com" class="back-home">← Back to RisMath</a>
-</div>`;}
+function checkGuess() {
+    const val = document.getElementById('guessInput').value.trim().toLowerCase();
+    if (val === state.current.name.toLowerCase()) {
+        document.getElementById('winMsg').innerText = `You correctly identified ${state.current.name}!`;
+        document.getElementById('winOverlay').style.display = 'flex';
+    } else {
+        document.getElementById('guessInput').value = "";
+    }
+}
 
-// ── BOOT ─────────────────────────────────────────────────────────────────
-if(S.name)S.screen='game';
-if(S.screen==='game')newGame();
-render();
+function spawn() {
+    const empty = state.cells.map((v, i) => v === null ? i : null).filter(v => v !== null);
+    if (empty.length > 0) {
+        const idx = empty[Math.floor(Math.random() * empty.length)];
+        state.cells[idx] = 1; render(idx);
+    }
+}
+
+function render(i) {
+    const cell = document.getElementById(`c-${i}`);
+    const val = state.cells[i];
+    cell.innerHTML = val ? `<div class="potion">${ICONS[val-1]}</div>` : '';
+    if (state.shattered[i]) cell.classList.add('shattered');
+}
+
+function update() {
+    document.getElementById('score').innerText = state.score;
+    const count = state.shattered.filter(v => v).length;
+    document.getElementById('progress').innerText = `REVEAL: ${Math.floor((count/40)*100)}%`;
+}
+
+init();
 </script>
 </body>
 </html>
