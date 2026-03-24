@@ -71,18 +71,58 @@ h1 {
     font-weight: bold;
 }
 
+/* Container for the end-game actions */
+.result-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 2rem;
+}
+
+/* Share Button - Matches your Hero CTA Gradient */
 .share-btn {
-    background: var(--success);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .6rem;
+    background: linear-gradient(135deg, #F5A623, #C1440E);
     color: white;
+    text-decoration: none;
     border: none;
-    padding: 1.2rem;
-    border-radius: 12px;
-    font-weight: 700;
-    width: 100%;
-    cursor: pointer;
-    margin-top: 1.5rem;
+    border-radius: .85rem;
+    padding: .85rem 1.75rem;
     font-size: 1rem;
-    text-transform: uppercase;
+    font-weight: 800;
+    font-family: 'Baloo 2', cursive;
+    letter-spacing: .02em;
+    box-shadow: 0 8px 32px rgba(245,166,35,0.25);
+    cursor: pointer;
+    transition: transform .15s, box-shadow .15s;
+}
+
+.share-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(245,166,35,0.35);
+}
+
+/* Try Again Button - Matches your Game Card Style */
+.retry-btn {
+    background: rgba(255, 255, 255, 0.04);
+    color: #F0EEE8;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: .85rem;
+    padding: .85rem 1.75rem;
+    font-size: 0.9rem;
+    font-weight: 700;
+    font-family: 'Nunito', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.retry-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    border-color: #F5A623;
+    color: #F5A623;
 }
 
 #iq-rank {

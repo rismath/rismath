@@ -17,12 +17,18 @@
         </div>
 
         <div id="result-area" style="display:none;">
-            <h2>Your Results</h2>
-            <p id="score-text"></p>
-            <h1 id="iq-rank">--</h1>
-            <button onclick="shareResult()">Share on WhatsApp</button>
-            <button onclick="location.reload()">Try Again</button>
-        </div>
+    <div class="preview-badge">Challenge Complete</div>
+    <div id="iq-rank">--</div>
+    <p id="score-text" style="color: rgba(240,238,232,0.6); margin-bottom: 20px;"></p>
+    
+    <div class="result-actions">
+        <button onclick="shareScore()" class="share-btn">
+            Share on WhatsApp 
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.588-5.946 0-6.556 5.332-11.888 11.888-11.888 3.176 0 6.161 1.237 8.404 3.48s3.481 5.229 3.481 8.404c0 6.556-5.332 11.89-11.888 11.89-1.972 0-3.902-.486-5.626-1.41l-6.358 1.643zm6.147-3.993l.356.211c1.512.898 3.253 1.372 5.045 1.372 5.421 0 9.835-4.414 9.835-9.835 0-2.628-1.024-5.099-2.883-6.958s-4.331-2.883-6.952-2.883c-5.421 0-9.835 4.414-9.835 9.835 0 1.892.54 3.738 1.562 5.342l.231.363-.996 3.639 3.732-.971z"/></svg>
+        </button>
+        <button onclick="location.reload()" class="retry-btn">Try Again</button>
+    </div>
+</div>
     </div>
     <script src="script.js"></script>
 </body>
