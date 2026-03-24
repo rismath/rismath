@@ -57,14 +57,8 @@ function showQuestion() {
 }
 
 function handleAnswer(isCorrect) {
-    if (isCorrect) {
-        correctAnswers++;
-    } else {
-        // Simple "Shake" effect for wrong answers
-        const container = document.getElementById("game-container");
-        container.style.animation = "shake 0.2s ease-in-out";
-        setTimeout(() => container.style.animation = "", 200);
-    }
+    if (isCorrect) correctAnswers++;
+    currentIndex++;
 
     if (currentIndex < 20) {
         showQuestion();
