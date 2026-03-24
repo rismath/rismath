@@ -84,7 +84,7 @@ function showResults() {
     document.getElementById("rank-label").innerText = rank;
 }
 
-function shareResult() {
+function shareScore() {
     const iq = 70 + (correctAnswers * 4);
     const url = window.location.href;
     const text = `I just scored ${iq} on the RisMath IQ Test! Can you beat me? Try here: ${url}`;
