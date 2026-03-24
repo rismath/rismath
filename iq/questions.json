@@ -138,9 +138,9 @@
   { "id": 197, "diff": "vhard", "type": "logic", "q": "You are in a dark room with 1 match. You have a kerosene lamp, a wood stove, and a candle. What do you light first?", "a": "The match", "o": ["Candle", "Lamp", "Stove", "The match"] },
   { "id": 198, "diff": "vhard", "type": "num", "q": "Binary 1111 is what in Decimal?", "a": "15", "o": ["7", "11", "15", "16"] },
   { "id": 199, "diff": "vhard", "type": "spat", "q": "How many degrees are in a hexagon's internal angles sum?", "a": "720°", "o": ["360°", "540°", "720°", "1080°"] },
-  { "id": 200, "diff": "vhard", "type": "logic", "q": "A father is 30 years older than his son. In 5 years, he will be 3 times as old. Son's current age?", "a": "10", "o": ["5", "10", "15", "20"] }
+  { "id": 200, "diff": "vhard", "type": "logic", "q": "A father is 30 years older than his son. In 5 years, he will be 3 times as old. Son's current age?", "a": "10", "o": ["5", "10", "15", "20"] },
 
-[
+
   { "id": 71, "diff": "easy", "type": "num", "q": "What is 10 + 20 + 30?", "a": "60", "o": ["50", "60", "70", "80"] },
   { "id": 72, "diff": "easy", "type": "verb", "q": "Cold is to Ice as Heat is to?", "a": "Steam", "o": ["Water", "Steam", "Fire", "Sun"] },
   { "id": 73, "diff": "easy", "type": "spat", "q": "Which shape has 8 sides?", "a": "Octagon", "o": ["Hexagon", "Heptagon", "Octagon", "Nonagon"] },
@@ -209,4 +209,3 @@
 ]
 
 
-]
