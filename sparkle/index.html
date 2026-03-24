@@ -3,17 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Sparkle Studio | Celeb Reveal</title>
+<title>Sparkle Studio | Premium Reveal</title>
 <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
 <style>
 :root {
   --bg: #050206; 
   --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
   --gold-static: #aa771c;
-  --accent: #ff007a;
   --glass: rgba(255, 255, 255, 0.03);
   --glass-border: rgba(255, 255, 255, 0.1);
-  --shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.8);
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -23,123 +21,54 @@ body {
     background-image: radial-gradient(circle at 50% -20%, #2a0a2f 0%, #050206 70%);
 }
 
-/* --- PREMIUM HEADER --- */
-.header {
-  padding: env(safe-area-inset-top, 20px) 24px 10px;
-  display: flex; justify-content: space-between; align-items: center;
-  z-index: 10;
-}
+/* --- HEADER --- */
+.header { padding: env(safe-area-inset-top, 20px) 24px 10px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+.studio-logo { font-family: 'Marcellus', serif; font-size: 1.2rem; letter-spacing: 4px; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
+.stat-pill { background: var(--glass); border: 1px solid var(--glass-border); padding: 6px 16px; border-radius: 100px; backdrop-filter: blur(10px); text-align: center; }
 
-.studio-logo {
-  font-family: 'Marcellus', serif; font-size: 1.4rem; letter-spacing: 4px;
-  background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-  text-transform: uppercase;
-}
+/* --- THE STAGE --- */
+.stage { flex: 1; position: relative; margin: 10px 20px; border-radius: 24px; overflow: hidden; border: 1px solid var(--glass-border); box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
+#celebBg { position: absolute; inset: 0; background-size: cover; background-position: center 15%; transform: scale(1.1); transition: transform 2s ease-out; }
 
-.stat-pill {
-  background: var(--glass); border: 1px solid var(--glass-border);
-  padding: 6px 16px; border-radius: 100px; backdrop-filter: blur(10px);
-  display: flex; flex-direction: column; align-items: center;
-}
-
-.stat-label { font-size: 0.6rem; color: var(--gold-static); font-weight: 900; letter-spacing: 1px; }
-.stat-value { font-size: 1.2rem; font-weight: 300; }
-
-/* --- GAME BOARD (The Reveal Stage) --- */
-.stage {
-  flex: 1; position: relative; margin: 10px 20px;
-  border-radius: 24px; overflow: hidden;
-  box-shadow: var(--shadow); border: 1px solid var(--glass-border);
-}
-
-#celebBg {
-  position: absolute; inset: 0;
-  background-size: cover; background-position: center 15%;
-  transform: scale(1.1); transition: transform 2s ease-out;
-}
-
-.grid {
-  display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(8, 1fr);
-  gap: 2px; width: 100%; height: 100%; position: relative; z-index: 1;
-}
+.grid { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(8, 1fr); gap: 2px; width: 100%; height: 100%; position: relative; z-index: 1; }
 
 .cell {
-  background: rgba(10, 10, 15, 0.85);
-  backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px);
-  border: 0.5px solid rgba(255,255,255,0.05);
-  transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  background: rgba(10, 10, 15, 0.9);
+  backdrop-filter: blur(45px); -webkit-backdrop-filter: blur(45px);
+  border: 0.5px solid rgba(255,255,255,0.03);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.cell.shattered {
-  background: transparent; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px);
-  border: none;
-}
+/* Lower blur for partially revealed areas */
+.cell.hinted { background: rgba(10, 10, 15, 0.4); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+.cell.shattered { background: transparent; backdrop-filter: blur(0px); -webkit-backdrop-filter: blur(0px); border: none; }
+.cell.selected { box-shadow: inset 0 0 15px var(--gold-static); border: 1px solid var(--gold-static); }
 
-.cell.selected {
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: inset 0 0 15px var(--gold-static);
-}
+.potion { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; animation: pop 0.3s ease-out; }
+@keyframes pop { from { transform: scale(0); opacity:0; } to { transform: scale(1); opacity:1; } }
 
-/* --- POTION DESIGN --- */
-.potion {
-  width: 80%; height: 80%; display: flex; align-items: center; justify-content: center;
-  font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3));
-  animation: float 3s ease-in-out infinite;
-}
+/* --- CONTROLS --- */
+.footer { padding: 20px 24px env(safe-area-inset-bottom, 20px); }
+.input-wrapper { display: flex; background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 4px; }
+#guessInput { flex: 1; background: transparent; border: none; padding: 14px; color: #fff; font-family: 'Montserrat'; outline: none; }
+.btn-reveal { background: var(--gold); color: #000; border: none; padding: 12px 20px; border-radius: 12px; font-weight: 900; text-transform: uppercase; font-size: 0.75rem; cursor: pointer; }
 
-@keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-
-/* --- INPUT & GUESS --- */
-.footer-controls {
-  padding: 20px 24px env(safe-area-inset-bottom, 20px);
-  background: linear-gradient(to top, #000, transparent);
-}
-
-.input-wrapper {
-  position: relative; display: flex; align-items: center;
-  background: var(--glass); border: 1px solid var(--glass-border);
-  border-radius: 16px; padding: 4px;
-}
-
-#guessInput {
-  flex: 1; background: transparent; border: none; outline: none;
-  padding: 14px 16px; color: #fff; font-size: 1rem; font-family: 'Montserrat';
-}
-
-.btn-reveal {
-  background: var(--gold); color: #000; border: none;
-  padding: 12px 24px; border-radius: 12px; font-weight: 900;
-  text-transform: uppercase; letter-spacing: 1px; font-size: 0.8rem;
-}
-
-/* --- WIN OVERLAY --- */
-#winOverlay {
-  position: fixed; inset: 0; background: rgba(0,0,0,0.95);
-  z-index: 100; display: none; flex-direction: column;
-  align-items: center; justify-content: center; backdrop-filter: blur(20px);
-}
-
-.win-card {
-  text-align: center; border: 1px solid var(--gold-static);
-  padding: 40px; border-radius: 30px; background: #000;
-}
+#overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(20px); display: none; }
 </style>
 </head>
-<body>
+<body onclick="initAudio()">
 
-<div id="winOverlay">
-    <div class="win-card">
-        <h1 class="studio-logo" style="font-size: 2.5rem;">Bravo</h1>
-        <p id="winMsg" style="margin: 20px 0; font-weight: 300;"></p>
-        <button class="btn-reveal" onclick="location.reload()">Next Set</button>
-    </div>
+<div id="overlay">
+    <h1 class="studio-logo" style="font-size: 2rem;" id="winTitle">GHAZAB!</h1>
+    <p id="winMsg" style="margin: 20px; text-align:center;"></p>
+    <button class="btn-reveal" onclick="location.reload()">Next Celeb</button>
 </div>
 
 <div class="header">
   <div class="studio-logo">Sparkle Studio</div>
   <div class="stat-pill">
-    <div class="stat-label">Points</div>
-    <div id="score" class="stat-value">0</div>
+    <div style="font-size: 0.5rem; color: var(--gold-static); font-weight: 900;">LEVEL GOAL</div>
+    <div id="goalText" style="font-size: 0.9rem; font-weight: 600;">Merge Level 2</div>
   </div>
 </div>
 
@@ -148,13 +77,13 @@ body {
   <div class="grid" id="grid"></div>
 </div>
 
-<div class="footer-controls">
-  <div style="display: flex; justify-content: space-between; margin-bottom: 12px; padding: 0 4px;">
-    <span id="regionTag" style="font-size: 0.6rem; color: var(--gold-static); font-weight: 900;">STUDIO SESSION</span>
-    <span id="progress" style="font-size: 0.6rem; color: #666;">REVEAL: 0%</span>
+<div class="footer">
+  <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.6rem; font-weight:900; color:var(--gold-static);">
+    <span id="progressText">REVEALED: 0%</span>
+    <span>SOUND: ACTIVE 🔊</span>
   </div>
   <div class="input-wrapper">
-    <input type="text" id="guessInput" placeholder="Spelling check..." autocomplete="off">
+    <input type="text" id="guessInput" placeholder="Who is this? Spelling count..." autocomplete="off">
     <button class="btn-reveal" onclick="checkGuess()">Guess</button>
   </div>
 </div>
@@ -163,32 +92,47 @@ body {
 const DB = [
     { name: "Shah Rukh Khan", cat: "IN", img: "https://www.themoviedb.org/t/p/original/m99asfLpSrkXo33U3v89j682Yf0.jpg" },
     { name: "Virat Kohli", cat: "IN", img: "https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316500/316523.png" },
-    { name: "Zendaya", cat: "INT", img: "https://www.themoviedb.org/t/p/original/xr96V4v2vX7Zz9D7v6M5uXzF6pB.jpg" },
     { name: "Lionel Messi", cat: "INT", img: "https://www.themoviedb.org/t/p/original/hUatL0UfA8FzB6uXzN4hE6Yc1f4.jpg" }
 ];
-
 const ICONS = ['🌸', '✨', '💧', '🔥', '🔮', '💎', '🌙', '☀️', '🌈', '👑'];
-let state = { cells: Array(40).fill(null), shattered: Array(40).fill(false), selected: null, score: 0, current: null, country: "INT" };
 
-async function init() {
-    try {
-        const res = await fetch('https://ipapi.co/json/');
-        const data = await res.json();
-        state.country = data.country_code === "IN" ? "IN" : "INT";
-    } catch(e) { state.country = "INT"; }
+let S = {
+    cells: Array(40).fill(null),
+    shattered: Array(40).fill(false),
+    score: 0,
+    current: null,
+    selected: null,
+    revealedCount: 0
+};
+
+let audioCtx = null;
+
+function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+
+function playShatterSound() {
+    if(!audioCtx) return;
+    const t = audioCtx.currentTime;
+    const osc = audioCtx.createOscillator();
+    const noise = audioCtx.createBufferSource();
+    const gain = audioCtx.createGain();
     
-    document.getElementById('regionTag').innerText = `REGION: ${state.country === 'IN' ? 'INDIA' : 'GLOBAL'}`;
-    newRound();
+    osc.type = 'triangle';
+    osc.frequency.setValueAtTime(800, t);
+    osc.frequency.exponentialRampToValueAtTime(100, t + 0.1);
+    
+    gain.gain.setValueAtTime(0.1, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.2);
+    
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(t + 0.2);
 }
 
-function newRound() {
-    const pool = DB.filter(c => c.cat === state.country || c.cat === "INT");
-    state.current = pool[Math.floor(Math.random() * pool.length)];
-    document.getElementById('celebBg').style.backgroundImage = `url(${state.current.img})`;
-    document.getElementById('celebBg').style.transform = "scale(1.1)";
+function init() {
+    S.current = DB[Math.floor(Math.random() * DB.length)];
+    document.getElementById('celebBg').style.backgroundImage = `url(${S.current.img})`;
     
     const grid = document.getElementById('grid');
-    grid.innerHTML = '';
     for(let i=0; i<40; i++) {
         const div = document.createElement('div');
         div.className = 'cell';
@@ -196,74 +140,106 @@ function newRound() {
         div.onclick = () => tap(i);
         grid.appendChild(div);
     }
-    for(let i=0; i<8; i++) spawn();
+    for(let i=0; i<6; i++) spawn();
 }
 
 function tap(i) {
-    if (state.selected === null) {
-        if (state.cells[i]) {
-            state.selected = i;
+    if (S.selected === null) {
+        if (S.cells[i]) {
+            S.selected = i;
             document.getElementById(`c-${i}`).classList.add('selected');
-        } else { state.cells[i] = 1; render(i); }
+        } else { S.cells[i] = 1; render(i); }
     } else {
-        const from = state.selected;
+        const from = S.selected;
         document.getElementById(`c-${from}`).classList.remove('selected');
-        state.selected = null;
+        S.selected = null;
         if (from === i) return;
 
-        if (state.cells[i] === state.cells[from] && state.cells[i] < 10) {
-            state.cells[i]++; state.cells[from] = null;
-            state.score += state.cells[i] * 50;
-            if (state.cells[i] >= 5) shatter(i);
+        if (S.cells[i] === S.cells[from]) {
+            const newLv = S.cells[i] + 1;
+            S.cells[i] = newLv;
+            S.cells[from] = null;
+            
+            // DYNAMIC DIFFICULTY LOGIC
+            // Level 1-5 merges: Always shatter
+            // Level 5-10: Shatter + Partial Reveal neighbors
+            if (S.revealedCount < 5) { // Early game: super easy
+                shatter(i);
+            } else if (newLv >= getRequiredLevel()) {
+                shatter(i);
+            } else {
+                // Hinting: Partially reveal if level isn't high enough
+                hint(i);
+            }
+
             render(from); render(i);
-            update();
-            setTimeout(spawn, 150);
+            updateUI();
+            setTimeout(spawn, 100);
         } else {
-            [state.cells[i], state.cells[from]] = [state.cells[from], state.cells[i]];
+            [S.cells[i], S.cells[from]] = [S.cells[from], S.cells[i]];
             render(from); render(i);
         }
     }
 }
 
+function getRequiredLevel() {
+    if (S.revealedCount < 8) return 2;
+    if (S.revealedCount < 15) return 3;
+    if (S.revealedCount < 25) return 4;
+    return 5;
+}
+
 function shatter(idx) {
-    state.shattered[idx] = true;
+    playShatterSound();
+    S.shattered[idx] = true;
+    S.revealedCount++;
+    // Splash shatter
     [idx-1, idx+1, idx-5, idx+5].forEach(n => {
-        if(n >= 0 && n < 40 && Math.random() > 0.6) state.shattered[n] = true;
+        if(n>=0 && n<40 && Math.random() > 0.7) {
+            S.shattered[n] = true;
+            S.revealedCount++;
+        }
     });
-    // Zoom background slightly on shatter for "impact"
-    document.getElementById('celebBg').style.transform = `scale(${1.1 + (state.score/5000)})`;
-    for(let j=0; j<40; j++) if(state.shattered[j]) render(j);
+    for(let j=0; j<40; j++) if(S.shattered[j]) render(j);
+}
+
+function hint(idx) {
+    const el = document.getElementById(`c-${idx}`);
+    el.classList.add('hinted');
 }
 
 function checkGuess() {
     const val = document.getElementById('guessInput').value.trim().toLowerCase();
-    if (val === state.current.name.toLowerCase()) {
-        document.getElementById('winMsg').innerText = `You correctly identified ${state.current.name}!`;
-        document.getElementById('winOverlay').style.display = 'flex';
+    if (val === S.current.name.toLowerCase()) {
+        document.getElementById('winMsg').innerText = `Perfect! It's ${S.current.name}`;
+        document.getElementById('overlay').style.display = 'flex';
     } else {
         document.getElementById('guessInput').value = "";
     }
 }
 
 function spawn() {
-    const empty = state.cells.map((v, i) => v === null ? i : null).filter(v => v !== null);
+    const empty = S.cells.map((v, i) => v === null ? i : null).filter(v => v !== null);
     if (empty.length > 0) {
         const idx = empty[Math.floor(Math.random() * empty.length)];
-        state.cells[idx] = 1; render(idx);
+        S.cells[idx] = 1; render(idx);
     }
 }
 
 function render(i) {
     const cell = document.getElementById(`c-${i}`);
-    const val = state.cells[i];
+    const val = S.cells[i];
     cell.innerHTML = val ? `<div class="potion">${ICONS[val-1]}</div>` : '';
-    if (state.shattered[i]) cell.classList.add('shattered');
+    if (S.shattered[i]) {
+        cell.classList.remove('hinted');
+        cell.classList.add('shattered');
+    }
 }
 
-function update() {
-    document.getElementById('score').innerText = state.score;
-    const count = state.shattered.filter(v => v).length;
-    document.getElementById('progress').innerText = `REVEAL: ${Math.floor((count/40)*100)}%`;
+function updateUI() {
+    const req = getRequiredLevel();
+    document.getElementById('goalText').innerText = `Merge Level ${req}`;
+    document.getElementById('progressText').innerText = `REVEALED: ${Math.floor((S.revealedCount/40)*100)}%`;
 }
 
 init();
