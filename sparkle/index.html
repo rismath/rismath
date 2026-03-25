@@ -3,225 +3,688 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Sparkle Studio | Clean Reveal</title>
+<title>Sparkle Studio</title>
 <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #050206; 
-  --gold: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
-  --gold-static: #aa771c;
+  --gold: #c9a84c;
+  --gold2: #f5d78e;
+  --bg: #050206;
+  --pink: #E8547A;
+  --deep: #9A0020;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;}
+body{
+  background:var(--bg);color:#fff;
+  font-family:'Montserrat',sans-serif;
+  height:100%;display:flex;flex-direction:column;
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body { 
-    background: var(--bg); color: #fff; font-family: 'Montserrat', sans-serif; 
-    height: 100vh; display: flex; flex-direction: column; overflow: hidden;
+/* ── HEADER ── */
+.header{
+  padding:max(env(safe-area-inset-top),14px) 20px 8px;
+  display:flex;justify-content:space-between;align-items:center;
+  flex-shrink:0;z-index:10;
+}
+.logo{
+  font-family:'Marcellus',serif;font-size:1rem;letter-spacing:3px;
+  background:linear-gradient(135deg,#bf953f,#fcf6ba,#b38728);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  text-transform:uppercase;
+}
+.progress-wrap{display:flex;align-items:center;gap:.5rem;}
+.progress-text{font-size:.6rem;font-weight:900;color:var(--gold);letter-spacing:.1em;}
+.progress-ring{width:28px;height:28px;transform:rotate(-90deg);}
+.progress-ring circle{fill:none;stroke-width:3;}
+.ring-bg{stroke:rgba(255,255,255,0.1);}
+.ring-fill{stroke:var(--gold);stroke-dasharray:75.4;stroke-dashoffset:75.4;transition:stroke-dashoffset .5s ease;stroke-linecap:round;}
+
+/* ── STAGE ── */
+.stage{
+  flex:1;position:relative;margin:6px 14px;
+  border-radius:20px;overflow:hidden;
+  border:1px solid rgba(255,255,255,0.08);
+  background:#000;min-height:0;
 }
 
-.header { padding: env(safe-area-inset-top, 20px) 24px 10px; display: flex; justify-content: space-between; align-items: center; z-index: 10; }
-.studio-logo { font-family: 'Marcellus', serif; font-size: 1.1rem; letter-spacing: 3px; background: var(--gold); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-transform: uppercase; }
-
-.stage { flex: 1; position: relative; margin: 10px 20px; border-radius: 24px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); background: #000; }
-#celebBg { position: absolute; inset: 0; background-size: cover; background-position: center 15%; transform: scale(1.1); }
-
-.grid { display: grid; grid-template-columns: repeat(5, 1fr); grid-template-rows: repeat(8, 1fr); gap: 1px; width: 100%; height: 100%; position: relative; z-index: 1; }
-
-.cell {
-  background: rgba(10, 10, 15, 0.98);
-  backdrop-filter: blur(50px); -webkit-backdrop-filter: blur(50px);
-  transition: all 0.4s ease;
-  display: flex; align-items: center; justify-content: center;
+/* The dim background image — always visible, always dark */
+#bgDim{
+  position:absolute;inset:0;
+  background-size:cover;background-position:center 15%;
+  filter:brightness(0.25) blur(1px);
+  transform:scale(1.05);
+  z-index:0;
 }
 
-/* Revealed State */
-.cell.shattered {
-  background: transparent !important;
-  backdrop-filter: blur(0px) !important;
-  -webkit-backdrop-filter: blur(0px) !important;
-  border: none !important;
+/* Canvas layer — revealed portions drawn here at full brightness */
+#revealCanvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  z-index:1;pointer-events:none;
 }
 
-/* Force-hide any potion that might be inside a shattered cell */
-.cell.shattered .potion {
-  display: none !important;
-  opacity: 0 !important;
-  pointer-events: none;
+/* Cell grid on top */
+.grid{
+  position:absolute;inset:0;
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  grid-template-rows:repeat(8,1fr);
+  gap:1px;
+  z-index:2;
+}
+.cell{
+  background:rgba(8,6,14,0.96);
+  backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;position:relative;overflow:hidden;
+  transition:background .3s;
+}
+.cell.selected{
+  border:2px solid var(--pink);
+  box-shadow:inset 0 0 8px rgba(232,84,122,0.3);
+}
+.cell.shattered{
+  background:transparent!important;
+  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
+  pointer-events:none;border:none!important;
+}
+/* Shatter animation */
+@keyframes shatterAnim{
+  0%{opacity:1;transform:scale(1);}
+  50%{opacity:.6;transform:scale(1.15);}
+  100%{opacity:0;transform:scale(0) rotate(15deg);}
+}
+.cell.shattering{animation:shatterAnim .35s ease-out forwards;}
+
+/* Potion emoji */
+.pot{
+  font-size:clamp(1.1rem,4vw,1.6rem);
+  pointer-events:none;
+  animation:potpop .2s cubic-bezier(0.34,1.56,0.64,1);
+  position:relative;z-index:1;
+  line-height:1;
+}
+@keyframes potpop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+
+/* Merge flash */
+@keyframes mergeFlash{
+  0%{opacity:0;transform:scale(.5);}
+  50%{opacity:1;transform:scale(1.4);}
+  100%{opacity:0;transform:scale(1);}
+}
+.merge-flash{
+  position:absolute;inset:0;
+  border-radius:0;background:rgba(255,255,255,0.25);
+  animation:mergeFlash .35s ease-out forwards;
+  pointer-events:none;z-index:2;
 }
 
-.potion { font-size: 1.6rem; animation: pop 0.2s ease-out; pointer-events: none; }
-@keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+/* Reveal flash on shatter */
+.reveal-flash{
+  position:absolute;inset:0;
+  background:radial-gradient(circle,rgba(255,220,150,0.4),transparent 70%);
+  animation:mergeFlash .5s ease-out forwards;
+  pointer-events:none;z-index:3;
+}
 
-.footer { padding: 20px 24px env(safe-area-inset-bottom, 20px); }
-.input-wrapper { display: flex; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 4px; }
-#guessInput { flex: 1; background: transparent; border: none; padding: 14px; color: #fff; font-family: 'Montserrat'; outline: none; }
-.btn-check { background: var(--gold); color: #000; border: none; padding: 0 20px; border-radius: 12px; font-weight: 900; text-transform: uppercase; font-size: 0.7rem; }
+/* Particle */
+.spark{
+  position:fixed;pointer-events:none;z-index:999;
+  animation:sparkfly .6s ease-out forwards;
+  font-size:.7rem;
+}
+@keyframes sparkfly{
+  0%{opacity:1;transform:translate(0,0) scale(1);}
+  100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);}
+}
 
-#overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 100; display: none; flex-direction: column; align-items: center; justify-content: center; backdrop-filter: blur(20px); }
+/* ── FOOTER ── */
+.footer{
+  padding:10px 16px max(env(safe-area-inset-bottom),12px);
+  flex-shrink:0;
+}
+.merge-hint{
+  font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
+  color:rgba(255,255,255,0.25);text-align:center;margin-bottom:6px;
+}
+.input-row{
+  display:flex;background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:3px;
+}
+#guessInput{
+  flex:1;background:transparent;border:none;padding:12px 14px;
+  color:#fff;font-family:'Montserrat';font-size:.9rem;outline:none;
+}
+#guessInput::placeholder{color:rgba(255,255,255,0.25);}
+.btn-guess{
+  background:linear-gradient(135deg,#bf953f,#f5d78e);
+  color:#000;border:none;padding:0 18px;border-radius:10px;
+  font-weight:900;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
+  cursor:pointer;white-space:nowrap;
+}
+
+/* ── OVERLAY ── */
+#overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,0.92);
+  z-index:100;display:none;flex-direction:column;
+  align-items:center;justify-content:center;
+  backdrop-filter:blur(20px);padding:2rem;
+  text-align:center;
+}
+.ov-icon{font-size:3rem;margin-bottom:.5rem;}
+.ov-title{
+  font-family:'Marcellus',serif;font-size:1.8rem;
+  background:linear-gradient(135deg,#bf953f,#fcf6ba);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  margin-bottom:.5rem;
+}
+.ov-name{font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:.5rem;}
+.ov-reveal{font-size:.7rem;font-weight:600;color:rgba(255,255,255,0.4);
+  letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.5rem;}
+.btn-next{
+  background:linear-gradient(135deg,#bf953f,#f5d78e);
+  color:#000;border:none;padding:.9rem 2.5rem;border-radius:12px;
+  font-weight:900;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
+  cursor:pointer;
+}
+.ov-wrong{
+  color:var(--pink);font-size:.75rem;font-weight:700;
+  margin-top:.75rem;min-height:1.2rem;letter-spacing:.05em;
+}
+
+/* ── LOADING ── */
+#loading{
+  position:fixed;inset:0;background:#050206;z-index:200;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;
+}
+.load-logo{
+  font-family:'Marcellus',serif;font-size:1.4rem;letter-spacing:4px;
+  background:linear-gradient(135deg,#bf953f,#fcf6ba,#b38728);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  text-transform:uppercase;
+}
+.load-bar-wrap{width:160px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
+.load-bar{height:100%;background:linear-gradient(90deg,#bf953f,#f5d78e);width:0;transition:width .3s ease;border-radius:2px;}
+.load-sub{font-size:.6rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+
+/* ── IMAGE UPLOAD (fallback for no images) ── */
+.img-placeholder{
+  position:absolute;inset:0;z-index:0;
+  display:flex;align-items:center;justify-content:center;
+  flex-direction:column;gap:.75rem;
+  background:linear-gradient(135deg,#1a0830,#0a0416);
+}
+.img-placeholder-icon{font-size:2.5rem;opacity:.3;}
+.img-placeholder-text{font-size:.65rem;font-weight:600;letter-spacing:.12em;
+  text-transform:uppercase;color:rgba(255,255,255,0.2);}
 </style>
 </head>
-<body onclick="initAudio()">
+<body>
 
+<!-- Loading screen -->
+<div id="loading">
+  <div class="load-logo">Sparkle Studio</div>
+  <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
+  <div class="load-sub" id="loadSub">Loading…</div>
+</div>
+
+<!-- Win/reveal overlay -->
 <div id="overlay">
-    <h1 class="studio-logo" style="font-size: 2.2rem;">GHAZAB!</h1>
-    <p id="winMsg" style="margin: 20px;"></p>
-    <button class="btn-check" style="height:45px" onclick="location.reload()">Next Star</button>
+  <div class="ov-icon">⭐</div>
+  <div class="ov-title" id="ovTitle">You got it!</div>
+  <div class="ov-name" id="ovName"></div>
+  <div class="ov-reveal" id="ovReveal"></div>
+  <button class="btn-next" onclick="nextCeleb()">Next Star ✦</button>
+  <div class="ov-wrong" id="ovWrong"></div>
 </div>
 
 <div class="header">
-  <div class="studio-logo">Sparkle Studio</div>
-  <div id="progress" style="font-size: 0.6rem; font-weight: 900; color: var(--gold-static);">REVEAL: 50%</div>
+  <div class="logo">Sparkle Studio</div>
+  <div class="progress-wrap">
+    <div class="progress-text" id="progressText">0%</div>
+    <svg class="progress-ring" viewBox="0 0 28 28">
+      <circle class="ring-bg" cx="14" cy="14" r="12"/>
+      <circle class="ring-fill" id="ringFill" cx="14" cy="14" r="12"/>
+    </svg>
+  </div>
 </div>
 
-<div class="stage">
-  <div id="celebBg"></div>
+<div class="stage" id="stage">
+  <div id="bgDim"></div>
+  <canvas id="revealCanvas"></canvas>
   <div class="grid" id="grid"></div>
+  <div class="img-placeholder" id="imgPlaceholder" style="display:none">
+    <div class="img-placeholder-icon">🌟</div>
+    <div class="img-placeholder-text">Add images/celebrity-01.jpg to repo</div>
+  </div>
 </div>
 
 <div class="footer">
-  <div class="input-wrapper">
-    <input type="text" id="guessInput" placeholder="Guess the name..." autocomplete="off">
-    <button class="btn-check" onclick="checkGuess()">Check</button>
+  <div class="merge-hint">Merge matching icons → shatter tiles → reveal the star ✦</div>
+  <div class="input-row">
+    <input type="text" id="guessInput" placeholder="Who is this celebrity?" autocomplete="off"
+      onkeydown="if(event.key==='Enter')checkGuess()">
+    <button class="btn-guess" onclick="checkGuess()">Guess</button>
   </div>
 </div>
 
 <script>
+// ── CELEBRITY DATABASE ─────────────────────────────────────────────────────
+// Add your own images to the images/ folder and list them here
+// The game works WITHOUT images too — uses gradient placeholder
 const DB = [
-    { name: "Shah Rukh Khan", img: "https://www.themoviedb.org/t/p/original/m99asfLpSrkXo33U3v89j682Yf0.jpg" },
-    { name: "Virat Kohli", img: "https://img1.hscicdn.com/image/upload/f_auto,t_ds_square_w_320/lsci/db/PICTURES/CMS/316500/316523.png" },
-    { name: "Deepika Padukone", img: "https://www.themoviedb.org/t/p/original/69Yp9fM6I20f8Mst0E89v54M4D.jpg" }
+  { name:"Deepika Padukone", img:"images/deepika.jpg",   hint:"Bollywood actress" },
+  { name:"Priyanka Chopra",  img:"images/priyanka.jpg",  hint:"Global icon" },
+  { name:"Alia Bhatt",       img:"images/alia.jpg",      hint:"Bollywood star" },
+  { name:"Katrina Kaif",     img:"images/katrina.jpg",   hint:"Actress & dancer" },
+  { name:"Ranveer Singh",    img:"images/ranveer.jpg",   hint:"Bollywood actor" },
+  // Add more entries here. Image paths are relative to this HTML file.
+  // Without images the game still works — just shows a gradient background.
 ];
-const ICONS = ['🌸', '✨', '💧', '🔥', '🔮', '💎', '🌙', '☀️', '🌈', '👑'];
-let S = { cells: Array(40).fill(null), shattered: Array(40).fill(false), current: null, selected: null };
 
-let audioCtx = null;
-function initAudio() { if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
-function playSfx(f) {
-  if(!audioCtx) return;
-  const t = audioCtx.currentTime, o = audioCtx.createOscillator(), g = audioCtx.createGain();
-  o.type = 'sine'; o.frequency.value = f; g.gain.setValueAtTime(0.05, t);
-  g.gain.exponentialRampToValueAtTime(0.01, t + 0.1); o.connect(g); g.connect(audioCtx.destination);
-  o.start(); o.stop(t + 0.1);
+// ── ICONS (10 levels) ──────────────────────────────────────────────────────
+const ICONS = ['🌸','✨','💫','🔥','🔮','💎','🌙','⭐','🌈','👑'];
+const COLS = 5, ROWS = 8, TOTAL = COLS * ROWS;
+
+// ── STATE ──────────────────────────────────────────────────────────────────
+let S = {
+  cells: Array(TOTAL).fill(null),    // null or level 1-10
+  shattered: Array(TOTAL).fill(false),
+  selected: null,
+  current: null,
+  img: null,                          // loaded Image object
+  imgLoaded: false,
+  revealed: 0,
+  guesses: 0,
+};
+
+// ── AUDIO ──────────────────────────────────────────────────────────────────
+let AC = null;
+document.body.addEventListener('touchstart', initAudio, {once:true});
+document.body.addEventListener('click', initAudio, {once:true});
+function initAudio(){ if(!AC) AC = new(window.AudioContext||window.webkitAudioContext)(); }
+function sfx(f, dur=.1, vol=.05){
+  if(!AC) return;
+  try{
+    const t=AC.currentTime, o=AC.createOscillator(), g=AC.createGain();
+    o.type='sine'; o.frequency.value=f;
+    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+dur);
+  }catch(e){}
+}
+function playMerge(lv){ [300+lv*60, 400+lv*80, 500+lv*100].forEach((f,i)=>setTimeout(()=>sfx(f,.15,.06),i*60)); }
+function playShatter(){ sfx(800,.08); setTimeout(()=>sfx(1000,.15,.08),80); setTimeout(()=>sfx(1200,.25,.1),160); }
+function playWin(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>sfx(f,.3,.07),i*100)); }
+function playWrong(){ sfx(200,.2,.04); }
+
+// ── CANVAS REVEAL ──────────────────────────────────────────────────────────
+function setupCanvas(){
+  const stage = document.getElementById('stage');
+  const canvas = document.getElementById('revealCanvas');
+  canvas.width = stage.offsetWidth;
+  canvas.height = stage.offsetHeight;
 }
 
-function init() {
-    S.current = DB[Math.floor(Math.random() * DB.length)];
-    document.getElementById('celebBg').style.backgroundImage = `url(${S.current.img})`;
-    
-    // Define the Portrait Area (50% of the face)
-    const faceArea = [6,7,8,11,12,13,16,17,18,21,22,23,26,27,28,31,32,33];
-    
-    const grid = document.getElementById('grid');
-    grid.innerHTML = ''; // Clear previous grid
+function revealCell(idx){
+  const canvas = document.getElementById('revealCanvas');
+  const ctx = canvas.getContext('2d');
+  const cw = canvas.width, ch = canvas.height;
+  const cellW = cw / COLS, cellH = ch / ROWS;
+  const col = idx % COLS, row = Math.floor(idx / COLS);
+  const x = col * cellW, y = row * cellH;
 
-    for(let i=0; i<40; i++) {
-        const div = document.createElement('div');
-        div.className = 'cell';
-        div.id = `c-${i}`;
-
-        // FIX 1: MARK SHATTERED IMMEDIATELY
-        if (faceArea.includes(i)) {
-            S.shattered[i] = true;
-            div.classList.add('shattered');
-        }
-
-        div.onclick = (e) => { e.stopPropagation(); tap(i); };
-        grid.appendChild(div);
-    }
-
-    // FIX 2: ONLY SPAWN IN NON-SHATTERED CELLS
-    for(let i=0; i<8; i++) spawn();
-}
-
-function spawn() {
-    // Search for cells that are NEITHER shattered NOR occupied
-    const empty = [];
-    for(let i=0; i<40; i++) {
-        if (!S.shattered[i] && S.cells[i] === null) {
-            empty.push(i);
-        }
-    }
-
-    if (empty.length > 0) {
-        const idx = empty[Math.floor(Math.random() * empty.length)];
-        S.cells[idx] = 1; 
-        render(idx);
-    }
-}
-
-function tap(i) {
-    if (S.shattered[i]) return; // Cannot interact with empty air
-
-    if (S.selected === null) {
-        if (S.cells[i]) {
-            S.selected = i;
-            document.getElementById(`c-${i}`).classList.add('selected');
-        } else {
-            S.cells[i] = 1; render(i); playSfx(300);
-        }
+  if(S.imgLoaded && S.img){
+    // Draw the image portion at full brightness
+    // Calculate source coordinates (image may be different aspect ratio)
+    const img = S.img;
+    const imgAspect = img.naturalWidth / img.naturalHeight;
+    const canvasAspect = cw / ch;
+    let sx, sy, sw, sh;
+    if(imgAspect > canvasAspect){
+      // Image wider — crop sides
+      sh = img.naturalHeight;
+      sw = sh * canvasAspect;
+      sx = (img.naturalWidth - sw) / 2;
+      sy = 0;
     } else {
-        const from = S.selected;
-        document.getElementById(`c-${from}`).classList.remove('selected');
-        S.selected = null;
-        if (from === i) return;
-
-        if (S.cells[i] === S.cells[from]) {
-            S.cells[i] += 1;
-            S.cells[from] = null;
-            shatter(i);
-            render(from); render(i);
-            setTimeout(spawn, 100);
-        } else {
-            [S.cells[i], S.cells[from]] = [S.cells[from], S.cells[i]];
-            render(from); render(i);
-        }
+      // Image taller — crop top/bottom (show top 85% for faces)
+      sw = img.naturalWidth;
+      sh = sw / canvasAspect;
+      sx = 0;
+      sy = img.naturalHeight * 0.05; // slight offset down to show face
     }
+    // Map cell position to image source
+    const srcX = sx + (x / cw) * sw;
+    const srcY = sy + (y / ch) * sh;
+    const srcW = (cellW / cw) * sw;
+    const srcH = (cellH / ch) * sh;
+    ctx.drawImage(img, srcX, srcY, srcW, srcH, x, y, cellW+1, cellH+1);
+
+    // Golden shimmer overlay
+    ctx.fillStyle = 'rgba(255,220,100,0.06)';
+    ctx.fillRect(x, y, cellW+1, cellH+1);
+  } else {
+    // No image — reveal a gradient pattern
+    const grad = ctx.createRadialGradient(x+cellW/2, y+cellH/2, 0, x+cellW/2, y+cellH/2, cellW);
+    grad.addColorStop(0, `hsl(${(idx*17)%360},60%,55%)`);
+    grad.addColorStop(1, `hsl(${(idx*17+40)%360},40%,30%)`);
+    ctx.fillStyle = grad;
+    ctx.fillRect(x, y, cellW+1, cellH+1);
+  }
+
+  // Subtle cell border on revealed area
+  ctx.strokeStyle = 'rgba(255,220,100,0.08)';
+  ctx.lineWidth = .5;
+  ctx.strokeRect(x+.5, y+.5, cellW, cellH);
 }
 
-function shatter(idx) {
-    S.shattered[idx] = true;
-    S.cells[idx] = null; // Clear potion data immediately
-    playSfx(600);
-    
-    // Tiny splash reveal for neighbors
-    [idx-1, idx+1, idx-5, idx+5].forEach(n => {
-        if(n >= 0 && n < 40 && Math.random() > 0.7) {
-            S.shattered[n] = true;
-            S.cells[n] = null;
-        }
+// ── INIT ───────────────────────────────────────────────────────────────────
+function init(celebIdx){
+  // Pick celebrity
+  const pick = celebIdx !== undefined
+    ? DB[celebIdx % DB.length]
+    : DB[Math.floor(Math.random()*DB.length)];
+  S = {
+    cells: Array(TOTAL).fill(null),
+    shattered: Array(TOTAL).fill(false),
+    selected: null,
+    current: pick,
+    img: null,
+    imgLoaded: false,
+    revealed: 0,
+    guesses: 0,
+    celebIdx: celebIdx ?? DB.indexOf(pick),
+  };
+
+  // Load image
+  loadImg(pick.img, (img)=>{
+    S.img = img;
+    S.imgLoaded = !!img;
+    document.getElementById('bgDim').style.backgroundImage = img
+      ? `url(${pick.img})` : 'linear-gradient(135deg,#2d004c,#090010)';
+    document.getElementById('imgPlaceholder').style.display = img ? 'none' : 'flex';
+    document.getElementById('imgPlaceholder').querySelector('.img-placeholder-text').textContent =
+      `Add ${pick.img} to reveal this star`;
+    finishInit();
+  });
+}
+
+function loadImg(src, cb){
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  img.onload = ()=>cb(img);
+  img.onerror = ()=>cb(null);
+  img.src = src;
+}
+
+function finishInit(){
+  setupCanvas();
+  // Clear canvas
+  const canvas = document.getElementById('revealCanvas');
+  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
+
+  // Build grid
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  for(let i=0;i<TOTAL;i++){
+    const div = document.createElement('div');
+    div.className = 'cell';
+    div.id = `c-${i}`;
+    div.addEventListener('click', e=>{e.stopPropagation();tap(i);});
+    grid.appendChild(div);
+  }
+
+  // Seed potions
+  for(let i=0;i<8;i++) spawn();
+
+  updateProgress();
+  document.getElementById('guessInput').value='';
+  document.getElementById('overlay').style.display='none';
+  document.getElementById('loading').style.display='none';
+}
+
+// ── SPAWN ──────────────────────────────────────────────────────────────────
+function spawn(){
+  const empty=[];
+  for(let i=0;i<TOTAL;i++){
+    if(!S.shattered[i] && S.cells[i]===null) empty.push(i);
+  }
+  if(!empty.length) return;
+  const idx=empty[Math.floor(Math.random()*empty.length)];
+  S.cells[idx]=1;
+  renderCell(idx);
+}
+
+// ── TAP ────────────────────────────────────────────────────────────────────
+function tap(i){
+  if(S.shattered[i]) return;
+  initAudio();
+
+  // Empty cell — spawn level 1 here
+  if(S.cells[i]===null){
+    if(S.selected!==null){
+      // Move selected potion here
+      const from=S.selected;
+      setSelected(null);
+      S.cells[i]=S.cells[from];
+      S.cells[from]=null;
+      renderCell(from); renderCell(i);
+      sfx(350,.1);
+    } else {
+      S.cells[i]=1; renderCell(i); sfx(300,.1);
+    }
+    return;
+  }
+
+  // Has potion — nothing selected yet
+  if(S.selected===null){
+    setSelected(i); sfx(440,.08);
+    return;
+  }
+
+  // Tap same cell — deselect
+  if(S.selected===i){ setSelected(null); return; }
+
+  const from=S.selected;
+  setSelected(null);
+
+  if(S.cells[i]===S.cells[from]){
+    // MERGE
+    const newLv=S.cells[from]+1;
+    S.cells[from]=null;
+    S.cells[i]=newLv;
+    renderCell(from);
+
+    // Flash
+    const el=document.getElementById(`c-${i}`);
+    const flash=document.createElement('div');
+    flash.className='merge-flash';
+    el.appendChild(flash);
+    setTimeout(()=>flash.remove(),400);
+
+    playMerge(newLv);
+
+    if(newLv>=ICONS.length){
+      // SHATTER!
+      setTimeout(()=>doShatter(i), 200);
+    } else {
+      renderCell(i);
+      setTimeout(spawn,300);
+    }
+  } else {
+    // SWAP
+    [S.cells[i],S.cells[from]]=[S.cells[from],S.cells[i]];
+    renderCell(from); renderCell(i); sfx(350,.1);
+  }
+}
+
+function setSelected(idx){
+  document.querySelectorAll('.cell.selected').forEach(el=>el.classList.remove('selected'));
+  S.selected=idx;
+  if(idx!==null) document.getElementById(`c-${idx}`)?.classList.add('selected');
+}
+
+// ── SHATTER ────────────────────────────────────────────────────────────────
+function doShatter(idx){
+  // Animate out
+  const el=document.getElementById(`c-${idx}`);
+  el.classList.add('shattering');
+
+  setTimeout(()=>{
+    shatterCell(idx);
+    // Splash 1-2 neighbors
+    const neighbors=[idx-1,idx+1,idx-COLS,idx+COLS];
+    neighbors.forEach(n=>{
+      if(n>=0 && n<TOTAL && !S.shattered[n] && Math.random()>.5){
+        const nel=document.getElementById(`c-${n}`);
+        nel.classList.add('shattering');
+        setTimeout(()=>shatterCell(n), 80);
+      }
     });
-    
-    for(let j=0; j<40; j++) render(j);
+    // Particles
+    spawnParticles(el);
+    playShatter();
+    setTimeout(spawn,400);
     updateProgress();
+    checkWin();
+  }, 250);
 }
 
-function render(i) {
-    const cell = document.getElementById(`c-${i}`);
-    
-    // FIX 3: DOUBLE PROTECTION - Clear HTML if shattered
-    if (S.shattered[i]) {
-        cell.classList.add('shattered');
-        cell.innerHTML = ''; 
-    } else {
-        cell.innerHTML = S.cells[i] ? `<div class="potion">${ICONS[S.cells[i]-1]}</div>` : '';
+function shatterCell(idx){
+  S.shattered[idx]=true;
+  S.cells[idx]=null;
+  S.revealed++;
+  revealCell(idx); // draw image patch to canvas
+  const el=document.getElementById(`c-${idx}`);
+  if(!el)return;
+  el.className='cell shattered';
+  el.innerHTML='';
+  // Reveal flash
+  const flash=document.createElement('div');
+  flash.className='reveal-flash';
+  el.appendChild(flash);
+  setTimeout(()=>flash.remove(),600);
+}
+
+function spawnParticles(el){
+  const r=el.getBoundingClientRect();
+  const cx=r.left+r.width/2, cy=r.top+r.height/2;
+  ['✦','✧','·','⭐','✸'].forEach((ch,i)=>{
+    const p=document.createElement('div');
+    p.className='spark'; p.textContent=ch;
+    const ang=(i/5)*Math.PI*2;
+    const d=25+Math.random()*35;
+    p.style.cssText=`left:${cx}px;top:${cy}px;color:#f5d78e;--tx:${Math.cos(ang)*d}px;--ty:${Math.sin(ang)*d}px;`;
+    document.body.appendChild(p);
+    setTimeout(()=>p.remove(),700);
+  });
+}
+
+// ── RENDER ─────────────────────────────────────────────────────────────────
+function renderCell(i){
+  const el=document.getElementById(`c-${i}`);
+  if(!el)return;
+  if(S.shattered[i]){
+    el.className='cell shattered'; el.innerHTML=''; return;
+  }
+  const sel=S.selected===i?' selected':'';
+  el.className='cell'+sel;
+  el.innerHTML=S.cells[i]
+    ? `<div class="pot">${ICONS[(S.cells[i]-1)%ICONS.length]}</div>`
+    : '';
+}
+
+// ── PROGRESS ───────────────────────────────────────────────────────────────
+function updateProgress(){
+  const pct=Math.round((S.revealed/TOTAL)*100);
+  document.getElementById('progressText').textContent=pct+'%';
+  // Ring: circumference = 2π×12 ≈ 75.4
+  const offset=75.4*(1-pct/100);
+  document.getElementById('ringFill').style.strokeDashoffset=offset;
+}
+
+// ── GUESS ──────────────────────────────────────────────────────────────────
+function checkGuess(){
+  const val=document.getElementById('guessInput').value.trim().toLowerCase();
+  if(!val)return;
+  S.guesses++;
+  initAudio();
+  const correct=S.current.name.toLowerCase();
+  // Accept if input is contained in name or vice versa (fuzzy)
+  if(correct.includes(val)||val.includes(correct.split(' ')[0].toLowerCase())){
+    showWin(true);
+  } else {
+    playWrong();
+    document.getElementById('guessInput').value='';
+    document.getElementById('guessInput').placeholder='Try again…';
+    // Shake input
+    const inp=document.getElementById('guessInput').parentElement;
+    inp.style.borderColor='rgba(232,84,122,0.6)';
+    setTimeout(()=>inp.style.borderColor='',700);
+  }
+}
+
+function checkWin(){
+  if(S.revealed>=TOTAL) showWin(false);
+}
+
+function showWin(byGuess){
+  playWin();
+  // Reveal all remaining cells
+  for(let i=0;i<TOTAL;i++){
+    if(!S.shattered[i]){
+      S.shattered[i]=true;
+      revealCell(i);
+      const el=document.getElementById(`c-${i}`);
+      if(el){el.className='cell shattered';el.innerHTML='';}
     }
+  }
+  updateProgress();
+  document.getElementById('ovTitle').textContent = byGuess ? 'You got it! ⭐' : 'Fully revealed!';
+  document.getElementById('ovName').textContent = S.current.name;
+  document.getElementById('ovReveal').textContent =
+    `${S.revealed} tiles revealed · ${S.guesses} guess${S.guesses!==1?'es':''}`;
+  document.getElementById('overlay').style.display='flex';
 }
 
-function updateProgress() {
-    const count = S.shattered.filter(v => v).length;
-    document.getElementById('progress').innerText = `REVEAL: ${Math.floor((count/40)*100)}%`;
+function nextCeleb(){
+  const next=(S.celebIdx+1)%DB.length;
+  document.getElementById('overlay').style.display='none';
+  showLoading(()=>init(next));
 }
 
-function checkGuess() {
-    const val = document.getElementById('guessInput').value.trim().toLowerCase();
-    if (val === S.current.name.toLowerCase()) {
-        document.getElementById('winMsg').innerText = `You identified ${S.current.name}!`;
-        document.getElementById('overlay').style.display = 'flex';
-    } else {
-        document.getElementById('guessInput').value = "";
-    }
+// ── LOADING SCREEN ─────────────────────────────────────────────────────────
+function showLoading(cb){
+  const el=document.getElementById('loading');
+  const bar=document.getElementById('loadBar');
+  const sub=document.getElementById('loadSub');
+  el.style.display='flex';
+  bar.style.width='0%';
+  sub.textContent='Loading star…';
+  let p=0;
+  const t=setInterval(()=>{
+    p+=Math.random()*25+10;
+    if(p>=95){clearInterval(t);bar.style.width='95%';}
+    else bar.style.width=p+'%';
+  },120);
+  setTimeout(()=>{
+    bar.style.width='100%';
+    clearInterval(t);
+    setTimeout(()=>{el.style.display='none';cb&&cb();},200);
+  },600);
 }
 
-init();
+// ── RESIZE ─────────────────────────────────────────────────────────────────
+window.addEventListener('resize',()=>{
+  setupCanvas();
+  // Re-reveal all shattered cells on new canvas size
+  for(let i=0;i<TOTAL;i++){
+    if(S.shattered[i]) revealCell(i);
+  }
+});
+
+// ── BOOT ───────────────────────────────────────────────────────────────────
+showLoading(()=>init(0));
 </script>
 </body>
 </html>
