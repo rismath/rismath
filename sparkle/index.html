@@ -394,8 +394,18 @@ function init(celebIdx){
     revealed: 0,
     guesses: 0,
     celebIdx: celebIdx ?? DB.indexOf(pick),
+    merges: 0,
   };
-  S.shatterLevel = Array(TOTAL).fill(1);
+  S.shatterLevel = Array(TOTAL).fill(0);
+  for(let i=0; i<TOTAL; i++){
+    const row = Math.floor(i / 5);
+    const col = i % 5;
+    if (row >=2 && row <=5 && col >=1 && col <=3) {
+      S.shatterLevel[i] = Math.floor(Math.random() * 4) + 7; // 7-10 for center
+    } else {
+      S.shatterLevel[i] = Math.floor(Math.random() * 5) + 2; // 2-6 for edges
+    }
+  }
 
   // Load image
   loadImg(pick.img, (img)=>{
@@ -494,6 +504,7 @@ function tap(i){
     const newLv=S.cells[from]+1;
     S.cells[from]=null;
     S.cells[i]=newLv;
+    S.merges++;
     renderCell(from);
 
     // Flash
@@ -644,7 +655,7 @@ function showWin(byGuess){
   document.getElementById('ovTitle').textContent = byGuess ? 'You got it! ⭐' : 'Fully revealed!';
   document.getElementById('ovName').textContent = S.current.name;
   document.getElementById('ovReveal').textContent =
-    `${S.revealed} tiles revealed · ${S.guesses} guess${S.guesses!==1?'es':''}`;
+    `${S.revealed} tiles revealed · ${S.merges} merges · ${S.guesses} guess${S.guesses!==1?'es':''}`;
   document.getElementById('overlay').style.display='flex';
 }
 
