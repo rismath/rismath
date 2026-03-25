@@ -273,11 +273,11 @@ body{
 // Add your own images to the images/ folder and list them here
 // The game works WITHOUT images too — uses gradient placeholder
 const DB = [
-  { name:"Juhi Chawla", img:"images/Juhi Chawla.png",   hint:"Bollywood actress" },
-  { name:"Shubhman Gill",  img:"images/Shubhman Gill.png",  hint:"Global icon" },
-  { name:"Shahrukh Khan",       img:"images/Shahrukh Khan.png",      hint:"Bollywood star" },
-  { name:"Rahul Gandhi",     img:"images/Rahul Gandhi.png",   hint:"Actress & dancer" },
-  { name:"Smriti Mandhana",    img:"images/Smriti Mandhana.png",   hint:"Bollywood actor" },
+  { name:"Juhi Chawla", img:"images/JuhiChawla.png",   hint:"Bollywood actress" },
+  { name:"Shubhman Gill",  img:"images/ShubhmanGill.png",  hint:"Global icon" },
+  { name:"Shahrukh Khan",       img:"images/ShahrukhKhan.png",      hint:"Bollywood star" },
+  { name:"Rahul Gandhi",     img:"images/RahulGandhi.png",   hint:"Actress & dancer" },
+  { name:"Smriti Mandhana",    img:"images/SmritiMandhana.png",   hint:"Bollywood actor" },
   // Add more entries here. Image paths are relative to this HTML file.
   // Without images the game still works — just shows a gradient background.
 ];
@@ -405,6 +405,17 @@ function init(celebIdx){
     document.getElementById('imgPlaceholder').style.display = img ? 'none' : 'flex';
     document.getElementById('imgPlaceholder').querySelector('.img-placeholder-text').textContent =
       `Add ${pick.img} to reveal this star`;
+
+    // Show full image briefly to confirm loading
+    if (img) {
+      setTimeout(() => {
+        document.getElementById('bgDim').style.filter = 'brightness(1) blur(0px)';
+      }, 500);
+      setTimeout(() => {
+        document.getElementById('bgDim').style.filter = 'brightness(0.25) blur(4px)';
+      }, 2500);
+    }
+
     finishInit();
   });
 }
