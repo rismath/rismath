@@ -1,702 +1,1217 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Sparkle Studio</title>
-<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@300;600;900&display=swap" rel="stylesheet">
-<style>
-:root {
-  --gold: #c9a84c;
-  --gold2: #f5d78e;
-  --bg: #050206;
-  --pink: #E8547A;
-  --deep: #9A0020;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;}
-body{
-  background:var(--bg);color:#fff;
-  font-family:'Montserrat',sans-serif;
-  height:100%;display:flex;flex-direction:column;
-}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Sparkle Studio — Celebrity Reveal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg1:#06040c;
+      --bg2:#12081f;
+      --bg3:#1a0d2b;
+      --gold1:#bf953f;
+      --gold2:#f5d78e;
+      --gold3:#fcf6ba;
+      --text:#ffffff;
+      --muted:rgba(255,255,255,0.62);
+      --soft:rgba(255,255,255,0.12);
+      --line:rgba(255,255,255,0.10);
+      --danger:#e8547a;
+      --success:#76d67e;
+      --shadow:0 18px 60px rgba(0,0,0,0.45);
+      --cell-gap:8px;
+      --radius:18px;
+      --header-h:70px;
+      --footer-h:118px;
+      --stage-max:560px;
+    }
 
-/* ── HEADER ── */
-.header{
-  padding:max(env(safe-area-inset-top),14px) 20px 8px;
-  display:flex;justify-content:space-between;align-items:center;
-  flex-shrink:0;z-index:10;
-}
-.logo{
-  font-family:'Marcellus',serif;font-size:1rem;letter-spacing:3px;
-  background:linear-gradient(135deg,#bf953f,#fcf6ba,#b38728);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  text-transform:uppercase;
-}
-.progress-wrap{display:flex;align-items:center;gap:.5rem;}
-.progress-text{font-size:.6rem;font-weight:900;color:var(--gold);letter-spacing:.1em;}
-.progress-ring{width:28px;height:28px;transform:rotate(-90deg);}
-.progress-ring circle{fill:none;stroke-width:3;}
-.ring-bg{stroke:rgba(255,255,255,0.1);}
-.ring-fill{stroke:var(--gold);stroke-dasharray:75.4;stroke-dashoffset:75.4;transition:stroke-dashoffset .5s ease;stroke-linecap:round;}
+    *{box-sizing:border-box}
+    html,body{
+      margin:0;
+      height:100%;
+      background:
+        radial-gradient(circle at top, rgba(255,214,102,0.10), transparent 30%),
+        linear-gradient(180deg, var(--bg3), var(--bg2) 35%, var(--bg1));
+      color:var(--text);
+      font-family:'Montserrat',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      overflow:hidden;
+    }
 
-/* ── STAGE ── */
-.stage{
-  flex:1;position:relative;margin:6px 14px;
-  border-radius:20px;overflow:hidden;
-  border:1px solid rgba(255,255,255,0.08);
-  background:#000;min-height:0;
-}
+    body{
+      display:flex;
+      flex-direction:column;
+      min-height:100svh;
+      user-select:none;
+      -webkit-tap-highlight-color:transparent;
+    }
 
-/* The dim background image — always visible, always dark */
-#bgDim{
-  position:absolute;inset:0;
-  background-size:cover;background-position:center 15%;
-  filter:brightness(1) blur(0px);
-  transform:scale(1.05);
-  z-index:0;
-}
+    button, input { font: inherit; }
 
-/* Canvas layer — revealed portions drawn here at full brightness */
-#revealCanvas{
-  position:absolute;inset:0;width:100%;height:100%;
-  z-index:1;pointer-events:none;
-}
+    /* Loading */
+    #loading{
+      position:fixed;
+      inset:0;
+      z-index:200;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:14px;
+      background:
+        radial-gradient(circle at center, rgba(255,220,130,0.10), transparent 30%),
+        linear-gradient(135deg,#13081f,#09040f 65%, #020103);
+    }
+    .load-logo{
+      font-family:'Marcellus', serif;
+      font-size:1.9rem;
+      letter-spacing:.05em;
+      background:linear-gradient(135deg,var(--gold1),var(--gold3));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .load-bar-wrap{
+      width:min(280px,78vw);
+      height:10px;
+      border-radius:999px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.10);
+      background:rgba(255,255,255,0.05);
+    }
+    .load-bar{
+      width:0%;
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(135deg,var(--gold1),var(--gold2),var(--gold3));
+      transition:width .22s ease;
+    }
+    .load-sub{
+      font-size:.82rem;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.58);
+      font-weight:700;
+    }
 
-/* Cell grid on top */
-.grid{
-  position:absolute;inset:0;
-  display:grid;
-  grid-template-columns:repeat(5,1fr);
-  grid-template-rows:repeat(8,1fr);
-  gap:1px;
-  z-index:2;
-}
-.cell{
-  background:rgba(8,6,14,0.5);
-  backdrop-filter:blur(40px);-webkit-backdrop-filter:blur(40px);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;position:relative;overflow:hidden;
-  transition:background .3s;
-}
-.cell.selected{
-  border:2px solid var(--pink);
-  box-shadow:inset 0 0 8px rgba(232,84,122,0.3);
-}
-.cell.shattered{
-  background:transparent!important;
-  backdrop-filter:none!important;-webkit-backdrop-filter:none!important;
-  pointer-events:none;border:none!important;
-}
-/* Shatter animation */
-@keyframes shatterAnim{
-  0%{opacity:1;transform:scale(1);}
-  50%{opacity:.6;transform:scale(1.15);}
-  100%{opacity:0;transform:scale(0) rotate(15deg);}
-}
-.cell.shattering{animation:shatterAnim .35s ease-out forwards;}
+    /* Header */
+    .header{
+      height:var(--header-h);
+      min-height:var(--header-h);
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:12px 16px;
+      padding-top:max(12px, env(safe-area-inset-top));
+      position:relative;
+      z-index:2;
+    }
+    .logo{
+      font-family:'Marcellus', serif;
+      font-size:1.25rem;
+      letter-spacing:.04em;
+      background:linear-gradient(135deg,var(--gold1),var(--gold3));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      text-shadow:0 0 20px rgba(255,220,120,0.08);
+    }
+    .hud{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .chip{
+      padding:8px 10px;
+      border:1px solid var(--line);
+      background:rgba(255,255,255,0.04);
+      border-radius:14px;
+      font-size:.72rem;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.8);
+      white-space:nowrap;
+    }
 
-/* Potion emoji */
-.pot{
-  font-size:clamp(1.1rem,4vw,1.6rem);
-  pointer-events:none;
-  animation:potpop .2s cubic-bezier(0.34,1.56,0.64,1);
-  position:relative;z-index:1;
-  line-height:1;
-}
-@keyframes potpop{from{transform:scale(0);opacity:0;}to{transform:scale(1);opacity:1;}}
+    .progress-wrap{
+      position:relative;
+      width:42px;
+      height:42px;
+      display:grid;
+      place-items:center;
+    }
+    .progress-text{
+      position:absolute;
+      font-size:.62rem;
+      font-weight:900;
+      color:#fff;
+      letter-spacing:.02em;
+    }
+    .progress-ring{
+      width:42px;
+      height:42px;
+      transform:rotate(-90deg);
+    }
+    .ring-bg{
+      fill:none;
+      stroke:rgba(255,255,255,0.12);
+      stroke-width:3;
+    }
+    .ring-fill{
+      fill:none;
+      stroke:url(#ringGradient);
+      stroke-width:3;
+      stroke-linecap:round;
+      stroke-dasharray:75.4;
+      stroke-dashoffset:75.4;
+      transition:stroke-dashoffset .28s ease;
+      filter:drop-shadow(0 0 6px rgba(255,220,100,0.35));
+    }
 
-/* Merge flash */
-@keyframes mergeFlash{
-  0%{opacity:0;transform:scale(.5);}
-  50%{opacity:1;transform:scale(1.4);}
-  100%{opacity:0;transform:scale(1);}
-}
-.merge-flash{
-  position:absolute;inset:0;
-  border-radius:0;background:rgba(255,255,255,0.25);
-  animation:mergeFlash .35s ease-out forwards;
-  pointer-events:none;z-index:2;
-}
+    /* Stage */
+    .stage-shell{
+      flex:1;
+      min-height:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:8px 14px;
+    }
+    .stage{
+      width:min(94vw, var(--stage-max));
+      aspect-ratio:5 / 8;
+      max-height:100%;
+      position:relative;
+      border-radius:28px;
+      overflow:hidden;
+      border:1px solid rgba(255,255,255,0.10);
+      box-shadow:var(--shadow);
+      background:
+        radial-gradient(circle at top, rgba(255,215,110,0.10), transparent 30%),
+        linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.00)),
+        linear-gradient(180deg, #10061b, #06030b 75%);
+    }
 
-/* Reveal flash on shatter */
-.reveal-flash{
-  position:absolute;inset:0;
-  background:radial-gradient(circle,rgba(255,220,150,0.4),transparent 70%);
-  animation:mergeFlash .5s ease-out forwards;
-  pointer-events:none;z-index:3;
-}
+    #bgDim{
+      position:absolute;
+      inset:0;
+      background-size:cover;
+      background-position:center;
+      filter:blur(16px) saturate(.95) brightness(.35);
+      transform:scale(1.06);
+      opacity:.88;
+    }
 
-/* Particle */
-.spark{
-  position:fixed;pointer-events:none;z-index:999;
-  animation:sparkfly .6s ease-out forwards;
-  font-size:.7rem;
-}
-@keyframes sparkfly{
-  0%{opacity:1;transform:translate(0,0) scale(1);}
-  100%{opacity:0;transform:translate(var(--tx),var(--ty)) scale(0);}
-}
+    #bgDim::after{
+      content:'';
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(180deg, rgba(5,3,9,0.35), rgba(5,3,9,0.52)),
+        radial-gradient(circle at center, transparent 0 30%, rgba(5,3,9,0.35) 75%, rgba(5,3,9,0.6) 100%);
+    }
 
-/* ── FOOTER ── */
-.footer{
-  padding:10px 16px max(env(safe-area-inset-bottom),12px);
-  flex-shrink:0;
-}
-.merge-hint{
-  font-size:.58rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;
-  color:rgba(255,255,255,0.25);text-align:center;margin-bottom:6px;
-}
-.input-row{
-  display:flex;background:rgba(255,255,255,0.06);
-  border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:3px;
-}
-#guessInput{
-  flex:1;background:transparent;border:none;padding:12px 14px;
-  color:#fff;font-family:'Montserrat';font-size:.9rem;outline:none;
-}
-#guessInput::placeholder{color:rgba(255,255,255,0.25);}
-.btn-guess{
-  background:linear-gradient(135deg,#bf953f,#f5d78e);
-  color:#000;border:none;padding:0 18px;border-radius:10px;
-  font-weight:900;font-size:.65rem;letter-spacing:.08em;text-transform:uppercase;
-  cursor:pointer;white-space:nowrap;
-}
+    #revealCanvas{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      z-index:1;
+      pointer-events:none;
+    }
 
-/* ── OVERLAY ── */
-#overlay{
-  position:fixed;inset:0;background:rgba(0,0,0,0.92);
-  z-index:100;display:none;flex-direction:column;
-  align-items:center;justify-content:center;
-  backdrop-filter:blur(20px);padding:2rem;
-  text-align:center;
-}
-.ov-icon{font-size:3rem;margin-bottom:.5rem;}
-.ov-title{
-  font-family:'Marcellus',serif;font-size:1.8rem;
-  background:linear-gradient(135deg,#bf953f,#fcf6ba);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  margin-bottom:.5rem;
-}
-.ov-name{font-size:1.1rem;font-weight:900;color:#fff;margin-bottom:.5rem;}
-.ov-reveal{font-size:.7rem;font-weight:600;color:rgba(255,255,255,0.4);
-  letter-spacing:.12em;text-transform:uppercase;margin-bottom:1.5rem;}
-.btn-next{
-  background:linear-gradient(135deg,#bf953f,#f5d78e);
-  color:#000;border:none;padding:.9rem 2.5rem;border-radius:12px;
-  font-weight:900;font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;
-  cursor:pointer;
-}
-.ov-wrong{
-  color:var(--pink);font-size:.75rem;font-weight:700;
-  margin-top:.75rem;min-height:1.2rem;letter-spacing:.05em;
-}
+    .grid{
+      position:absolute;
+      inset:0;
+      z-index:2;
+      display:grid;
+      grid-template-columns:repeat(5, 1fr);
+      grid-template-rows:repeat(8, 1fr);
+      gap:var(--cell-gap);
+      padding:14px;
+    }
 
-/* ── LOADING ── */
-#loading{
-  position:fixed;inset:0;background:#050206;z-index:200;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;
-}
-.load-logo{
-  font-family:'Marcellus',serif;font-size:1.4rem;letter-spacing:4px;
-  background:linear-gradient(135deg,#bf953f,#fcf6ba,#b38728);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  text-transform:uppercase;
-}
-.load-bar-wrap{width:160px;height:3px;background:rgba(255,255,255,0.1);border-radius:2px;overflow:hidden;}
-.load-bar{height:100%;background:linear-gradient(90deg,#bf953f,#f5d78e);width:0;transition:width .3s ease;border-radius:2px;}
-.load-sub{font-size:.6rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:rgba(255,255,255,0.3);}
+    .cell{
+      position:relative;
+      border-radius:18px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03)),
+        rgba(8,5,13,0.56);
+      backdrop-filter:blur(8px);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+      overflow:hidden;
+      cursor:pointer;
+      transition:
+        transform .16s ease,
+        border-color .2s ease,
+        background .2s ease,
+        box-shadow .2s ease,
+        opacity .2s ease;
+    }
+    .cell:active{ transform:scale(.97); }
 
-/* ── IMAGE UPLOAD (fallback for no images) ── */
-.img-placeholder{
-  position:absolute;inset:0;z-index:0;
-  display:flex;align-items:center;justify-content:center;
-  flex-direction:column;gap:.75rem;
-  background:linear-gradient(135deg,#1a0830,#0a0416);
-}
-.img-placeholder-icon{font-size:2.5rem;opacity:.3;}
-.img-placeholder-text{font-size:.65rem;font-weight:600;letter-spacing:.12em;
-  text-transform:uppercase;color:rgba(255,255,255,0.2);}
-</style>
+    .cell.selected{
+      transform:translateY(-1px) scale(1.02);
+      border-color:rgba(255,230,150,0.6);
+      box-shadow:
+        0 0 0 1px rgba(255,220,100,0.15),
+        0 10px 24px rgba(0,0,0,0.22),
+        inset 0 0 18px rgba(255,220,100,0.08);
+      background:
+        linear-gradient(180deg, rgba(255,220,110,0.16), rgba(255,255,255,0.04)),
+        rgba(12,8,19,0.72);
+    }
+
+    .cell.shattered{
+      opacity:0;
+      pointer-events:none;
+      transform:scale(.92);
+    }
+
+    .cell.shattering{
+      animation:shatterOut .28s ease forwards;
+      pointer-events:none;
+    }
+    @keyframes shatterOut{
+      0%{ transform:scale(1) rotate(0deg); opacity:1; filter:blur(0px); }
+      40%{ transform:scale(1.07) rotate(-2deg); opacity:1; }
+      100%{ transform:scale(.72) rotate(6deg); opacity:0; filter:blur(6px); }
+    }
+
+    .tile-inner{
+      position:relative;
+      width:100%;
+      height:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:2px;
+      z-index:1;
+    }
+    .tile-emoji{
+      font-size:clamp(1rem, 2.4vw, 1.6rem);
+      line-height:1;
+      filter:drop-shadow(0 2px 6px rgba(0,0,0,0.25));
+    }
+    .tile-level{
+      font-size:.56rem;
+      font-weight:900;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.85);
+    }
+
+    .merge-flash{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      border-radius:inherit;
+      background:
+        radial-gradient(circle at center, rgba(255,255,255,0.42), transparent 58%),
+        linear-gradient(180deg, rgba(255,230,150,0.20), transparent);
+      animation:mergeFlash .36s ease-out forwards;
+      z-index:2;
+    }
+    .reveal-flash{
+      position:absolute;
+      inset:0;
+      pointer-events:none;
+      border-radius:inherit;
+      background:radial-gradient(circle, rgba(255,220,150,0.40), transparent 68%);
+      animation:mergeFlash .55s ease-out forwards;
+      z-index:3;
+    }
+    @keyframes mergeFlash{
+      from{ opacity:1; transform:scale(1); }
+      to{ opacity:0; transform:scale(1.08); }
+    }
+
+    .spark{
+      position:fixed;
+      z-index:999;
+      pointer-events:none;
+      font-size:.8rem;
+      animation:sparkFly .65s ease-out forwards;
+      text-shadow:0 0 10px rgba(255,220,100,0.45);
+    }
+    @keyframes sparkFly{
+      0%{ opacity:1; transform:translate(0,0) scale(1); }
+      100%{ opacity:0; transform:translate(var(--tx), var(--ty)) scale(0.35); }
+    }
+
+    .img-placeholder{
+      position:absolute;
+      inset:0;
+      z-index:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-direction:column;
+      gap:10px;
+      background:linear-gradient(135deg, rgba(30,10,50,0.35), rgba(5,2,9,0.45));
+      color:rgba(255,255,255,0.3);
+      text-align:center;
+      padding:24px;
+    }
+    .img-placeholder-icon{ font-size:2.6rem; opacity:.34; }
+    .img-placeholder-text{
+      max-width:260px;
+      font-size:.72rem;
+      line-height:1.5;
+      font-weight:700;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+    }
+
+    /* Footer */
+    .footer{
+      min-height:var(--footer-h);
+      padding:10px 16px max(12px, env(safe-area-inset-bottom));
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:8px;
+      z-index:2;
+    }
+    .merge-hint{
+      text-align:center;
+      font-size:.64rem;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.34);
+    }
+    .subhint{
+      text-align:center;
+      font-size:.74rem;
+      color:rgba(255,255,255,0.55);
+      min-height:1.1em;
+    }
+    .input-row{
+      display:flex;
+      gap:8px;
+      background:rgba(255,255,255,0.05);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:4px;
+    }
+    #guessInput{
+      flex:1;
+      min-width:0;
+      background:transparent;
+      border:none;
+      outline:none;
+      color:#fff;
+      padding:13px 14px;
+      font-size:.95rem;
+    }
+    #guessInput::placeholder{ color:rgba(255,255,255,0.28); }
+    .btn-guess, .btn-reset, .btn-next{
+      border:none;
+      cursor:pointer;
+      border-radius:12px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      transition:transform .16s ease, opacity .16s ease;
+    }
+    .btn-guess:active, .btn-reset:active, .btn-next:active{ transform:scale(.98); }
+
+    .btn-guess{
+      padding:0 18px;
+      color:#000;
+      background:linear-gradient(135deg,var(--gold1),var(--gold2),var(--gold3));
+      white-space:nowrap;
+    }
+
+    /* Overlay */
+    #overlay{
+      position:fixed;
+      inset:0;
+      z-index:120;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+      background:rgba(0,0,0,0.86);
+      backdrop-filter:blur(18px);
+    }
+    .overlay-card{
+      width:min(420px, 92vw);
+      border-radius:26px;
+      padding:26px 22px;
+      border:1px solid rgba(255,255,255,0.10);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)),
+        linear-gradient(180deg, #12091f, #090510);
+      box-shadow:var(--shadow);
+      text-align:center;
+    }
+    .ov-icon{ font-size:3rem; margin-bottom:8px; }
+    .ov-title{
+      font-family:'Marcellus', serif;
+      font-size:1.9rem;
+      margin-bottom:8px;
+      background:linear-gradient(135deg,var(--gold1),var(--gold3));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .ov-name{
+      font-size:1.18rem;
+      font-weight:900;
+      margin-bottom:8px;
+    }
+    .ov-hint{
+      font-size:.8rem;
+      color:rgba(255,255,255,0.6);
+      margin-bottom:8px;
+    }
+    .ov-reveal{
+      font-size:.72rem;
+      font-weight:800;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      color:rgba(255,255,255,0.4);
+      margin-bottom:18px;
+      line-height:1.7;
+    }
+    .overlay-actions{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      flex-wrap:wrap;
+    }
+    .btn-next{
+      padding:12px 18px;
+      color:#000;
+      background:linear-gradient(135deg,var(--gold1),var(--gold2),var(--gold3));
+    }
+    .btn-reset{
+      padding:12px 18px;
+      color:#fff;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.10);
+    }
+
+    @media (max-width: 420px){
+      .header{ padding-inline:12px; }
+      .grid{ padding:12px; gap:7px; }
+      .tile-level{ font-size:.5rem; }
+      .chip{ font-size:.66rem; padding:7px 9px; }
+      .logo{ font-size:1.1rem; }
+      .btn-guess{ padding:0 14px; }
+    }
+  </style>
 </head>
 <body>
-
-<!-- Loading screen -->
-<div id="loading">
-  <div class="load-logo">Sparkle Studio</div>
-  <div class="load-bar-wrap"><div class="load-bar" id="loadBar"></div></div>
-  <div class="load-sub" id="loadSub">Loading…</div>
-</div>
-
-<!-- Win/reveal overlay -->
-<div id="overlay">
-  <div class="ov-icon">⭐</div>
-  <div class="ov-title" id="ovTitle">You got it!</div>
-  <div class="ov-name" id="ovName"></div>
-  <div class="ov-reveal" id="ovReveal"></div>
-  <button class="btn-next" onclick="nextCeleb()">Next Star ✦</button>
-  <div class="ov-wrong" id="ovWrong"></div>
-</div>
-
-<div class="header">
-  <div class="logo">Sparkle Studio</div>
-  <div class="progress-wrap">
-    <div class="progress-text" id="progressText">0%</div>
-    <svg class="progress-ring" viewBox="0 0 28 28">
-      <circle class="ring-bg" cx="14" cy="14" r="12"/>
-      <circle class="ring-fill" id="ringFill" cx="14" cy="14" r="12"/>
-    </svg>
+  <!-- Loading -->
+  <div id="loading" aria-live="polite">
+    <div class="load-logo">Sparkle Studio</div>
+    <div class="load-bar-wrap" aria-hidden="true">
+      <div class="load-bar" id="loadBar"></div>
+    </div>
+    <div class="load-sub" id="loadSub">Loading star…</div>
   </div>
-</div>
 
-<div class="stage" id="stage">
-  <div id="bgDim"></div>
-  <canvas id="revealCanvas"></canvas>
-  <div class="grid" id="grid"></div>
-  <div class="img-placeholder" id="imgPlaceholder" style="display:none">
-    <div class="img-placeholder-icon">🌟</div>
-    <div class="img-placeholder-text">Add images/celebrity-01.jpg to repo</div>
+  <!-- Overlay -->
+  <div id="overlay" role="dialog" aria-modal="true" aria-labelledby="ovTitle">
+    <div class="overlay-card">
+      <div class="ov-icon">⭐</div>
+      <div class="ov-title" id="ovTitle">You got it!</div>
+      <div class="ov-name" id="ovName"></div>
+      <div class="ov-hint" id="ovHint"></div>
+      <div class="ov-reveal" id="ovReveal"></div>
+      <div class="overlay-actions">
+        <button class="btn-next" onclick="nextCeleb()">Next Star</button>
+        <button class="btn-reset" onclick="restartSame()">Play Again</button>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="footer">
-  <div class="merge-hint">Merge matching icons → shatter tiles → reveal the star ✦</div>
-  <div class="input-row">
-    <input type="text" id="guessInput" placeholder="Who is this celebrity?" autocomplete="off"
-      onkeydown="if(event.key==='Enter')checkGuess()">
-    <button class="btn-guess" onclick="checkGuess()">Guess</button>
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">Sparkle Studio</div>
+    <div class="hud">
+      <div class="chip" id="movesChip">Merges: 0</div>
+      <div class="progress-wrap" aria-label="Reveal progress">
+        <div class="progress-text" id="progressText">0%</div>
+        <svg class="progress-ring" viewBox="0 0 28 28" aria-hidden="true">
+          <defs>
+            <linearGradient id="ringGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#bf953f"/>
+              <stop offset="50%" stop-color="#f5d78e"/>
+              <stop offset="100%" stop-color="#fcf6ba"/>
+            </linearGradient>
+          </defs>
+          <circle class="ring-bg" cx="14" cy="14" r="12"></circle>
+          <circle class="ring-fill" id="ringFill" cx="14" cy="14" r="12"></circle>
+        </svg>
+      </div>
+    </div>
   </div>
-</div>
 
-<script>
-// ── CELEBRITY DATABASE ─────────────────────────────────────────────────────
-// Add your own images to the images/ folder and list them here
-// The game works WITHOUT images too — uses gradient placeholder
-const DB = [
-  { name:"Juhi Chawla", img:"images/JuhiChawla.png",   hint:"Bollywood actress" },
-  { name:"Shubhman Gill",  img:"images/ShubhmanGill.png",  hint:"Global icon" },
-  { name:"Shahrukh Khan",       img:"images/ShahrukhKhan.png",      hint:"Bollywood star" },
-  { name:"Rahul Gandhi",     img:"images/RahulGandhi.png",   hint:"Actress & dancer" },
-  { name:"Smriti Mandhana",    img:"images/SmritiMandhana.png",   hint:"Bollywood actor" },
-  // Add more entries here. Image paths are relative to this HTML file.
-  // Without images the game still works — just shows a gradient background.
-];
+  <!-- Stage -->
+  <div class="stage-shell">
+    <div class="stage" id="stage">
+      <div id="bgDim"></div>
+      <canvas id="revealCanvas"></canvas>
+      <div class="grid" id="grid" aria-label="Game grid"></div>
+      <div class="img-placeholder" id="imgPlaceholder" style="display:none">
+        <div class="img-placeholder-icon">🌟</div>
+        <div class="img-placeholder-text" id="placeholderText">
+          Add the celebrity image files to your images folder to reveal real photos.
+        </div>
+      </div>
+    </div>
+  </div>
 
-// ── ICONS (10 levels) ──────────────────────────────────────────────────────
-const ICONS = ['🌸','✨','💫','🔥','🔮','💎','🌙','⭐','🌈','👑'];
-const COLS = 5, ROWS = 8, TOTAL = COLS * ROWS;
+  <!-- Footer -->
+  <div class="footer">
+    <div class="merge-hint">Merge matching icons → shatter tiles → reveal the star</div>
+    <div class="subhint" id="subhint">Tip: central tiles need stronger merges.</div>
+    <div class="input-row">
+      <input
+        type="text"
+        id="guessInput"
+        placeholder="Who is this celebrity?"
+        autocomplete="off"
+        aria-label="Guess the celebrity"
+      />
+      <button class="btn-guess" id="guessBtn">Guess</button>
+    </div>
+  </div>
 
-// ── STATE ──────────────────────────────────────────────────────────────────
-let S = {
-  cells: Array(TOTAL).fill(null),    // null or level 1-10
-  shattered: Array(TOTAL).fill(false),
-  selected: null,
-  current: null,
-  img: null,                          // loaded Image object
-  imgLoaded: false,
-  revealed: 0,
-  guesses: 0,
-};
+  <script>
+    // ── DATA ────────────────────────────────────────────────────────────────
+    // Corrected celebrity data and hints.
+    const DB = [
+      { name: "Juhi Chawla",     img: "images/JuhiChawla.png",      hint: "Bollywood actress" },
+      { name: "Shubman Gill",    img: "images/ShubmanGill.png",     hint: "Indian cricketer" },
+      { name: "Shah Rukh Khan",  img: "images/ShahRukhKhan.png",    hint: "Bollywood superstar" },
+      { name: "Rahul Gandhi",    img: "images/RahulGandhi.png",     hint: "Indian politician" },
+      { name: "Smriti Mandhana", img: "images/SmritiMandhana.png",  hint: "Indian cricketer" }
+    ];
 
-// ── AUDIO ──────────────────────────────────────────────────────────────────
-let AC = null;
-document.body.addEventListener('touchstart', initAudio, {once:true});
-document.body.addEventListener('click', initAudio, {once:true});
-function initAudio(){ if(!AC) AC = new(window.AudioContext||window.webkitAudioContext)(); }
-function sfx(f, dur=.1, vol=.05){
-  if(!AC) return;
-  try{
-    const t=AC.currentTime, o=AC.createOscillator(), g=AC.createGain();
-    o.type='sine'; o.frequency.value=f;
-    g.gain.setValueAtTime(vol,t); g.gain.exponentialRampToValueAtTime(.001,t+dur);
-    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+dur);
-  }catch(e){}
-}
-function playMerge(lv){ [300+lv*60, 400+lv*80, 500+lv*100].forEach((f,i)=>setTimeout(()=>sfx(f,.15,.06),i*60)); }
-function playShatter(){ sfx(800,.08); setTimeout(()=>sfx(1000,.15,.08),80); setTimeout(()=>sfx(1200,.25,.1),160); }
-function playWin(){ [523,659,784,1047].forEach((f,i)=>setTimeout(()=>sfx(f,.3,.07),i*100)); }
-function playWrong(){ sfx(200,.2,.04); }
+    const ROWS = 8;
+    const COLS = 5;
+    const TOTAL = ROWS * COLS;
 
-// ── CANVAS REVEAL ──────────────────────────────────────────────────────────
-function setupCanvas(){
-  const stage = document.getElementById('stage');
-  const canvas = document.getElementById('revealCanvas');
-  canvas.width = stage.offsetWidth;
-  canvas.height = stage.offsetHeight;
-}
+    const TILE_SET = [
+      { emoji: "✨", name: "spark" },
+      { emoji: "💎", name: "gem" },
+      { emoji: "🌟", name: "star" },
+      { emoji: "🔥", name: "flare" },
+      { emoji: "👑", name: "crown" },
+      { emoji: "☀️", name: "sun" },
+      { emoji: "🪄", name: "magic" },
+      { emoji: "🌈", name: "aurora" },
+      { emoji: "⚡", name: "thunder" },
+      { emoji: "💫", name: "nova" },
+      { emoji: "🦄", name: "mythic" },
+      { emoji: "🌌", name: "cosmic" }
+    ];
 
-function revealCell(idx){
-  const canvas = document.getElementById('revealCanvas');
-  const ctx = canvas.getContext('2d');
-  const cw = canvas.width, ch = canvas.height;
-  const cellW = cw / COLS, cellH = ch / ROWS;
-  const col = idx % COLS, row = Math.floor(idx / COLS);
-  const x = col * cellW, y = row * cellH;
+    const CIRCUMFERENCE = 2 * Math.PI * 12;
 
-  if(S.imgLoaded && S.img){
-    // Draw the image portion at full brightness
-    // Calculate source coordinates (image may be different aspect ratio)
-    const img = S.img;
-    const imgAspect = img.naturalWidth / img.naturalHeight;
-    const canvasAspect = cw / ch;
-    let sx, sy, sw, sh;
-    if(imgAspect > canvasAspect){
-      // Image wider — crop sides
-      sh = img.naturalHeight;
-      sw = sh * canvasAspect;
-      sx = (img.naturalWidth - sw) / 2;
-      sy = 0;
-    } else {
-      // Image taller — crop top/bottom (show top 85% for faces)
-      sw = img.naturalWidth;
-      sh = sw / canvasAspect;
-      sx = 0;
-      sy = img.naturalHeight * 0.05; // slight offset down to show face
-    }
-    // Map cell position to image source
-    const srcX = sx + (x / cw) * sw;
-    const srcY = sy + (y / ch) * sh;
-    const srcW = (cellW / cw) * sw;
-    const srcH = (cellH / ch) * sh;
-    ctx.drawImage(img, srcX, srcY, srcW, srcH, x, y, cellW+1, cellH+1);
+    let S = null;
+    let audioCtx = null;
 
-    // Golden shimmer overlay
-    ctx.fillStyle = 'rgba(255,220,100,0.06)';
-    ctx.fillRect(x, y, cellW+1, cellH+1);
-  } else {
-    // No image — reveal a gradient pattern
-    const grad = ctx.createRadialGradient(x+cellW/2, y+cellH/2, 0, x+cellW/2, y+cellH/2, cellW);
-    grad.addColorStop(0, `hsl(${(idx*17)%360},60%,55%)`);
-    grad.addColorStop(1, `hsl(${(idx*17+40)%360},40%,30%)`);
-    ctx.fillStyle = grad;
-    ctx.fillRect(x, y, cellW+1, cellH+1);
-  }
-
-  // Subtle cell border on revealed area
-  ctx.strokeStyle = 'rgba(255,220,100,0.08)';
-  ctx.lineWidth = .5;
-  ctx.strokeRect(x+.5, y+.5, cellW, cellH);
-}
-
-// ── INIT ───────────────────────────────────────────────────────────────────
-function init(celebIdx){
-  // Pick celebrity
-  const pick = celebIdx !== undefined
-    ? DB[celebIdx % DB.length]
-    : DB[Math.floor(Math.random()*DB.length)];
-  S = {
-    cells: Array(TOTAL).fill(null),
-    shattered: Array(TOTAL).fill(false),
-    selected: null,
-    current: pick,
-    img: null,
-    imgLoaded: false,
-    revealed: 0,
-    guesses: 0,
-    celebIdx: celebIdx ?? DB.indexOf(pick),
-    merges: 0,
-  };
-  S.shatterLevel = Array(TOTAL).fill(0);
-  for(let i=0; i<TOTAL; i++){
-    const row = Math.floor(i / 5);
-    const col = i % 5;
-    if (row >=2 && row <=5 && col >=1 && col <=3) {
-      S.shatterLevel[i] = Math.floor(Math.random() * 4) + 7; // 7-10 for center
-    } else {
-      S.shatterLevel[i] = Math.floor(Math.random() * 5) + 2; // 2-6 for edges
-    }
-  }
-
-  // Load image
-  loadImg(pick.img, (img)=>{
-    S.img = img;
-    S.imgLoaded = !!img;
-    document.getElementById('bgDim').style.backgroundImage = img
-      ? `url(${pick.img})` : 'linear-gradient(135deg,#2d004c,#090010)';
-    document.getElementById('imgPlaceholder').style.display = img ? 'none' : 'flex';
-    document.getElementById('imgPlaceholder').querySelector('.img-placeholder-text').textContent =
-      `Add ${pick.img} to reveal this star`;
-    finishInit();
-  });
-}
-
-function loadImg(src, cb){
-  const img = new Image();
-  img.crossOrigin = 'anonymous';
-  img.onload = ()=>cb(img);
-  img.onerror = ()=>cb(null);
-  img.src = src;
-}
-
-function finishInit(){
-  setupCanvas();
-  // Clear canvas
-  const canvas = document.getElementById('revealCanvas');
-  canvas.getContext('2d').clearRect(0,0,canvas.width,canvas.height);
-
-  // Build grid
-  const grid = document.getElementById('grid');
-  grid.innerHTML = '';
-  for(let i=0;i<TOTAL;i++){
-    const div = document.createElement('div');
-    div.className = 'cell';
-    div.id = `c-${i}`;
-    div.addEventListener('click', e=>{e.stopPropagation();tap(i);});
-    grid.appendChild(div);
-  }
-
-  // Seed potions
-  for(let i=0;i<8;i++) spawn();
-
-  updateProgress();
-  document.getElementById('guessInput').value='';
-  document.getElementById('overlay').style.display='none';
-  document.getElementById('loading').style.display='none';
-}
-
-// ── SPAWN ──────────────────────────────────────────────────────────────────
-function spawn(){
-  const empty=[];
-  for(let i=0;i<TOTAL;i++){
-    if(!S.shattered[i] && S.cells[i]===null) empty.push(i);
-  }
-  if(!empty.length) return;
-  const idx=empty[Math.floor(Math.random()*empty.length)];
-  S.cells[idx]=1;
-  renderCell(idx);
-}
-
-// ── TAP ────────────────────────────────────────────────────────────────────
-function tap(i){
-  if(S.shattered[i]) return;
-  initAudio();
-
-  // Empty cell — spawn level 1 here
-  if(S.cells[i]===null){
-    if(S.selected!==null){
-      // Move selected potion here
-      const from=S.selected;
-      setSelected(null);
-      S.cells[i]=S.cells[from];
-      S.cells[from]=null;
-      renderCell(from); renderCell(i);
-      sfx(350,.1);
-    } else {
-      S.cells[i]=1; renderCell(i); sfx(300,.1);
-    }
-    return;
-  }
-
-  // Has potion — nothing selected yet
-  if(S.selected===null){
-    setSelected(i); sfx(440,.08);
-    return;
-  }
-
-  // Tap same cell — deselect
-  if(S.selected===i){ setSelected(null); return; }
-
-  const from=S.selected;
-  setSelected(null);
-
-  if(S.cells[i]===S.cells[from]){
-    // MERGE
-    const newLv=S.cells[from]+1;
-    S.cells[from]=null;
-    S.cells[i]=newLv;
-    S.merges++;
-    renderCell(from);
-
-    // Flash
-    const el=document.getElementById(`c-${i}`);
-    const flash=document.createElement('div');
-    flash.className='merge-flash';
-    el.appendChild(flash);
-    setTimeout(()=>flash.remove(),400);
-
-    playMerge(newLv);
-
-    if(newLv >= S.shatterLevel[i]){
-      // SHATTER!
-      setTimeout(()=>doShatter(i), 200);
-    } else {
-      renderCell(i);
-      setTimeout(spawn,300);
-    }
-  } else {
-    // SWAP
-    [S.cells[i],S.cells[from]]=[S.cells[from],S.cells[i]];
-    renderCell(from); renderCell(i); sfx(350,.1);
-  }
-}
-
-function setSelected(idx){
-  document.querySelectorAll('.cell.selected').forEach(el=>el.classList.remove('selected'));
-  S.selected=idx;
-  if(idx!==null) document.getElementById(`c-${idx}`)?.classList.add('selected');
-}
-
-// ── SHATTER ────────────────────────────────────────────────────────────────
-function doShatter(idx){
-  // Animate out
-  const el=document.getElementById(`c-${idx}`);
-  el.classList.add('shattering');
-
-  setTimeout(()=>{
-    shatterCell(idx);
-    // Splash 1-2 neighbors
-    const neighbors=[idx-1,idx+1,idx-COLS,idx+COLS];
-    neighbors.forEach(n=>{
-      if(n>=0 && n<TOTAL && !S.shattered[n] && Math.random()>.5){
-        const nel=document.getElementById(`c-${n}`);
-        nel.classList.add('shattering');
-        setTimeout(()=>shatterCell(n), 80);
+    // ── AUDIO ───────────────────────────────────────────────────────────────
+    function initAudio(){
+      if(!audioCtx){
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (Ctx) audioCtx = new Ctx();
       }
-    });
-    // Particles
-    spawnParticles(el);
-    playShatter();
-    setTimeout(spawn,400);
-    updateProgress();
-    checkWin();
-  }, 250);
-}
-
-function shatterCell(idx){
-  S.shattered[idx]=true;
-  S.cells[idx]=null;
-  S.revealed++;
-  revealCell(idx); // draw image patch to canvas
-  const el=document.getElementById(`c-${idx}`);
-  if(!el)return;
-  el.className='cell shattered';
-  el.innerHTML='';
-  // Reveal flash
-  const flash=document.createElement('div');
-  flash.className='reveal-flash';
-  el.appendChild(flash);
-  setTimeout(()=>flash.remove(),600);
-}
-
-function spawnParticles(el){
-  const r=el.getBoundingClientRect();
-  const cx=r.left+r.width/2, cy=r.top+r.height/2;
-  ['✦','✧','·','⭐','✸'].forEach((ch,i)=>{
-    const p=document.createElement('div');
-    p.className='spark'; p.textContent=ch;
-    const ang=(i/5)*Math.PI*2;
-    const d=25+Math.random()*35;
-    p.style.cssText=`left:${cx}px;top:${cy}px;color:#f5d78e;--tx:${Math.cos(ang)*d}px;--ty:${Math.sin(ang)*d}px;`;
-    document.body.appendChild(p);
-    setTimeout(()=>p.remove(),700);
-  });
-}
-
-// ── RENDER ─────────────────────────────────────────────────────────────────
-function renderCell(i){
-  const el=document.getElementById(`c-${i}`);
-  if(!el)return;
-  if(S.shattered[i]){
-    el.className='cell shattered'; el.innerHTML=''; return;
-  }
-  const sel=S.selected===i?' selected':'';
-  el.className='cell'+sel;
-  el.innerHTML=S.cells[i]
-    ? `<div class="pot">${ICONS[(S.cells[i]-1)%ICONS.length]}</div>`
-    : '';
-}
-
-// ── PROGRESS ───────────────────────────────────────────────────────────────
-function updateProgress(){
-  const pct=Math.round((S.revealed/TOTAL)*100);
-  document.getElementById('progressText').textContent=pct+'%';
-  // Ring: circumference = 2π×12 ≈ 75.4
-  const offset=75.4*(1-pct/100);
-  document.getElementById('ringFill').style.strokeDashoffset=offset;
-}
-
-// ── GUESS ──────────────────────────────────────────────────────────────────
-function checkGuess(){
-  const val=document.getElementById('guessInput').value.trim().toLowerCase();
-  if(!val)return;
-  S.guesses++;
-  initAudio();
-  const correct=S.current.name.toLowerCase();
-  // Accept if input is contained in name or vice versa (fuzzy)
-  if(correct.includes(val)||val.includes(correct.split(' ')[0].toLowerCase())){
-    showWin(true);
-  } else {
-    playWrong();
-    document.getElementById('guessInput').value='';
-    document.getElementById('guessInput').placeholder='Try again…';
-    // Shake input
-    const inp=document.getElementById('guessInput').parentElement;
-    inp.style.borderColor='rgba(232,84,122,0.6)';
-    setTimeout(()=>inp.style.borderColor='',700);
-  }
-}
-
-function checkWin(){
-  if(S.revealed>=TOTAL) showWin(false);
-}
-
-function showWin(byGuess){
-  playWin();
-  // Reveal all remaining cells
-  for(let i=0;i<TOTAL;i++){
-    if(!S.shattered[i]){
-      S.shattered[i]=true;
-      revealCell(i);
-      const el=document.getElementById(`c-${i}`);
-      if(el){el.className='cell shattered';el.innerHTML='';}
     }
-  }
-  updateProgress();
-  document.getElementById('ovTitle').textContent = byGuess ? 'You got it! ⭐' : 'Fully revealed!';
-  document.getElementById('ovName').textContent = S.current.name;
-  document.getElementById('ovReveal').textContent =
-    `${S.revealed} tiles revealed · ${S.merges} merges · ${S.guesses} guess${S.guesses!==1?'es':''}`;
-  document.getElementById('overlay').style.display='flex';
-}
 
-function nextCeleb(){
-  const next=(S.celebIdx+1)%DB.length;
-  document.getElementById('overlay').style.display='none';
-  showLoading(()=>init(next));
-}
+    function sfx(freq = 440, duration = 0.08, type = 'sine', gainValue = 0.03){
+      if(!audioCtx) return;
+      const now = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(gainValue, now);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+      osc.connect(gain).connect(audioCtx.destination);
+      osc.start(now);
+      osc.stop(now + duration);
+    }
 
-// ── LOADING SCREEN ─────────────────────────────────────────────────────────
-function showLoading(cb){
-  const el=document.getElementById('loading');
-  const bar=document.getElementById('loadBar');
-  const sub=document.getElementById('loadSub');
-  el.style.display='flex';
-  bar.style.width='0%';
-  sub.textContent='Loading star…';
-  let p=0;
-  const t=setInterval(()=>{
-    p+=Math.random()*25+10;
-    if(p>=95){clearInterval(t);bar.style.width='95%';}
-    else bar.style.width=p+'%';
-  },120);
-  setTimeout(()=>{
-    bar.style.width='100%';
-    clearInterval(t);
-    setTimeout(()=>{el.style.display='none';cb&&cb();},200);
-  },600);
-}
+    function playMerge(level){
+      sfx(280 + level * 45, 0.11, 'triangle', 0.035);
+      setTimeout(() => sfx(420 + level * 30, 0.07, 'sine', 0.025), 45);
+    }
+    function playShatter(){
+      sfx(180, 0.08, 'sawtooth', 0.02);
+      setTimeout(() => sfx(90, 0.16, 'triangle', 0.025), 40);
+    }
+    function playWrong(){
+      sfx(180, 0.09, 'square', 0.02);
+      setTimeout(() => sfx(140, 0.12, 'square', 0.016), 50);
+    }
+    function playWin(){
+      sfx(520, 0.12, 'triangle', 0.03);
+      setTimeout(() => sfx(660, 0.15, 'triangle', 0.03), 70);
+      setTimeout(() => sfx(880, 0.18, 'triangle', 0.03), 150);
+    }
 
-// ── RESIZE ─────────────────────────────────────────────────────────────────
-window.addEventListener('resize',()=>{
-  setupCanvas();
-  // Re-reveal all shattered cells on new canvas size
-  for(let i=0;i<TOTAL;i++){
-    if(S.shattered[i]) revealCell(i);
-  }
-});
+    // ── HELPERS ─────────────────────────────────────────────────────────────
+    function el(id){ return document.getElementById(id); }
 
-// ── BOOT ───────────────────────────────────────────────────────────────────
-showLoading(()=>init(0));
-</script>
+    function normalizeName(str){
+      return str
+        .toLowerCase()
+        .normalize('NFKD')
+        .replace(/[^\w\s]/g, ' ')
+        .replace(/_/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    }
+
+    function acceptedGuessesFor(name){
+      const normalized = normalizeName(name);
+      const parts = normalized.split(' ');
+      const combos = new Set([normalized]);
+
+      if (parts.length >= 2) {
+        combos.add(parts[0]);
+        combos.add(parts[parts.length - 1]);
+        combos.add(parts.slice(0, 2).join(' '));
+      }
+
+      // Helpful aliases for common spellings
+      if (normalized === 'shah rukh khan') {
+        combos.add('shahrukh khan');
+        combos.add('srk');
+        combos.add('shah rukh');
+        combos.add('shahrukh');
+      }
+      if (normalized === 'rahul gandhi') combos.add('rahul');
+      if (normalized === 'smriti mandhana') combos.add('smriti');
+      if (normalized === 'juhi chawla') combos.add('juhi');
+      if (normalized === 'shubman gill') {
+        combos.add('shubham gill');
+        combos.add('shubhman gill');
+        combos.add('shubman');
+        combos.add('gill');
+      }
+
+      return combos;
+    }
+
+    function getNeighbors(idx){
+      const row = Math.floor(idx / COLS);
+      const col = idx % COLS;
+      const out = [];
+      if (col > 0) out.push(idx - 1);
+      if (col < COLS - 1) out.push(idx + 1);
+      if (row > 0) out.push(idx - COLS);
+      if (row < ROWS - 1) out.push(idx + COLS);
+      return out;
+    }
+
+    function randomEmptyCell(){
+      const options = [];
+      for(let i = 0; i < TOTAL; i++){
+        if (!S.shattered[i] && S.cells[i] === null) options.push(i);
+      }
+      if (!options.length) return -1;
+      return options[Math.floor(Math.random() * options.length)];
+    }
+
+    function cellStrengthRequirement(i){
+      const row = Math.floor(i / COLS);
+      const col = i % COLS;
+      const inCore = row >= 2 && row <= 5 && col >= 1 && col <= 3;
+      return inCore
+        ? Math.floor(Math.random() * 4) + 7   // 7-10
+        : Math.floor(Math.random() * 5) + 2;  // 2-6
+    }
+
+    function tileForLevel(level){
+      return TILE_SET[(Math.max(1, level) - 1) % TILE_SET.length];
+    }
+
+    // ── IMAGE / CANVAS ──────────────────────────────────────────────────────
+    function loadImg(src, cb){
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => cb(img);
+      img.onerror = () => cb(null);
+      img.src = src;
+    }
+
+    function setupCanvas(){
+      const canvas = el('revealCanvas');
+      const stage = el('stage');
+      const rect = stage.getBoundingClientRect();
+      const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      canvas.style.width = rect.width + 'px';
+      canvas.style.height = rect.height + 'px';
+
+      const ctx = canvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.clearRect(0, 0, rect.width, rect.height);
+    }
+
+    function revealCell(idx){
+      const canvas = el('revealCanvas');
+      const stage = el('stage');
+      const ctx = canvas.getContext('2d');
+      const rect = stage.getBoundingClientRect();
+
+      const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cell-gap')) || 8;
+      const pad = 14;
+      const cellW = (rect.width - pad * 2 - gap * (COLS - 1)) / COLS;
+      const cellH = (rect.height - pad * 2 - gap * (ROWS - 1)) / ROWS;
+      const row = Math.floor(idx / COLS);
+      const col = idx % COLS;
+      const x = pad + col * (cellW + gap);
+      const y = pad + row * (cellH + gap);
+
+      if (S.imgLoaded && S.img) {
+        ctx.drawImage(
+          S.img,
+          (x / rect.width) * S.img.width,
+          (y / rect.height) * S.img.height,
+          (cellW / rect.width) * S.img.width,
+          (cellH / rect.height) * S.img.height,
+          x, y, cellW + 1, cellH + 1
+        );
+
+        ctx.fillStyle = 'rgba(255,220,100,0.05)';
+        ctx.fillRect(x, y, cellW + 1, cellH + 1);
+      } else {
+        const grad = ctx.createRadialGradient(
+          x + cellW / 2, y + cellH / 2, 0,
+          x + cellW / 2, y + cellH / 2, cellW
+        );
+        grad.addColorStop(0, `hsl(${(idx * 19) % 360}, 68%, 56%)`);
+        grad.addColorStop(1, `hsl(${(idx * 19 + 40) % 360}, 42%, 28%)`);
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, y, cellW + 1, cellH + 1);
+      }
+
+      ctx.strokeStyle = 'rgba(255,220,100,0.08)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(x + 0.5, y + 0.5, cellW, cellH);
+    }
+
+    function redrawRevealedCells(){
+      setupCanvas();
+      for(let i = 0; i < TOTAL; i++){
+        if (S.shattered[i]) revealCell(i);
+      }
+    }
+
+    // ── RENDER ──────────────────────────────────────────────────────────────
+    function renderCell(i){
+      const cell = el(`c-${i}`);
+      if (!cell) return;
+
+      if (S.shattered[i]) {
+        cell.className = 'cell shattered';
+        cell.innerHTML = '';
+        return;
+      }
+
+      const level = S.cells[i];
+      cell.className = 'cell';
+      if (S.selected === i) cell.classList.add('selected');
+
+      if (level === null) {
+        cell.innerHTML = '';
+        cell.setAttribute('aria-label', `Empty tile ${i + 1}`);
+        return;
+      }
+
+      const tile = tileForLevel(level);
+      cell.innerHTML = `
+        <div class="tile-inner">
+          <div class="tile-emoji">${tile.emoji}</div>
+          <div class="tile-level">Lv ${level}</div>
+        </div>
+      `;
+      cell.setAttribute('aria-label', `Level ${level} tile`);
+    }
+
+    function renderAll(){
+      for(let i = 0; i < TOTAL; i++) renderCell(i);
+      updateProgress();
+      updateHud();
+    }
+
+    function updateProgress(){
+      const pct = Math.round((S.revealed / TOTAL) * 100);
+      el('progressText').textContent = pct + '%';
+      el('ringFill').style.strokeDasharray = CIRCUMFERENCE;
+      el('ringFill').style.strokeDashoffset = CIRCUMFERENCE * (1 - pct / 100);
+    }
+
+    function updateHud(){
+      el('movesChip').textContent = `Merges: ${S.merges}`;
+      el('subhint').textContent = S.current?.hint
+        ? `Hint: ${S.current.hint}`
+        : 'Merge matching icons to reveal the star.';
+    }
+
+    function buildGrid(){
+      const grid = el('grid');
+      grid.innerHTML = '';
+      for(let i = 0; i < TOTAL; i++){
+        const cell = document.createElement('button');
+        cell.className = 'cell';
+        cell.id = `c-${i}`;
+        cell.type = 'button';
+        cell.setAttribute('aria-label', `Tile ${i + 1}`);
+        cell.addEventListener('click', () => onCellTap(i));
+        grid.appendChild(cell);
+      }
+    }
+
+    // ── GAMEPLAY ────────────────────────────────────────────────────────────
+    function setSelected(idx){
+      document.querySelectorAll('.cell.selected').forEach(node => node.classList.remove('selected'));
+      S.selected = idx;
+      if (idx !== null) el(`c-${idx}`)?.classList.add('selected');
+    }
+
+    function spawn(count = 1){
+      for(let k = 0; k < count; k++){
+        const idx = randomEmptyCell();
+        if (idx === -1) return;
+        S.cells[idx] = Math.random() < 0.86 ? 1 : 2;
+        renderCell(idx);
+      }
+    }
+
+    function onCellTap(i){
+      if (S.shattered[i]) return;
+      initAudio();
+
+      // Empty cell interaction
+      if (S.cells[i] === null) {
+        if (S.selected !== null) {
+          // Move selected tile into empty cell
+          const from = S.selected;
+          if (from === i) return;
+          S.cells[i] = S.cells[from];
+          S.cells[from] = null;
+          setSelected(null);
+          renderCell(from);
+          renderCell(i);
+          sfx(340, 0.06, 'triangle', 0.02);
+          return;
+        }
+
+        // Small chance to seed a tile when nothing is selected
+        if (Math.random() < 0.42) {
+          S.cells[i] = 1;
+          renderCell(i);
+          sfx(300, 0.06, 'sine', 0.02);
+        }
+        return;
+      }
+
+      // First selection
+      if (S.selected === null) {
+        setSelected(i);
+        sfx(460, 0.06, 'triangle', 0.02);
+        return;
+      }
+
+      // Deselect same tile
+      if (S.selected === i) {
+        setSelected(null);
+        return;
+      }
+
+      const from = S.selected;
+      setSelected(null);
+
+      if (S.cells[i] === S.cells[from]) {
+        const newLevel = S.cells[from] + 1;
+        S.cells[from] = null;
+        S.cells[i] = newLevel;
+        S.merges++;
+        renderCell(from);
+
+        const target = el(`c-${i}`);
+        const flash = document.createElement('div');
+        flash.className = 'merge-flash';
+        target.appendChild(flash);
+        setTimeout(() => flash.remove(), 380);
+
+        playMerge(newLevel);
+
+        if (newLevel >= S.shatterLevel[i]) {
+          setTimeout(() => doShatter(i), 180);
+        } else {
+          renderCell(i);
+          setTimeout(() => spawn(1), 220);
+        }
+      } else {
+        // Swap different tiles
+        [S.cells[i], S.cells[from]] = [S.cells[from], S.cells[i]];
+        renderCell(from);
+        renderCell(i);
+        sfx(350, 0.05, 'sine', 0.018);
+      }
+
+      updateHud();
+    }
+
+    function spawnParticles(targetEl){
+      const r = targetEl.getBoundingClientRect();
+      const cx = r.left + r.width / 2;
+      const cy = r.top + r.height / 2;
+      const glyphs = ['✦','✧','·','⭐','✸','✨'];
+
+      for(let i = 0; i < 8; i++){
+        const sp = document.createElement('div');
+        sp.className = 'spark';
+        sp.textContent = glyphs[Math.floor(Math.random() * glyphs.length)];
+        sp.style.left = `${cx}px`;
+        sp.style.top = `${cy}px`;
+        sp.style.setProperty('--tx', `${(Math.random() - 0.5) * 120}px`);
+        sp.style.setProperty('--ty', `${(Math.random() - 0.5) * 120}px`);
+        document.body.appendChild(sp);
+        setTimeout(() => sp.remove(), 650);
+      }
+    }
+
+    function shatterCell(idx){
+      if (S.shattered[idx]) return;
+      S.shattered[idx] = true;
+      S.cells[idx] = null;
+      S.revealed++;
+      revealCell(idx);
+
+      const node = el(`c-${idx}`);
+      if (!node) return;
+      node.className = 'cell shattered';
+      node.innerHTML = '';
+
+      const flash = document.createElement('div');
+      flash.className = 'reveal-flash';
+      node.appendChild(flash);
+      setTimeout(() => flash.remove(), 550);
+    }
+
+    function doShatter(idx){
+      const target = el(`c-${idx}`);
+      if (!target || S.shattered[idx]) return;
+
+      target.classList.add('shattering');
+
+      setTimeout(() => {
+        shatterCell(idx);
+
+        const neighbors = getNeighbors(idx);
+        neighbors.forEach(n => {
+          if (!S.shattered[n] && Math.random() > 0.52) {
+            const neighborNode = el(`c-${n}`);
+            if (neighborNode) neighborNode.classList.add('shattering');
+            setTimeout(() => shatterCell(n), 75);
+          }
+        });
+
+        spawnParticles(target);
+        playShatter();
+        setTimeout(() => spawn(1), 320);
+        updateProgress();
+        updateHud();
+        checkWin();
+      }, 240);
+    }
+
+    function checkGuess(){
+      const raw = el('guessInput').value.trim();
+      if (!raw) return;
+
+      initAudio();
+      S.guesses++;
+
+      const guess = normalizeName(raw);
+      const accepted = acceptedGuessesFor(S.current.name);
+
+      let matched = accepted.has(guess);
+
+      if (!matched) {
+        // Allow contained full-name-ish entries like "shah rukh"
+        for (const opt of accepted) {
+          if (opt.length >= 5 && (opt.includes(guess) || guess.includes(opt))) {
+            matched = true;
+            break;
+          }
+        }
+      }
+
+      if (matched) {
+        showWin(true);
+      } else {
+        playWrong();
+        el('guessInput').value = '';
+        el('guessInput').placeholder = 'Try again…';
+        const row = document.querySelector('.input-row');
+        row.style.borderColor = 'rgba(232,84,122,0.72)';
+        row.style.boxShadow = '0 0 0 1px rgba(232,84,122,0.12)';
+        setTimeout(() => {
+          row.style.borderColor = '';
+          row.style.boxShadow = '';
+        }, 700);
+      }
+    }
+
+    function checkWin(){
+      if (S.revealed >= TOTAL) showWin(false);
+    }
+
+    function showWin(byGuess){
+      playWin();
+
+      for(let i = 0; i < TOTAL; i++){
+        if (!S.shattered[i]) {
+          S.shattered[i] = true;
+          S.cells[i] = null;
+          S.revealed++;
+          revealCell(i);
+          const node = el(`c-${i}`);
+          if (node) {
+            node.className = 'cell shattered';
+            node.innerHTML = '';
+          }
+        }
+      }
+
+      updateProgress();
+
+      el('ovTitle').textContent = byGuess ? 'You got it!' : 'Fully revealed!';
+      el('ovName').textContent = S.current.name;
+      el('ovHint').textContent = S.current.hint ? `Hint: ${S.current.hint}` : '';
+      el('ovReveal').textContent =
+        `${S.revealed} tiles revealed · ${S.merges} merges · ${S.guesses} guess${S.guesses !== 1 ? 'es' : ''}`;
+      el('overlay').style.display = 'flex';
+    }
+
+    function nextCeleb(){
+      const next = (S.celebIdx + 1) % DB.length;
+      el('overlay').style.display = 'none';
+      showLoading(() => init(next));
+    }
+
+    function restartSame(){
+      const same = S.celebIdx;
+      el('overlay').style.display = 'none';
+      showLoading(() => init(same));
+    }
+
+    // ── INIT ────────────────────────────────────────────────────────────────
+    function init(celebIdx){
+      const pick = celebIdx !== undefined
+        ? DB[celebIdx % DB.length]
+        : DB[Math.floor(Math.random() * DB.length)];
+
+      S = {
+        celebIdx: celebIdx ?? DB.indexOf(pick),
+        current: pick,
+        img: null,
+        imgLoaded: false,
+        cells: Array(TOTAL).fill(null),
+        shattered: Array(TOTAL).fill(false),
+        shatterLevel: Array(TOTAL).fill(0),
+        selected: null,
+        revealed: 0,
+        guesses: 0,
+        merges: 0
+      };
+
+      for(let i = 0; i < TOTAL; i++){
+        S.shatterLevel[i] = cellStrengthRequirement(i);
+      }
+
+      loadImg(pick.img, (img) => {
+        S.img = img;
+        S.imgLoaded = !!img;
+
+        el('bgDim').style.backgroundImage = img
+          ? `url(${pick.img})`
+          : 'linear-gradient(135deg,#2d004c,#090010)';
+
+        el('imgPlaceholder').style.display = img ? 'none' : 'flex';
+        el('placeholderText').textContent = img
+          ? ''
+          : `Add ${pick.img} to your images folder to reveal the real photo.`;
+
+        finishInit();
+      });
+    }
+
+    function finishInit(){
+      buildGrid();
+      setupCanvas();
+
+      // Start with a few seeded tiles
+      spawn(6);
+      renderAll();
+
+      el('guessInput').value = '';
+      el('guessInput').placeholder = 'Who is this celebrity?';
+    }
+
+    // ── LOADING ─────────────────────────────────────────────────────────────
+    function showLoading(cb){
+      const screen = el('loading');
+      const bar = el('loadBar');
+      const sub = el('loadSub');
+      screen.style.display = 'flex';
+      bar.style.width = '0%';
+      sub.textContent = 'Loading star…';
+
+      let p = 0;
+      const timer = setInterval(() => {
+        p += Math.random() * 20 + 8;
+        if (p >= 94) {
+          p = 94;
+          clearInterval(timer);
+        }
+        bar.style.width = p + '%';
+      }, 100);
+
+      setTimeout(() => {
+        bar.style.width = '100%';
+        clearInterval(timer);
+        setTimeout(() => {
+          screen.style.display = 'none';
+          if (cb) cb();
+        }, 180);
+      }, 650);
+    }
+
+    // ── EVENTS ──────────────────────────────────────────────────────────────
+    window.addEventListener('resize', () => {
+      if (!S) return;
+      redrawRevealedCells();
+    });
+
+    el('guessBtn').addEventListener('click', checkGuess);
+    el('guessInput').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') checkGuess();
+    });
+
+    // ── BOOT ────────────────────────────────────────────────────────────────
+    showLoading(() => init(0));
+  </script>
 </body>
 </html>
