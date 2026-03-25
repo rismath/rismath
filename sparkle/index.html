@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>Sparkle Studio — Celebrity Reveal</title>
+  <title>Sparkle Studio — Celebrity Reveal V3</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Montserrat:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -24,8 +24,8 @@
       --shadow:0 18px 60px rgba(0,0,0,0.45);
       --cell-gap:8px;
       --radius:18px;
-      --header-h:70px;
-      --footer-h:118px;
+      --header-h:78px;
+      --footer-h:128px;
       --stage-max:560px;
     }
 
@@ -55,7 +55,7 @@
     #loading{
       position:fixed;
       inset:0;
-      z-index:200;
+      z-index:300;
       display:flex;
       flex-direction:column;
       align-items:center;
@@ -105,34 +105,42 @@
       justify-content:space-between;
       padding:12px 16px;
       padding-top:max(12px, env(safe-area-inset-top));
+      gap:12px;
       position:relative;
       z-index:2;
     }
     .logo{
       font-family:'Marcellus', serif;
-      font-size:1.25rem;
+      font-size:1.18rem;
       letter-spacing:.04em;
       background:linear-gradient(135deg,var(--gold1),var(--gold3));
       -webkit-background-clip:text;
       -webkit-text-fill-color:transparent;
-      text-shadow:0 0 20px rgba(255,220,120,0.08);
+      white-space:nowrap;
     }
     .hud{
       display:flex;
       align-items:center;
-      gap:10px;
+      gap:8px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
     }
     .chip{
       padding:8px 10px;
       border:1px solid var(--line);
       background:rgba(255,255,255,0.04);
       border-radius:14px;
-      font-size:.72rem;
+      font-size:.68rem;
       font-weight:800;
-      letter-spacing:.08em;
+      letter-spacing:.07em;
       text-transform:uppercase;
-      color:rgba(255,255,255,0.8);
+      color:rgba(255,255,255,0.82);
       white-space:nowrap;
+    }
+    .chip.hot{
+      border-color:rgba(255,220,120,0.35);
+      box-shadow:0 0 18px rgba(255,220,120,0.08);
+      background:linear-gradient(180deg, rgba(255,220,100,0.12), rgba(255,255,255,0.04));
     }
 
     .progress-wrap{
@@ -248,7 +256,7 @@
       overflow:hidden;
       cursor:pointer;
       transition:
-        transform .16s ease,
+        transform .14s ease,
         border-color .2s ease,
         background .2s ease,
         box-shadow .2s ease,
@@ -278,10 +286,18 @@
       animation:shatterOut .28s ease forwards;
       pointer-events:none;
     }
+    .cell.combo-hit{
+      animation:comboPunch .24s ease;
+    }
     @keyframes shatterOut{
       0%{ transform:scale(1) rotate(0deg); opacity:1; filter:blur(0px); }
       40%{ transform:scale(1.07) rotate(-2deg); opacity:1; }
       100%{ transform:scale(.72) rotate(6deg); opacity:0; filter:blur(6px); }
+    }
+    @keyframes comboPunch{
+      0%{ transform:scale(1); }
+      50%{ transform:scale(1.08); }
+      100%{ transform:scale(1); }
     }
 
     .tile-inner{
@@ -331,6 +347,21 @@
     @keyframes mergeFlash{
       from{ opacity:1; transform:scale(1); }
       to{ opacity:0; transform:scale(1.08); }
+    }
+
+    .floating{
+      position:fixed;
+      z-index:999;
+      pointer-events:none;
+      font-weight:900;
+      letter-spacing:.04em;
+      text-shadow:0 0 12px rgba(255,220,100,0.35);
+      animation:floatUp .8s ease-out forwards;
+      white-space:nowrap;
+    }
+    @keyframes floatUp{
+      0%{ opacity:1; transform:translate(-50%, 0) scale(.9); }
+      100%{ opacity:0; transform:translate(-50%, -52px) scale(1.04); }
     }
 
     .spark{
@@ -435,7 +466,7 @@
     #overlay{
       position:fixed;
       inset:0;
-      z-index:120;
+      z-index:220;
       display:none;
       align-items:center;
       justify-content:center;
@@ -444,7 +475,7 @@
       backdrop-filter:blur(18px);
     }
     .overlay-card{
-      width:min(420px, 92vw);
+      width:min(430px, 92vw);
       border-radius:26px;
       padding:26px 22px;
       border:1px solid rgba(255,255,255,0.10);
@@ -476,11 +507,11 @@
     .ov-reveal{
       font-size:.72rem;
       font-weight:800;
-      letter-spacing:.12em;
+      letter-spacing:.08em;
       text-transform:uppercase;
-      color:rgba(255,255,255,0.4);
+      color:rgba(255,255,255,0.45);
       margin-bottom:18px;
-      line-height:1.7;
+      line-height:1.8;
     }
     .overlay-actions{
       display:flex;
@@ -504,14 +535,13 @@
       .header{ padding-inline:12px; }
       .grid{ padding:12px; gap:7px; }
       .tile-level{ font-size:.5rem; }
-      .chip{ font-size:.66rem; padding:7px 9px; }
-      .logo{ font-size:1.1rem; }
+      .chip{ font-size:.62rem; padding:7px 8px; }
+      .logo{ font-size:1.02rem; }
       .btn-guess{ padding:0 14px; }
     }
   </style>
 </head>
 <body>
-  <!-- Loading -->
   <div id="loading" aria-live="polite">
     <div class="load-logo">Sparkle Studio</div>
     <div class="load-bar-wrap" aria-hidden="true">
@@ -520,7 +550,6 @@
     <div class="load-sub" id="loadSub">Loading star…</div>
   </div>
 
-  <!-- Overlay -->
   <div id="overlay" role="dialog" aria-modal="true" aria-labelledby="ovTitle">
     <div class="overlay-card">
       <div class="ov-icon">⭐</div>
@@ -535,11 +564,13 @@
     </div>
   </div>
 
-  <!-- Header -->
   <div class="header">
-    <div class="logo">Sparkle Studio</div>
+    <div class="logo">Sparkle Studio V3</div>
     <div class="hud">
+      <div class="chip" id="scoreChip">Score: 0</div>
       <div class="chip" id="movesChip">Merges: 0</div>
+      <div class="chip" id="streakChip">Streak: 0</div>
+      <div class="chip" id="levelChip">Power: 1</div>
       <div class="progress-wrap" aria-label="Reveal progress">
         <div class="progress-text" id="progressText">0%</div>
         <svg class="progress-ring" viewBox="0 0 28 28" aria-hidden="true">
@@ -557,7 +588,6 @@
     </div>
   </div>
 
-  <!-- Stage -->
   <div class="stage-shell">
     <div class="stage" id="stage">
       <div id="bgDim"></div>
@@ -566,16 +596,15 @@
       <div class="img-placeholder" id="imgPlaceholder" style="display:none">
         <div class="img-placeholder-icon">🌟</div>
         <div class="img-placeholder-text" id="placeholderText">
-          Add the celebrity image files to your images folder to reveal real photos.
+          Add celebrity image files to your images folder to reveal real photos.
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Footer -->
   <div class="footer">
-    <div class="merge-hint">Merge matching icons → shatter tiles → reveal the star</div>
-    <div class="subhint" id="subhint">Tip: central tiles need stronger merges.</div>
+    <div class="merge-hint">Merge matching icons · build streaks · trigger combos · reveal the star</div>
+    <div class="subhint" id="subhint">Tip: bigger merges help break tougher central tiles.</div>
     <div class="input-row">
       <input
         type="text"
@@ -589,8 +618,6 @@
   </div>
 
   <script>
-    // ── DATA ────────────────────────────────────────────────────────────────
-    // Corrected celebrity data and hints.
     const DB = [
       { name: "Juhi Chawla",     img: "images/JuhiChawla.png",      hint: "Bollywood actress" },
       { name: "Shubman Gill",    img: "images/ShubmanGill.png",     hint: "Indian cricketer" },
@@ -602,6 +629,7 @@
     const ROWS = 8;
     const COLS = 5;
     const TOTAL = ROWS * COLS;
+    const CIRCUMFERENCE = 2 * Math.PI * 12;
 
     const TILE_SET = [
       { emoji: "✨", name: "spark" },
@@ -618,12 +646,12 @@
       { emoji: "🌌", name: "cosmic" }
     ];
 
-    const CIRCUMFERENCE = 2 * Math.PI * 12;
-
     let S = null;
     let audioCtx = null;
+    let actionLocked = false;
 
-    // ── AUDIO ───────────────────────────────────────────────────────────────
+    function el(id){ return document.getElementById(id); }
+
     function initAudio(){
       if(!audioCtx){
         const Ctx = window.AudioContext || window.webkitAudioContext;
@@ -645,26 +673,31 @@
       osc.stop(now + duration);
     }
 
-    function playMerge(level){
-      sfx(280 + level * 45, 0.11, 'triangle', 0.035);
-      setTimeout(() => sfx(420 + level * 30, 0.07, 'sine', 0.025), 45);
+    function playMerge(level, streak){
+      sfx(260 + level * 45 + streak * 10, 0.1, 'triangle', 0.035);
+      setTimeout(() => sfx(390 + level * 24, 0.06, 'sine', 0.022), 40);
     }
+
+    function playCombo(){
+      sfx(620, 0.09, 'triangle', 0.03);
+      setTimeout(() => sfx(780, 0.11, 'triangle', 0.026), 60);
+    }
+
     function playShatter(){
       sfx(180, 0.08, 'sawtooth', 0.02);
       setTimeout(() => sfx(90, 0.16, 'triangle', 0.025), 40);
     }
+
     function playWrong(){
       sfx(180, 0.09, 'square', 0.02);
       setTimeout(() => sfx(140, 0.12, 'square', 0.016), 50);
     }
+
     function playWin(){
       sfx(520, 0.12, 'triangle', 0.03);
       setTimeout(() => sfx(660, 0.15, 'triangle', 0.03), 70);
       setTimeout(() => sfx(880, 0.18, 'triangle', 0.03), 150);
     }
-
-    // ── HELPERS ─────────────────────────────────────────────────────────────
-    function el(id){ return document.getElementById(id); }
 
     function normalizeName(str){
       return str
@@ -687,7 +720,6 @@
         combos.add(parts.slice(0, 2).join(' '));
       }
 
-      // Helpful aliases for common spellings
       if (normalized === 'shah rukh khan') {
         combos.add('shahrukh khan');
         combos.add('srk');
@@ -698,13 +730,17 @@
       if (normalized === 'smriti mandhana') combos.add('smriti');
       if (normalized === 'juhi chawla') combos.add('juhi');
       if (normalized === 'shubman gill') {
-        combos.add('shubham gill');
         combos.add('shubhman gill');
+        combos.add('shubham gill');
         combos.add('shubman');
         combos.add('gill');
       }
 
       return combos;
+    }
+
+    function tileForLevel(level){
+      return TILE_SET[(Math.max(1, level) - 1) % TILE_SET.length];
     }
 
     function getNeighbors(idx){
@@ -718,29 +754,62 @@
       return out;
     }
 
-    function randomEmptyCell(){
+    function manhattanToCenter(idx){
+      const row = Math.floor(idx / COLS);
+      const col = idx % COLS;
+      const cr = (ROWS - 1) / 2;
+      const cc = (COLS - 1) / 2;
+      return Math.abs(row - cr) + Math.abs(col - cc);
+    }
+
+    function randomEmptyCell(weighted = false){
       const options = [];
       for(let i = 0; i < TOTAL; i++){
-        if (!S.shattered[i] && S.cells[i] === null) options.push(i);
+        if (!S.shattered[i] && S.cells[i] === null) {
+          options.push(i);
+        }
       }
       if (!options.length) return -1;
-      return options[Math.floor(Math.random() * options.length)];
+      if (!weighted) return options[Math.floor(Math.random() * options.length)];
+
+      const weightedBag = [];
+      for (const i of options){
+        const dist = manhattanToCenter(i);
+        const weight = Math.max(1, Math.round(6 - dist));
+        for(let k = 0; k < weight; k++) weightedBag.push(i);
+      }
+      return weightedBag[Math.floor(Math.random() * weightedBag.length)];
     }
 
     function cellStrengthRequirement(i){
-      const row = Math.floor(i / COLS);
-      const col = i % COLS;
-      const inCore = row >= 2 && row <= 5 && col >= 1 && col <= 3;
-      return inCore
-        ? Math.floor(Math.random() * 4) + 7   // 7-10
-        : Math.floor(Math.random() * 5) + 2;  // 2-6
+      const dist = manhattanToCenter(i);
+      if (dist <= 1.5) return Math.floor(Math.random() * 3) + 8;  // 8-10
+      if (dist <= 2.5) return Math.floor(Math.random() * 4) + 6;  // 6-9
+      return Math.floor(Math.random() * 4) + 3;                   // 3-6
     }
 
-    function tileForLevel(level){
-      return TILE_SET[(Math.max(1, level) - 1) % TILE_SET.length];
+    function updateDifficulty(){
+      const pct = S.revealed / TOTAL;
+      if (pct >= 0.75) S.spawnBias = 0.58;
+      else if (pct >= 0.50) S.spawnBias = 0.66;
+      else if (pct >= 0.25) S.spawnBias = 0.76;
+      else S.spawnBias = 0.86;
     }
 
-    // ── IMAGE / CANVAS ──────────────────────────────────────────────────────
+    function buildGrid(){
+      const grid = el('grid');
+      grid.innerHTML = '';
+      for(let i = 0; i < TOTAL; i++){
+        const cell = document.createElement('button');
+        cell.className = 'cell';
+        cell.id = `c-${i}`;
+        cell.type = 'button';
+        cell.setAttribute('aria-label', `Tile ${i + 1}`);
+        cell.addEventListener('click', () => onCellTap(i));
+        grid.appendChild(cell);
+      }
+    }
+
     function loadImg(src, cb){
       const img = new Image();
       img.crossOrigin = 'anonymous';
@@ -754,12 +823,10 @@
       const stage = el('stage');
       const rect = stage.getBoundingClientRect();
       const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
-
       canvas.width = Math.round(rect.width * dpr);
       canvas.height = Math.round(rect.height * dpr);
       canvas.style.width = rect.width + 'px';
       canvas.style.height = rect.height + 'px';
-
       const ctx = canvas.getContext('2d');
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, rect.width, rect.height);
@@ -789,7 +856,6 @@
           (cellH / rect.height) * S.img.height,
           x, y, cellW + 1, cellH + 1
         );
-
         ctx.fillStyle = 'rgba(255,220,100,0.05)';
         ctx.fillRect(x, y, cellW + 1, cellH + 1);
       } else {
@@ -815,7 +881,6 @@
       }
     }
 
-    // ── RENDER ──────────────────────────────────────────────────────────────
     function renderCell(i){
       const cell = el(`c-${i}`);
       if (!cell) return;
@@ -860,116 +925,28 @@
     }
 
     function updateHud(){
+      el('scoreChip').textContent = `Score: ${S.score}`;
       el('movesChip').textContent = `Merges: ${S.merges}`;
-      el('subhint').textContent = S.current?.hint
-        ? `Hint: ${S.current.hint}`
-        : 'Merge matching icons to reveal the star.';
+      el('streakChip').textContent = `Streak: ${S.streak}`;
+      el('levelChip').textContent = `Power: ${S.maxLevel}`;
+
+      el('streakChip').classList.toggle('hot', S.streak >= 3);
+      el('levelChip').classList.toggle('hot', S.maxLevel >= 6);
+
+      const pct = Math.round((S.revealed / TOTAL) * 100);
+      el('subhint').textContent =
+        `Hint: ${S.current.hint} · Revealed ${pct}% · Combo chain ${S.comboChain}`;
     }
 
-    function buildGrid(){
-      const grid = el('grid');
-      grid.innerHTML = '';
-      for(let i = 0; i < TOTAL; i++){
-        const cell = document.createElement('button');
-        cell.className = 'cell';
-        cell.id = `c-${i}`;
-        cell.type = 'button';
-        cell.setAttribute('aria-label', `Tile ${i + 1}`);
-        cell.addEventListener('click', () => onCellTap(i));
-        grid.appendChild(cell);
-      }
-    }
-
-    // ── GAMEPLAY ────────────────────────────────────────────────────────────
-    function setSelected(idx){
-      document.querySelectorAll('.cell.selected').forEach(node => node.classList.remove('selected'));
-      S.selected = idx;
-      if (idx !== null) el(`c-${idx}`)?.classList.add('selected');
-    }
-
-    function spawn(count = 1){
-      for(let k = 0; k < count; k++){
-        const idx = randomEmptyCell();
-        if (idx === -1) return;
-        S.cells[idx] = Math.random() < 0.86 ? 1 : 2;
-        renderCell(idx);
-      }
-    }
-
-    function onCellTap(i){
-      if (S.shattered[i]) return;
-      initAudio();
-
-      // Empty cell interaction
-      if (S.cells[i] === null) {
-        if (S.selected !== null) {
-          // Move selected tile into empty cell
-          const from = S.selected;
-          if (from === i) return;
-          S.cells[i] = S.cells[from];
-          S.cells[from] = null;
-          setSelected(null);
-          renderCell(from);
-          renderCell(i);
-          sfx(340, 0.06, 'triangle', 0.02);
-          return;
-        }
-
-        // Small chance to seed a tile when nothing is selected
-        if (Math.random() < 0.42) {
-          S.cells[i] = 1;
-          renderCell(i);
-          sfx(300, 0.06, 'sine', 0.02);
-        }
-        return;
-      }
-
-      // First selection
-      if (S.selected === null) {
-        setSelected(i);
-        sfx(460, 0.06, 'triangle', 0.02);
-        return;
-      }
-
-      // Deselect same tile
-      if (S.selected === i) {
-        setSelected(null);
-        return;
-      }
-
-      const from = S.selected;
-      setSelected(null);
-
-      if (S.cells[i] === S.cells[from]) {
-        const newLevel = S.cells[from] + 1;
-        S.cells[from] = null;
-        S.cells[i] = newLevel;
-        S.merges++;
-        renderCell(from);
-
-        const target = el(`c-${i}`);
-        const flash = document.createElement('div');
-        flash.className = 'merge-flash';
-        target.appendChild(flash);
-        setTimeout(() => flash.remove(), 380);
-
-        playMerge(newLevel);
-
-        if (newLevel >= S.shatterLevel[i]) {
-          setTimeout(() => doShatter(i), 180);
-        } else {
-          renderCell(i);
-          setTimeout(() => spawn(1), 220);
-        }
-      } else {
-        // Swap different tiles
-        [S.cells[i], S.cells[from]] = [S.cells[from], S.cells[i]];
-        renderCell(from);
-        renderCell(i);
-        sfx(350, 0.05, 'sine', 0.018);
-      }
-
-      updateHud();
+    function showFloatingText(text, x, y, size = '1rem'){
+      const node = document.createElement('div');
+      node.className = 'floating';
+      node.textContent = text;
+      node.style.left = `${x}px`;
+      node.style.top = `${y}px`;
+      node.style.fontSize = size;
+      document.body.appendChild(node);
+      setTimeout(() => node.remove(), 820);
     }
 
     function spawnParticles(targetEl){
@@ -991,54 +968,240 @@
       }
     }
 
+    function setSelected(idx){
+      document.querySelectorAll('.cell.selected').forEach(node => node.classList.remove('selected'));
+      S.selected = idx;
+      if (idx !== null) el(`c-${idx}`)?.classList.add('selected');
+    }
+
+    function resetStreak(){
+      S.streak = 0;
+      S.comboChain = 0;
+      updateHud();
+    }
+
+    function spawn(count = 1){
+      updateDifficulty();
+
+      for(let k = 0; k < count; k++){
+        const idx = randomEmptyCell(true);
+        if (idx === -1) return;
+
+        let newLevel = 1;
+        const nearHighTile = getNeighbors(idx).some(n => (S.cells[n] || 0) >= 3);
+        const rand = Math.random();
+
+        if (S.maxLevel >= 7 && rand > 0.96) newLevel = 4;
+        else if (S.maxLevel >= 5 && rand > 0.90) newLevel = 3;
+        else if (nearHighTile && rand > S.spawnBias) newLevel = 2;
+        else newLevel = 1;
+
+        S.cells[idx] = newLevel;
+        renderCell(idx);
+      }
+    }
+
+    function scoreMerge(level){
+      const base = level * 12;
+      const streakBonus = S.streak * 5;
+      const comboBonus = S.comboChain * 10;
+      const total = base + streakBonus + comboBonus;
+      S.score += total;
+      return total;
+    }
+
+    function scoreReveal(count){
+      const points = count * 50 + (count > 1 ? count * 20 : 0);
+      S.score += points;
+      return points;
+    }
+
     function shatterCell(idx){
-      if (S.shattered[idx]) return;
+      if (S.shattered[idx]) return false;
       S.shattered[idx] = true;
       S.cells[idx] = null;
       S.revealed++;
       revealCell(idx);
 
       const node = el(`c-${idx}`);
-      if (!node) return;
-      node.className = 'cell shattered';
-      node.innerHTML = '';
-
-      const flash = document.createElement('div');
-      flash.className = 'reveal-flash';
-      node.appendChild(flash);
-      setTimeout(() => flash.remove(), 550);
+      if (node) {
+        node.className = 'cell shattered';
+        node.innerHTML = '';
+      }
+      return true;
     }
 
-    function doShatter(idx){
+    function triggerComboVisual(cells){
+      cells.forEach(i => {
+        const node = el(`c-${i}`);
+        if (!node) return;
+        node.classList.add('combo-hit');
+        setTimeout(() => node.classList.remove('combo-hit'), 260);
+      });
+    }
+
+    function checkCascadeFrom(idx){
+      const neighbors = getNeighbors(idx);
+      const sameLevel = neighbors.filter(n => !S.shattered[n] && S.cells[n] !== null && S.cells[n] === S.cells[idx]);
+      return sameLevel.length >= 2;
+    }
+
+    async function doShatter(idx, causeLevel = 1){
+      if (S.shattered[idx]) return;
+      actionLocked = true;
+
       const target = el(`c-${idx}`);
-      if (!target || S.shattered[idx]) return;
+      if (target) target.classList.add('shattering');
 
-      target.classList.add('shattering');
+      await wait(220);
 
-      setTimeout(() => {
-        shatterCell(idx);
+      let shatteredNow = [];
+      if (shatterCell(idx)) shatteredNow.push(idx);
 
-        const neighbors = getNeighbors(idx);
-        neighbors.forEach(n => {
-          if (!S.shattered[n] && Math.random() > 0.52) {
-            const neighborNode = el(`c-${n}`);
-            if (neighborNode) neighborNode.classList.add('shattering');
-            setTimeout(() => shatterCell(n), 75);
-          }
-        });
+      const neighbors = getNeighbors(idx);
+      const extraChance = Math.min(0.78, 0.35 + causeLevel * 0.05 + S.streak * 0.03);
 
-        spawnParticles(target);
-        playShatter();
-        setTimeout(() => spawn(1), 320);
-        updateProgress();
+      for (const n of neighbors){
+        if (!S.shattered[n] && Math.random() < extraChance) {
+          const neighborNode = el(`c-${n}`);
+          if (neighborNode) neighborNode.classList.add('shattering');
+          await wait(40);
+          if (shatterCell(n)) shatteredNow.push(n);
+        }
+      }
+
+      if (shatteredNow.length){
+        const points = scoreReveal(shatteredNow.length);
+        if (target){
+          const r = target.getBoundingClientRect();
+          showFloatingText(`+${points}`, r.left + r.width / 2, r.top + r.height / 2, '1rem');
+        }
+      }
+
+      if (shatteredNow.length >= 3) {
+        S.comboChain++;
+        playCombo();
+        triggerComboVisual(shatteredNow);
+      } else {
+        S.comboChain = Math.max(0, S.comboChain - 1);
+      }
+
+      spawnParticles(target || el(`c-${idx}`));
+      playShatter();
+
+      updateDifficulty();
+      updateProgress();
+      updateHud();
+      checkWin();
+
+      await wait(180);
+
+      const spawnCount = shatteredNow.length >= 3 ? 2 : 1;
+      spawn(spawnCount);
+
+      updateHud();
+      actionLocked = false;
+    }
+
+    function wait(ms){
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    async function onCellTap(i){
+      if (!S || actionLocked || S.shattered[i]) return;
+      initAudio();
+
+      if (S.cells[i] === null) {
+        if (S.selected !== null) {
+          const from = S.selected;
+          if (from === i) return;
+
+          S.cells[i] = S.cells[from];
+          S.cells[from] = null;
+          setSelected(null);
+          renderCell(from);
+          renderCell(i);
+          sfx(340, 0.06, 'triangle', 0.02);
+          resetStreak();
+          return;
+        }
+
+        if (Math.random() < 0.25) {
+          S.cells[i] = 1;
+          renderCell(i);
+          sfx(300, 0.06, 'sine', 0.02);
+        }
+        return;
+      }
+
+      if (S.selected === null) {
+        setSelected(i);
+        sfx(460, 0.06, 'triangle', 0.02);
+        return;
+      }
+
+      if (S.selected === i) {
+        setSelected(null);
+        return;
+      }
+
+      const from = S.selected;
+      setSelected(null);
+
+      if (S.cells[i] === S.cells[from]) {
+        actionLocked = true;
+
+        const newLevel = S.cells[from] + 1;
+        S.cells[from] = null;
+        S.cells[i] = newLevel;
+        S.merges++;
+        S.streak++;
+        S.maxLevel = Math.max(S.maxLevel, newLevel);
+
+        const gained = scoreMerge(newLevel);
+        renderCell(from);
+        renderCell(i);
+
+        const target = el(`c-${i}`);
+        if (target) {
+          const flash = document.createElement('div');
+          flash.className = 'merge-flash';
+          target.appendChild(flash);
+          setTimeout(() => flash.remove(), 380);
+
+          const r = target.getBoundingClientRect();
+          showFloatingText(`+${gained}`, r.left + r.width / 2, r.top + r.height / 2, '.95rem');
+        }
+
+        playMerge(newLevel, S.streak);
         updateHud();
-        checkWin();
-      }, 240);
+
+        await wait(180);
+
+        if (newLevel >= S.shatterLevel[i]) {
+          await doShatter(i, newLevel);
+        } else if (checkCascadeFrom(i) && newLevel >= Math.max(3, S.shatterLevel[i] - 2)) {
+          S.comboChain++;
+          await doShatter(i, newLevel);
+        } else {
+          spawn(1);
+          actionLocked = false;
+        }
+
+        renderCell(i);
+        updateHud();
+      } else {
+        [S.cells[i], S.cells[from]] = [S.cells[from], S.cells[i]];
+        renderCell(from);
+        renderCell(i);
+        sfx(350, 0.05, 'sine', 0.018);
+        resetStreak();
+      }
     }
 
     function checkGuess(){
       const raw = el('guessInput').value.trim();
-      if (!raw) return;
+      if (!raw || !S) return;
 
       initAudio();
       S.guesses++;
@@ -1047,9 +1210,7 @@
       const accepted = acceptedGuessesFor(S.current.name);
 
       let matched = accepted.has(guess);
-
       if (!matched) {
-        // Allow contained full-name-ish entries like "shah rukh"
         for (const opt of accepted) {
           if (opt.length >= 5 && (opt.includes(guess) || guess.includes(opt))) {
             matched = true;
@@ -1059,6 +1220,7 @@
       }
 
       if (matched) {
+        S.score += 250 + Math.max(0, 100 - S.guesses * 20);
         showWin(true);
       } else {
         playWrong();
@@ -1072,6 +1234,7 @@
           row.style.boxShadow = '';
         }, 700);
       }
+      updateHud();
     }
 
     function checkWin(){
@@ -1079,7 +1242,11 @@
     }
 
     function showWin(byGuess){
+      if (S.finished) return;
+      S.finished = true;
       playWin();
+
+      let autoRevealBonus = 0;
 
       for(let i = 0; i < TOTAL; i++){
         if (!S.shattered[i]) {
@@ -1087,6 +1254,7 @@
           S.cells[i] = null;
           S.revealed++;
           revealCell(i);
+          autoRevealBonus += 20;
           const node = el(`c-${i}`);
           if (node) {
             node.className = 'cell shattered';
@@ -1095,29 +1263,36 @@
         }
       }
 
+      S.score += autoRevealBonus;
       updateProgress();
+      updateHud();
 
       el('ovTitle').textContent = byGuess ? 'You got it!' : 'Fully revealed!';
       el('ovName').textContent = S.current.name;
       el('ovHint').textContent = S.current.hint ? `Hint: ${S.current.hint}` : '';
-      el('ovReveal').textContent =
-        `${S.revealed} tiles revealed · ${S.merges} merges · ${S.guesses} guess${S.guesses !== 1 ? 'es' : ''}`;
+      el('ovReveal').innerHTML =
+        `score ${S.score}<br>` +
+        `${S.revealed} tiles revealed · ${S.merges} merges<br>` +
+        `best power ${S.maxLevel} · streak ${S.streak} · guesses ${S.guesses}`;
       el('overlay').style.display = 'flex';
     }
 
-    function nextCeleb(){
-      const next = (S.celebIdx + 1) % DB.length;
-      el('overlay').style.display = 'none';
-      showLoading(() => init(next));
+    function updateShatterLevels(){
+      for(let i = 0; i < TOTAL; i++){
+        S.shatterLevel[i] = cellStrengthRequirement(i);
+      }
     }
 
-    function restartSame(){
-      const same = S.celebIdx;
-      el('overlay').style.display = 'none';
-      showLoading(() => init(same));
+    function finishInit(){
+      buildGrid();
+      setupCanvas();
+      updateShatterLevels();
+      spawn(7);
+      renderAll();
+      el('guessInput').value = '';
+      el('guessInput').placeholder = 'Who is this celebrity?';
     }
 
-    // ── INIT ────────────────────────────────────────────────────────────────
     function init(celebIdx){
       const pick = celebIdx !== undefined
         ? DB[celebIdx % DB.length]
@@ -1134,12 +1309,14 @@
         selected: null,
         revealed: 0,
         guesses: 0,
-        merges: 0
+        merges: 0,
+        streak: 0,
+        comboChain: 0,
+        maxLevel: 1,
+        score: 0,
+        spawnBias: 0.86,
+        finished: false
       };
-
-      for(let i = 0; i < TOTAL; i++){
-        S.shatterLevel[i] = cellStrengthRequirement(i);
-      }
 
       loadImg(pick.img, (img) => {
         S.img = img;
@@ -1158,19 +1335,18 @@
       });
     }
 
-    function finishInit(){
-      buildGrid();
-      setupCanvas();
-
-      // Start with a few seeded tiles
-      spawn(6);
-      renderAll();
-
-      el('guessInput').value = '';
-      el('guessInput').placeholder = 'Who is this celebrity?';
+    function nextCeleb(){
+      const next = (S.celebIdx + 1) % DB.length;
+      el('overlay').style.display = 'none';
+      showLoading(() => init(next));
     }
 
-    // ── LOADING ─────────────────────────────────────────────────────────────
+    function restartSame(){
+      const same = S.celebIdx;
+      el('overlay').style.display = 'none';
+      showLoading(() => init(same));
+    }
+
     function showLoading(cb){
       const screen = el('loading');
       const bar = el('loadBar');
@@ -1181,13 +1357,13 @@
 
       let p = 0;
       const timer = setInterval(() => {
-        p += Math.random() * 20 + 8;
+        p += Math.random() * 18 + 10;
         if (p >= 94) {
           p = 94;
           clearInterval(timer);
         }
         bar.style.width = p + '%';
-      }, 100);
+      }, 90);
 
       setTimeout(() => {
         bar.style.width = '100%';
@@ -1196,10 +1372,9 @@
           screen.style.display = 'none';
           if (cb) cb();
         }, 180);
-      }, 650);
+      }, 620);
     }
 
-    // ── EVENTS ──────────────────────────────────────────────────────────────
     window.addEventListener('resize', () => {
       if (!S) return;
       redrawRevealedCells();
@@ -1210,7 +1385,6 @@
       if (event.key === 'Enter') checkGuess();
     });
 
-    // ── BOOT ────────────────────────────────────────────────────────────────
     showLoading(() => init(0));
   </script>
 </body>
