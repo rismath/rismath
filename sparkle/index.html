@@ -395,7 +395,7 @@ function init(celebIdx){
     guesses: 0,
     celebIdx: celebIdx ?? DB.indexOf(pick),
   };
-  S.shatterLevel = Array(TOTAL).fill(0).map(() => Math.floor(Math.random() * 9) + 2);
+  S.shatterLevel = Array(TOTAL).fill(1);
 
   // Load image
   loadImg(pick.img, (img)=>{
