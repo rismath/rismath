@@ -52,7 +52,7 @@ body{
 #bgDim{
   position:absolute;inset:0;
   background-size:cover;background-position:center 15%;
-  filter:brightness(0.25) blur(4px);
+  filter:brightness(1) blur(0px);
   transform:scale(1.05);
   z-index:0;
 }
@@ -405,17 +405,6 @@ function init(celebIdx){
     document.getElementById('imgPlaceholder').style.display = img ? 'none' : 'flex';
     document.getElementById('imgPlaceholder').querySelector('.img-placeholder-text').textContent =
       `Add ${pick.img} to reveal this star`;
-
-    // Show full image briefly to confirm loading
-    if (img) {
-      setTimeout(() => {
-        document.getElementById('bgDim').style.filter = 'brightness(1) blur(0px)';
-      }, 500);
-      setTimeout(() => {
-        document.getElementById('bgDim').style.filter = 'brightness(0.25) blur(4px)';
-      }, 2500);
-    }
-
     finishInit();
   });
 }
